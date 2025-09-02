@@ -1,0 +1,65 @@
+name: ci-cd
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/re-burlive:latest
+            ghcr.io/${{ github.repository_owner }}/re-burlive:${{ github.sha }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install ssh client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Create app directory and .env on VPS
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            'sudo mkdir -p /opt/re-burlive && \
+             sudo chown $USER:$USER /opt/re-burlive && \
+             cat > /opt/re-burlive/.env <<EOF
+MONGODB_URI=${{ secrets.MONGODB_URI }}
+TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+PORT=3000
+NODE_ENV=production
+EOF'
+
+      - name: Log in to GHCR on VPS and run container
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            'echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
+             sudo docker pull ghcr.io/${{ github.repository_owner }}/re-burlive:latest && \
+             sudo docker rm -f re-burlive || true && \
+             sudo docker run -d --name re-burlive --restart=always --env-file /opt/re-burlive/.env -p 3000:3000 ghcr.io/${{ github.repository_owner }}/re-burlive:latest'
+
+
