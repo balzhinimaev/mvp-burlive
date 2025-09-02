@@ -50,7 +50,7 @@ jobs:
              cat > /opt/re-burlive/.env <<EOF
 MONGODB_URI=${{ secrets.MONGODB_URI }}
 TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
-PORT=3000
+PORT=7777
 NODE_ENV=production
 EOF'
 
@@ -60,6 +60,6 @@ EOF'
             'echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
              sudo docker pull ghcr.io/${{ github.repository_owner }}/re-burlive:latest && \
              sudo docker rm -f re-burlive || true && \
-             sudo docker run -d --name re-burlive --restart=always --env-file /opt/re-burlive/.env -p 3000:3000 ghcr.io/${{ github.repository_owner }}/re-burlive:latest'
+             sudo docker run -d --name re-burlive --restart=always --env-file /opt/re-burlive/.env -p 7777:7777 ghcr.io/${{ github.repository_owner }}/re-burlive:latest'
 
 
