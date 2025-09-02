@@ -38,7 +38,14 @@ export class AuthService {
     if (!userParam) {
       throw new UnauthorizedException('Missing user');
     }
-    const user = JSON.parse(userParam) as { id: number };
+    const user = JSON.parse(userParam) as {
+      id: number;
+      first_name?: string;
+      last_name?: string;
+      username?: string;
+      language_code?: string;
+      photo_url?: string;
+    };
 
     const utm: Record<string, string> = {};
     const startParam = initData.get('start_param');
@@ -51,17 +58,28 @@ export class AuthService {
     }
 
     const userId = user.id;
+    const profile: Record<string, any> = {};
+    if (user.first_name) profile.firstName = user.first_name;
+    if (user.last_name) profile.lastName = user.last_name;
+    if (user.username) profile.username = user.username;
+    if (user.language_code) profile.languageCode = user.language_code;
+    if (user.photo_url) profile.photoUrl = user.photo_url;
+
     if (Object.keys(utm).length) {
       await this.userModel.updateOne(
         { userId },
         {
-          $setOnInsert: { firstUtm: utm },
-          $set: { lastUtm: utm },
+          $setOnInsert: { firstUtm: utm, userId },
+          $set: { lastUtm: utm, ...profile },
         },
         { upsert: true },
       );
     } else {
-      await this.userModel.updateOne({ userId }, { $setOnInsert: { firstUtm: {} } }, { upsert: true });
+      await this.userModel.updateOne(
+        { userId },
+        { $setOnInsert: { firstUtm: {}, userId }, $set: { ...profile } },
+        { upsert: true },
+      );
     }
 
     await this.eventModel.create({ userId, name: 'open_app', ts: new Date(), properties: { ...utm } });

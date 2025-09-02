@@ -13,6 +13,21 @@ export class User {
 
   @Prop({ type: Object })
   lastUtm?: Record<string, string>;
+
+  @Prop()
+  firstName?: string;
+
+  @Prop()
+  lastName?: string;
+
+  @Prop()
+  username?: string;
+
+  @Prop()
+  languageCode?: string;
+
+  @Prop()
+  photoUrl?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

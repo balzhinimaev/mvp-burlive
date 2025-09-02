@@ -9,6 +9,7 @@ import { PromoModule } from './modules/promo/promo.module';
 import { EventsModule } from './modules/events/events.module';
 import { ContentModule } from './modules/content/content.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { ProfileModule } from './modules/profile/profile.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
     EventsModule,
     ContentModule,
     AnalyticsModule,
+    ProfileModule,
   ],
   controllers: [HealthController],
 })
