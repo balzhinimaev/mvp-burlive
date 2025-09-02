@@ -29,6 +29,23 @@ export class ProfileController {
     await this.userModel.updateOne({ userId }, { $set: profile }, { upsert: true });
     return { ok: true };
   }
+
+  @Patch('onboarding/complete')
+  async completeOnboarding(
+    @Body()
+    body: {
+      userId: number;
+      proficiencyLevel: 'beginner' | 'intermediate' | 'advanced';
+    },
+  ) {
+    const { userId, proficiencyLevel } = body;
+    await this.userModel.updateOne(
+      { userId },
+      { $set: { onboardingCompletedAt: new Date(), proficiencyLevel } },
+      { upsert: true },
+    );
+    return { ok: true };
+  }
 }
 
 

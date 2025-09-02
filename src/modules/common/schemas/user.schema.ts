@@ -28,6 +28,12 @@ export class User {
 
   @Prop()
   photoUrl?: string;
+
+  @Prop()
+  onboardingCompletedAt?: Date;
+
+  @Prop()
+  proficiencyLevel?: 'beginner' | 'intermediate' | 'advanced';
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

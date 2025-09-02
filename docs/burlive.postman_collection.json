@@ -125,6 +125,18 @@
             },
             "url": "{{baseUrl}}/profile"
           }
+        },
+        {
+          "name": "PATCH /profile/onboarding/complete",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"proficiencyLevel\": \"beginner\"\n}"
+            },
+            "url": "{{baseUrl}}/profile/onboarding/complete"
+          }
         }
       ]
     }

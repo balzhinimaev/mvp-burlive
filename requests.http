@@ -64,4 +64,13 @@ Content-Type: application/json
   "languageCode": "ru"
 }
 
+### Complete onboarding
+PATCH {{base}}/profile/onboarding/complete
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "proficiencyLevel": "beginner"
+}
+
 
