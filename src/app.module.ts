@@ -10,6 +10,7 @@ import { EventsModule } from './modules/events/events.module';
 import { ContentModule } from './modules/content/content.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ProfileModule } from './modules/profile/profile.module';
+import { LeadsModule } from './modules/leads/leads.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProfileModule } from './modules/profile/profile.module';
     ContentModule,
     AnalyticsModule,
     ProfileModule,
+    LeadsModule,
   ],
   controllers: [HealthController],
 })

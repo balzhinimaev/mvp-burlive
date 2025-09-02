@@ -73,4 +73,14 @@ Content-Type: application/json
   "proficiencyLevel": "beginner"
 }
 
+### Leads: bot_start (from /start)
+POST {{base}}/leads/bot_start
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "utm": { "utm_source": "vk", "utm_campaign": "launch" },
+  "promoId": "BURI79"
+}
+
 
