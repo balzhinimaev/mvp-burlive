@@ -33,6 +33,9 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: Install ssh client
         run: sudo apt-get update && sudo apt-get install -y openssh-client
@@ -44,15 +47,8 @@ jobs:
 
       - name: Create app directory and .env on VPS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            'sudo mkdir -p /opt/re-burlive && \
-             sudo chown $USER:$USER /opt/re-burlive && \
-             cat > /opt/re-burlive/.env <<EOF
-MONGODB_URI=${{ secrets.MONGODB_URI }}
-TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
-PORT=7777
-NODE_ENV=production
-EOF'
+          ENV_B64=$(printf "MONGODB_URI=%s\nTELEGRAM_BOT_TOKEN=%s\nPORT=7777\nNODE_ENV=production\n" "${{ secrets.MONGODB_URI }}" "${{ secrets.TELEGRAM_BOT_TOKEN }}" | base64 -w0)
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p /opt/re-burlive && sudo chown $USER:$USER /opt/re-burlive && echo $ENV_B64 | base64 -d | sudo tee /opt/re-burlive/.env > /dev/null"
 
       - name: Log in to GHCR on VPS and run container
         run: |
