@@ -48,7 +48,7 @@ jobs:
       - name: Create app directory and .env on VPS
         run: |
           ENV_B64=$(printf "MONGODB_URI=%s\nTELEGRAM_BOT_TOKEN=%s\nPORT=7777\nNODE_ENV=production\n" "${{ secrets.MONGODB_URI }}" "${{ secrets.TELEGRAM_BOT_TOKEN }}" | base64 -w0)
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p /opt/re-burlive && sudo chown $USER:$USER /opt/re-burlive && echo $ENV_B64 | base64 -d | sudo tee /opt/re-burlive/.env > /dev/null"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p /opt/re-burlive && echo $ENV_B64 | base64 -d | sudo tee /opt/re-burlive/.env > /dev/null"
 
       - name: Log in to GHCR on VPS and run container
         run: |
