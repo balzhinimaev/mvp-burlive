@@ -19,7 +19,9 @@ export class AuthService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(AppEvent.name) private readonly eventModel: Model<EventDocument>,
   ) {}
-  async verifyTelegramInitData(initData: URLSearchParams): Promise<{ userId: number; utm?: Record<string, string> }> {
+  async verifyTelegramInitData(
+    initData: URLSearchParams,
+  ): Promise<{ userId: number; isFirstOpen: boolean; utm?: Record<string, string> }> {
     const hash = initData.get('hash') || '';
     const dataCheckString = Array.from(initData.entries())
       .filter(([key]) => key !== 'hash')
@@ -65,8 +67,9 @@ export class AuthService {
     if (user.language_code) profile.languageCode = user.language_code;
     if (user.photo_url) profile.photoUrl = user.photo_url;
 
+    let isFirstOpen = false;
     if (Object.keys(utm).length) {
-      await this.userModel.updateOne(
+      const res = await this.userModel.updateOne(
         { userId },
         {
           $setOnInsert: { firstUtm: utm, userId },
@@ -74,16 +77,18 @@ export class AuthService {
         },
         { upsert: true },
       );
+      isFirstOpen = Boolean((res as any).upsertedCount && (res as any).upsertedCount > 0);
     } else {
-      await this.userModel.updateOne(
+      const res = await this.userModel.updateOne(
         { userId },
         { $setOnInsert: { firstUtm: {}, userId }, $set: { ...profile } },
         { upsert: true },
       );
+      isFirstOpen = Boolean((res as any).upsertedCount && (res as any).upsertedCount > 0);
     }
 
     await this.eventModel.create({ userId, name: 'open_app', ts: new Date(), properties: { ...utm } });
-    return { userId, utm: Object.keys(utm).length ? utm : undefined };
+    return { userId, isFirstOpen, utm: Object.keys(utm).length ? utm : undefined };
   }
 }
 

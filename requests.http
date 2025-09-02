@@ -1,0 +1,67 @@
+@base=https://burlive.ru/api/v2
+
+### Health
+GET {{base}}/health
+
+### Auth verify (hash нужно реальное) — ответ содержит isFirstOpen
+GET {{base}}/auth/verify?user=%7B%22id%22%3A12345%7D&start_param=utm_source%3Dvk%26utm_campaign%3Dlaunch&auth_date=1735862400&hash=REAL_HASH
+
+### Events
+POST {{base}}/events
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "name": "paywall_view",
+  "properties": { "utm_source": "vk" }
+}
+
+### Payments webhook
+POST {{base}}/payments/webhook
+Content-Type: application/json
+x-idempotency-key: ik_1
+
+{
+  "provider": "mock",
+  "providerId": "p_1",
+  "userId": 12345,
+  "product": "monthly",
+  "amount": 7900,
+  "currency": "RUB",
+  "status": "succeeded"
+}
+
+### Entitlements
+GET {{base}}/entitlements/12345
+
+### Promo redeem
+POST {{base}}/promo/redeem
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "promoId": "BURI79"
+}
+
+### Content
+GET {{base}}/content/onboarding
+GET {{base}}/content/lesson1
+GET {{base}}/content/paywall
+
+### Analytics
+GET {{base}}/admin/analytics/funnel?utm_source=vk
+GET {{base}}/admin/analytics/revenue?utm_source=vk
+
+### Profile
+GET {{base}}/profile/12345
+
+PATCH {{base}}/profile
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "firstName": "Dashi",
+  "languageCode": "ru"
+}
+
+

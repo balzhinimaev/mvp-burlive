@@ -1,0 +1,137 @@
+{
+  "info": {
+    "name": "BuriLive API v2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "GET /auth/verify (returns isFirstOpen)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify"],
+              "query": [
+                { "key": "user", "value": "{\"id\":12345}", "description": "JSON string of Telegram user" },
+                { "key": "start_param", "value": "utm_source=vk&utm_campaign=launch" },
+                { "key": "auth_date", "value": "1735862400" },
+                { "key": "hash", "value": "REPLACE_WITH_REAL_HASH" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "POST /events",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"name\": \"paywall_view\",\n  \"properties\": { \"utm_source\": \"vk\" }\n}"
+            },
+            "url": "{{baseUrl}}/events"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "POST /payments/webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-idempotency-key", "value": "ik_1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"mock\",\n  \"providerId\": \"p_1\",\n  \"userId\": 12345,\n  \"product\": \"monthly\",\n  \"amount\": 7900,\n  \"currency\": \"RUB\",\n  \"status\": \"succeeded\"\n}"
+            },
+            "url": "{{baseUrl}}/payments/webhook"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Entitlements",
+      "item": [
+        {
+          "name": "GET /entitlements/:userId",
+          "request": { "method": "GET", "url": "{{baseUrl}}/entitlements/12345" }
+        }
+      ]
+    },
+    {
+      "name": "Promo",
+      "item": [
+        {
+          "name": "POST /promo/redeem",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": 12345,\n  \"promoId\": \"BURI79\"\n}" },
+            "url": "{{baseUrl}}/promo/redeem"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Content",
+      "item": [
+        { "name": "GET /content/onboarding", "request": { "method": "GET", "url": "{{baseUrl}}/content/onboarding" } },
+        { "name": "GET /content/lesson1", "request": { "method": "GET", "url": "{{baseUrl}}/content/lesson1" } },
+        { "name": "GET /content/paywall", "request": { "method": "GET", "url": "{{baseUrl}}/content/paywall" } }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        { "name": "GET /admin/analytics/funnel", "request": { "method": "GET", "url": "{{baseUrl}}/admin/analytics/funnel?utm_source=vk" } },
+        { "name": "GET /admin/analytics/revenue", "request": { "method": "GET", "url": "{{baseUrl}}/admin/analytics/revenue?utm_source=vk" } }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        { "name": "GET /profile/:userId", "request": { "method": "GET", "url": "{{baseUrl}}/profile/12345" } },
+        {
+          "name": "PATCH /profile",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"firstName\": \"Dashi\",\n  \"languageCode\": \"ru\"\n}"
+            },
+            "url": "{{baseUrl}}/profile"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "https://burlive.ru/api/v2" }
+  ]
+}
+
+
