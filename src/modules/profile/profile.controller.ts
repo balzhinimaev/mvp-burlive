@@ -35,13 +35,20 @@ export class ProfileController {
     @Body()
     body: {
       userId: number;
-      proficiencyLevel: 'beginner' | 'intermediate' | 'advanced';
+      englishLevel: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+      learningGoals?: string[];
     },
   ) {
-    const { userId, proficiencyLevel } = body;
+    const { userId, englishLevel, learningGoals } = body;
     await this.userModel.updateOne(
       { userId },
-      { $set: { onboardingCompletedAt: new Date(), proficiencyLevel } },
+      { 
+        $set: { 
+          onboardingCompletedAt: new Date(), 
+          englishLevel,
+          ...(learningGoals && { learningGoals })
+        } 
+      },
       { upsert: true },
     );
     return { ok: true };

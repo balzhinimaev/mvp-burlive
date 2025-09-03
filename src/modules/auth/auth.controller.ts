@@ -19,7 +19,8 @@ export class AuthController {
     isFirstOpen: boolean;
     utm?: Record<string, string>;
     onboardingCompleted: boolean;
-    proficiencyLevel?: 'beginner' | 'intermediate' | 'advanced';
+    englishLevel?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+    learningGoals?: string[];
   }> {
     const params = new URLSearchParams(query as any);
     return this.authService.verifyTelegramInitData(params);
@@ -32,14 +33,16 @@ export class AuthController {
     if (!user) {
       return {
         onboardingCompleted: false,
-        proficiencyLevel: null,
+        englishLevel: null,
+        learningGoals: [],
         onboardingRequired: true,
       };
     }
 
     return {
       onboardingCompleted: Boolean(user.onboardingCompletedAt),
-      proficiencyLevel: user.proficiencyLevel || null,
+      englishLevel: user.englishLevel || null,
+      learningGoals: user.learningGoals || [],
       onboardingRequired: !Boolean(user.onboardingCompletedAt),
     };
   }

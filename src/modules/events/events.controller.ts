@@ -10,7 +10,11 @@ export class EventsController {
   @UseGuards(OnboardingGuard)
   async ingest(
     @Body()
-    body: { userId: number; name: 'open_app' | 'start_lesson' | 'complete_lesson_1' | 'paywall_view' | 'purchase_success'; properties?: Record<string, any> },
+    body: { 
+      userId: number; 
+      name: 'open_app' | 'start_lesson' | 'complete_lesson' | 'vocabulary_learned' | 'grammar_practiced' | 'speaking_completed' | 'listening_completed' | 'paywall_view' | 'purchase_success'; 
+      properties?: Record<string, any> 
+    },
   ) {
     await this.eventsService.track(body.userId, body.name, body.properties);
     return { ok: true };

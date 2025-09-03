@@ -26,7 +26,8 @@ export class AuthService {
     isFirstOpen: boolean;
     utm?: Record<string, string>;
     onboardingCompleted: boolean;
-    proficiencyLevel?: 'beginner' | 'intermediate' | 'advanced';
+    englishLevel?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+    learningGoals?: string[];
   }> {
     const hash = initData.get('hash') || '';
     const dataCheckString = Array.from(initData.entries())
@@ -96,7 +97,8 @@ export class AuthService {
     // Получаем информацию о статусе онбординга
     const userDoc = await this.userModel.findOne({ userId }).lean();
     const onboardingCompleted = Boolean(userDoc?.onboardingCompletedAt);
-    const proficiencyLevel = userDoc?.proficiencyLevel;
+    const englishLevel = userDoc?.englishLevel;
+    const learningGoals = userDoc?.learningGoals;
 
     await this.eventModel.create({ userId, name: 'open_app', ts: new Date(), properties: { ...utm } });
     return {
@@ -104,7 +106,8 @@ export class AuthService {
       isFirstOpen,
       utm: Object.keys(utm).length ? utm : undefined,
       onboardingCompleted,
-      proficiencyLevel,
+      englishLevel,
+      learningGoals,
     };
   }
 }

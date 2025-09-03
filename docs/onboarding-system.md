@@ -1,13 +1,13 @@
-# Система онбординга для Telegram Mini App
+# English Learning Platform - Onboarding System
 
-## Цель
-Реализовать проверку заполненности начальной мини-анкеты при запуске TMA. Пользователь должен указать свой уровень владения языком перед доступом к основному функционалу приложения.
+## Goal
+Implement onboarding questionnaire validation for Telegram Mini App. Users must specify their English proficiency level and learning goals before accessing the main functionality of the English learning platform.
 
-## Задачи
-1. При первом запуске TMA проверять, заполнена ли анкета пользователем
-2. Если анкета не заполнена - блокировать доступ к основным функциям
-3. Предоставить API для получения и обновления статуса онбординга
-4. Сохранять уровень владения языком в профиле пользователя
+## Tasks
+1. Check if user completed initial questionnaire on TMA launch
+2. Block access to main features if questionnaire is not completed
+3. Provide API for getting and updating onboarding status
+4. Save English proficiency level and learning goals in user profile
 
 ## Схема данных
 
@@ -20,8 +20,9 @@
   username?: string;                 // Username из Telegram
   languageCode?: string;             // Код языка из Telegram
   photoUrl?: string;                 // URL фото из Telegram
-  onboardingCompletedAt?: Date;      // Дата завершения онбординга
-  proficiencyLevel?: 'beginner' | 'intermediate' | 'advanced';  // Уровень владения языком
+  onboardingCompletedAt?: Date;      // Date when onboarding was completed
+  englishLevel?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';  // English proficiency level (CEFR)
+  learningGoals?: string[];          // User's learning goals
   firstUtm?: Record<string, string>; // UTM метки первого визита
   lastUtm?: Record<string, string>;  // UTM метки последнего визита
 }
@@ -49,7 +50,8 @@
     "utm_campaign": "winter2024"
   },
   "onboardingCompleted": true,
-  "proficiencyLevel": "intermediate"
+  "englishLevel": "B1",
+  "learningGoals": ["business_english", "travel", "conversation"]
 }
 ```
 
@@ -58,7 +60,8 @@
 - `isFirstOpen` - Первый ли это визит пользователя
 - `utm` - UTM метки (если есть в start_param)
 - `onboardingCompleted` - Завершен ли онбординг
-- `proficiencyLevel` - Уровень владения языком (если указан)
+- `englishLevel` - English proficiency level (CEFR: A1-C2)
+- `learningGoals` - User's selected learning goals
 
 ### 2. Получение статуса онбординга
 **GET** `/auth/onboarding/status/:userId`
@@ -70,14 +73,16 @@
 ```json
 {
   "onboardingCompleted": false,
-  "proficiencyLevel": null,
+  "englishLevel": null,
+  "learningGoals": [],
   "onboardingRequired": true
 }
 ```
 
 **Описание полей:**
 - `onboardingCompleted` - Завершен ли онбординг
-- `proficiencyLevel` - Уровень владения языком или null
+- `englishLevel` - English proficiency level or null
+- `learningGoals` - User's learning goals array
 - `onboardingRequired` - Требуется ли прохождение онбординга
 
 ### 3. Завершение онбординга
@@ -87,13 +92,15 @@
 ```json
 {
   "userId": 123456789,
-  "proficiencyLevel": "beginner"
+  "englishLevel": "A2",
+  "learningGoals": ["travel", "conversation", "grammar"]
 }
 ```
 
 **Required Fields:**
 - `userId` - ID пользователя
-- `proficiencyLevel` - Уровень владения языком: `"beginner"` | `"intermediate"` | `"advanced"`
+- `englishLevel` - English proficiency level: `"A1"` | `"A2"` | `"B1"` | `"B2"` | `"C1"` | `"C2"`
+- `learningGoals` - Array of learning goals (optional)
 
 **Response:**
 ```json
@@ -119,7 +126,8 @@
     "languageCode": "ru",
     "photoUrl": "https://t.me/i/userpic/320/...",
     "onboardingCompletedAt": "2024-01-15T10:30:00.000Z",
-    "proficiencyLevel": "intermediate",
+    "englishLevel": "B1",
+    "learningGoals": ["business_english", "travel"],
     "firstUtm": {
       "utm_source": "vk"
     },
@@ -155,11 +163,26 @@
 5. **Сохранение:** Frontend вызывает `PATCH /profile/onboarding/complete`
 6. **Доступ к функциям:** После завершения онбординга открывается доступ к основным функциям
 
-## Уровни владения языком
+## English Proficiency Levels (CEFR)
 
-- `beginner` - Начинающий
-- `intermediate` - Средний уровень  
-- `advanced` - Продвинутый уровень
+- `A1` - Beginner (Can understand and use familiar everyday expressions)
+- `A2` - Elementary (Can communicate in simple routine tasks)
+- `B1` - Intermediate (Can deal with most situations while traveling)
+- `B2` - Upper-Intermediate (Can interact with fluency and spontaneity)
+- `C1` - Advanced (Can use language flexibly for social, academic purposes)
+- `C2` - Proficiency (Can understand virtually everything heard or read)
+
+## Learning Goals Options
+
+- `conversation` - Everyday conversation skills
+- `business_english` - Professional and business communication
+- `travel` - Travel-related vocabulary and phrases
+- `grammar` - Grammar rules and structures
+- `vocabulary` - Expanding word knowledge
+- `pronunciation` - Improving accent and pronunciation
+- `listening` - Understanding spoken English
+- `reading` - Reading comprehension skills
+- `writing` - Written communication skills
 
 ## Технические детали
 
