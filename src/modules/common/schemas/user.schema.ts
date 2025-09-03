@@ -37,6 +37,27 @@ export class User {
 
   @Prop()
   learningGoals?: string[];
+
+  @Prop({ default: 'UTC' })
+  tz?: string;
+
+  @Prop()
+  locale?: string;
+
+  @Prop({ type: Object })
+  hints?: { script?: 'cyr' | 'translit' | 'both' };
+
+  @Prop({ default: 0 })
+  xpTotal?: number;
+
+  @Prop({ type: Object })
+  streak?: { current: number; longest: number; lastActiveDayKey?: string };
+
+  @Prop()
+  lastLessonRef?: string;
+
+  @Prop({ type: Object })
+  pro?: { active: boolean; since?: Date; plan?: string };
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

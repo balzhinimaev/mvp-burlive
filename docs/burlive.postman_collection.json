@@ -99,8 +99,75 @@
       "name": "Content",
       "item": [
         { "name": "GET /content/onboarding", "request": { "method": "GET", "url": "{{baseUrl}}/content/onboarding" } },
-        { "name": "GET /content/lesson1", "request": { "method": "GET", "url": "{{baseUrl}}/content/lesson1" } },
-        { "name": "GET /content/paywall", "request": { "method": "GET", "url": "{{baseUrl}}/content/paywall" } }
+        { "name": "GET /content/lesson1", "request": { "method": "GET", "url": "{{baseUrl}}/content/lesson1?userId=12345" } },
+        { "name": "GET /content/paywall", "request": { "method": "GET", "url": "{{baseUrl}}/content/paywall?userId=12345" } }
+      ]
+    },
+    {
+      "name": "Admin Content",
+      "item": [
+        {
+          "name": "POST /admin/content/modules",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"moduleRef\": \"a0.travel\",\n  \"level\": \"A0\",\n  \"title\": \"Travel A0\",\n  \"tags\": [\"travel\"],\n  \"order\": 1,\n  \"published\": true\n}"
+            },
+            "url": "{{baseUrl}}/admin/content/modules"
+          }
+        },
+        {
+          "name": "GET /admin/content/modules",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/content/modules?userId=12345&level=A0"
+          }
+        },
+        {
+          "name": "PATCH /admin/content/modules/:moduleRef",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"title\": \"Travel A0 Updated\",\n  \"published\": false\n}"
+            },
+            "url": "{{baseUrl}}/admin/content/modules/a0.travel"
+          }
+        },
+        {
+          "name": "POST /admin/content/lessons",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"moduleRef\": \"a0.travel\",\n  \"lessonRef\": \"a0.travel.001\",\n  \"title\": \"At the airport\",\n  \"estimatedMinutes\": 10,\n  \"order\": 1,\n  \"published\": true,\n  \"tasks\": [\n    { \"ref\": \"a0.travel.001.t1\", \"type\": \"choice\", \"data\": { \"q\": \"Hello?\", \"a\": [\"Hi\"] } }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/admin/content/lessons"
+          }
+        },
+        {
+          "name": "GET /admin/content/lessons",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/content/lessons?userId=12345&moduleRef=a0.travel"
+          }
+        },
+        {
+          "name": "PATCH /admin/content/lessons/:lessonRef",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"title\": \"Airport basics\",\n  \"published\": true\n}"
+            },
+            "url": "{{baseUrl}}/admin/content/lessons/a0.travel.001"
+          }
+        }
       ]
     },
     {
@@ -133,9 +200,71 @@
             "header": [ { "key": "Content-Type", "value": "application/json" } ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": 12345,\n  \"proficiencyLevel\": \"beginner\"\n}"
+              "raw": "{\n  \"userId\": 12345,\n  \"englishLevel\": \"A1\",\n  \"learningGoals\": [\"travel\", \"speaking\"]\n}"
             },
             "url": "{{baseUrl}}/profile/onboarding/complete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Progress",
+      "item": [
+        {
+          "name": "POST /progress/sessions/start",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"moduleRef\": \"a0.travel\",\n  \"lessonRef\": \"a0.travel.001\",\n  \"source\": \"home\"\n}"
+            },
+            "url": "{{baseUrl}}/progress/sessions/start"
+          }
+        },
+        {
+          "name": "POST /progress/sessions/:sessionId/end",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"extraXp\": 0\n}"
+            },
+            "url": "{{baseUrl}}/progress/sessions/ps_1/end"
+          }
+        },
+        {
+          "name": "POST /progress/attempts",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 12345,\n  \"lessonRef\": \"a0.travel.001\",\n  \"taskRef\": \"a0.travel.001.t1\",\n  \"isCorrect\": true,\n  \"score\": 1,\n  \"lastTaskIndex\": 0,\n  \"isLastTask\": false\n}"
+            },
+            "url": "{{baseUrl}}/progress/attempts"
+          }
+        },
+        {
+          "name": "GET /progress/stats/daily/:userId",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/progress/stats/daily/12345?limit=14"
+          }
+        },
+        {
+          "name": "GET /progress/xp/:userId",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/progress/xp/12345?limit=50"
+          }
+        },
+        {
+          "name": "GET /progress/lessons/:userId",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/progress/lessons/12345?status=completed"
           }
         }
       ]

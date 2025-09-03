@@ -45,8 +45,132 @@ Content-Type: application/json
 
 ### Content
 GET {{base}}/content/onboarding
-GET {{base}}/content/lesson1
-GET {{base}}/content/paywall
+GET {{base}}/content/lesson1?userId=12345
+GET {{base}}/content/paywall?userId=12345
+
+### Content - Public API
+GET {{base}}/content/modules?userId=12345&level=A0
+GET {{base}}/content/lessons?userId=12345&moduleRef=a0.travel
+GET {{base}}/content/lessons/a0.travel.001?userId=12345
+
+### Admin Content - create module
+POST {{base}}/admin/content/modules
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "moduleRef": "a0.travel",
+  "level": "A0",
+  "title": "Travel A0",
+  "description": "Basics for travel situations",
+  "tags": ["travel"],
+  "order": 1,
+  "published": true
+}
+
+### Admin Content - list modules
+GET {{base}}/admin/content/modules?userId=12345&level=A0
+
+### Admin Content - update module
+PATCH {{base}}/admin/content/modules/a0.travel
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "title": "Travel A0 (Updated)",
+  "published": true
+}
+
+### Admin Content - create lesson
+POST {{base}}/admin/content/lessons
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "moduleRef": "a0.travel",
+  "lessonRef": "a0.travel.001",
+  "title": "At the airport",
+  "description": "Check-in, passport control, boarding",
+  "estimatedMinutes": 12,
+  "order": 1,
+  "published": true,
+  "tasks": [
+    {
+      "ref": "a0.travel.001.t1",
+      "type": "choice",
+      "data": {
+        "question": "How do you greet the officer?",
+        "options": ["Hello", "Bye", "Thanks"],
+        "correctIndex": 0
+      }
+    },
+    {
+      "ref": "a0.travel.001.t2",
+      "type": "gap",
+      "data": {
+        "text": "May I see your ____?",
+        "answer": "passport",
+        "hints": ["document", "travel id"]
+      }
+    }
+  ]
+}
+
+### Admin Content - list lessons
+GET {{base}}/admin/content/lessons?userId=12345&moduleRef=a0.travel
+
+### Admin Content - update lesson
+PATCH {{base}}/admin/content/lessons/a0.travel.001
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "title": "Airport basics",
+  "published": true
+}
+
+### Progress - start session
+POST {{base}}/progress/sessions/start
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "moduleRef": "a0.travel",
+  "lessonRef": "a0.travel.001",
+  "source": "home"
+}
+
+### Progress - attempt (t1)
+POST {{base}}/progress/attempts
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "lessonRef": "a0.travel.001",
+  "taskRef": "a0.travel.001.t1",
+  "isCorrect": true,
+  "score": 1,
+  "lastTaskIndex": 0,
+  "isLastTask": false
+}
+
+### Progress - attempt (t2, last)
+POST {{base}}/progress/attempts
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "lessonRef": "a0.travel.001",
+  "taskRef": "a0.travel.001.t2",
+  "isCorrect": true,
+  "score": 1,
+  "lastTaskIndex": 1,
+  "isLastTask": true
+}
+
+### Progress - XP and stats view
+GET {{base}}/progress/xp/12345?limit=50
+GET {{base}}/progress/stats/daily/12345?limit=14
 
 ### Analytics
 GET {{base}}/admin/analytics/funnel?utm_source=vk

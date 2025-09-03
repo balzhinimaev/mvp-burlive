@@ -11,12 +11,13 @@ import { ContentModule } from './modules/content/content.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { LeadsModule } from './modules/leads/leads.module';
+import { ProgressModule } from './modules/progress/progress.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.MONGODB_URI || '', {
-      dbName: process.env.MONGODB_DB_NAME || 'bulang-db',
+      dbName: process.env.MONGODB_DB_NAME || 'burlang-db',
     }),
     AuthModule,
     PaymentsModule,
@@ -27,6 +28,7 @@ import { LeadsModule } from './modules/leads/leads.module';
     AnalyticsModule,
     ProfileModule,
     LeadsModule,
+    ProgressModule,
   ],
   controllers: [HealthController],
 })

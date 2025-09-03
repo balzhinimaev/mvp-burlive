@@ -7,7 +7,14 @@
     "start:dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only src/main.ts",
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "eslint \"src/**/*.ts\" --fix"
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "migrate:content": "ts-node ./scripts/migrate-content.ts",
+    "seed:content": "ts-node ./scripts/seed-content.ts",
+    "seed:content:dry": "ts-node ./scripts/seed-content.ts --dry",
+    "seed:content:apply": "ts-node ./scripts/seed-content.ts --apply",
+    "seed:content:update": "ts-node ./scripts/seed-content.ts --apply --update",
+    "seed:content:force": "ts-node ./scripts/seed-content.ts --apply --force",
+    "seed:content:prune": "ts-node ./scripts/seed-content.ts --apply --prune-tasks"
   },
   "keywords": [],
   "author": "",
