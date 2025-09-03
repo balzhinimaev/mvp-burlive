@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../common/schemas/user.schema';
@@ -14,9 +14,8 @@ export class OnboardingGuard implements CanActivate {
     const userId = request.query?.userId || request.body?.userId || request.params?.userId;
 
     if (!userId) {
-      // Если userId не найден в запросе, пропускаем проверку
-      // Это может быть для публичных эндпоинтов
-      return true;
+      // Для защищенных endpoints userId обязателен
+      throw new BadRequestException('userId is required');
     }
 
     const user = await this.userModel.findOne({ userId: Number(userId) }).lean();
