@@ -227,7 +227,8 @@ const defaultLessons: LessonSeed[] = [
 ];
 
 function loadSeedsFromFile(): { modules: ModuleSeed[]; lessons: LessonSeed[] } {
-  const file = getArg('file') || 'seeds/content.json';
+  // Prefer SEED_FILE env var, then --file=..., fallback to default seeds/content.json
+  const file = process.env.SEED_FILE || getArg('file') || 'seeds/content.json';
   try {
     const p = path.resolve(file);
     const raw = fs.readFileSync(p, 'utf8');

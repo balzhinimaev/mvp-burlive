@@ -4,12 +4,14 @@ import { Model } from 'mongoose';
 import { OnboardingGuard } from '../auth/onboarding.guard';
 import { CourseModule, CourseModuleDocument } from '../common/schemas/course-module.schema';
 import { Lesson, LessonDocument } from '../common/schemas/lesson.schema';
+import { User, UserDocument } from '../common/schemas/user.schema';
 import { UserLessonProgress, UserLessonProgressDocument } from '../common/schemas/user-lesson-progress.schema';
 import { getLocalizedText, parseLanguage } from '../common/utils/i18n.util';
 
 @Controller('content')
 export class ContentController {
   constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(CourseModule.name) private readonly moduleModel: Model<CourseModuleDocument>,
     @InjectModel(Lesson.name) private readonly lessonModel: Model<LessonDocument>,
     @InjectModel(UserLessonProgress.name) private readonly ulpModel: Model<UserLessonProgressDocument>,
@@ -27,8 +29,11 @@ export class ContentController {
       .sort({ level: 1, order: 1 })
       .lean();
 
-    // Enrich with progress if userId provided
+    // Enrich with progress and access rights if userId provided
     if (userId) {
+      const user = await this.userModel.findOne({ userId: Number(userId) }).lean();
+      const hasProAccess = user?.pro?.active === true;
+      
       const progressMap = new Map();
       const progress = await this.ulpModel
         .find({ userId: Number(userId) })
@@ -46,27 +51,43 @@ export class ContentController {
       }
 
       return {
-        modules: modules.map((m: any) => ({
+        modules: modules.map((m: any) => {
+          const order = m.order || 0;
+          const requiresPro = order > 1; // Business rule: first module (order <= 1) is free
+          const isAvailable = !requiresPro || hasProAccess;
+
+          return {
+            moduleRef: m.moduleRef,
+            level: m.level,
+            title: getLocalizedText(m.title, language),
+            description: getLocalizedText(m.description, language),
+            tags: m.tags || [],
+            order: order,
+            progress: progressMap.get(m.moduleRef) || { completed: 0, total: 0, inProgress: 0 },
+            requiresPro: requiresPro,
+            isAvailable: isAvailable,
+          }
+        }),
+      };
+    }
+
+    // Fallback for anonymous access
+    return {
+      modules: modules.map((m: any) => {
+        const order = m.order || 0;
+        const requiresPro = order > 1;
+        
+        return {
           moduleRef: m.moduleRef,
           level: m.level,
           title: getLocalizedText(m.title, language),
           description: getLocalizedText(m.description, language),
           tags: m.tags || [],
-          order: m.order || 0,
-          progress: progressMap.get(m.moduleRef) || { completed: 0, total: 0, inProgress: 0 },
-        })),
-      };
-    }
-
-    return {
-      modules: modules.map((m: any) => ({
-        moduleRef: m.moduleRef,
-        level: m.level,
-        title: getLocalizedText(m.title, language),
-        description: getLocalizedText(m.description, language),
-        tags: m.tags || [],
-        order: m.order || 0,
-      })),
+          order: order,
+          requiresPro: requiresPro,
+          isAvailable: !requiresPro, // Anonymous user never has pro access
+        }
+      }),
     };
   }
 
