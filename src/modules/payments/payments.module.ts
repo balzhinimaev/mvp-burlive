@@ -6,6 +6,7 @@ import { Payment, PaymentSchema } from '../common/schemas/payment.schema';
 import { Entitlement, EntitlementSchema } from '../common/schemas/entitlement.schema';
 import { AppEvent, EventSchema } from '../common/schemas/event.schema';
 import { User, UserSchema } from '../common/schemas/user.schema';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { User, UserSchema } from '../common/schemas/user.schema';
       { name: AppEvent.name, schema: EventSchema },
       { name: User.name, schema: UserSchema },
     ]),
+    AuthModule,
   ],
   providers: [PaymentsService],
   controllers: [PaymentsController],

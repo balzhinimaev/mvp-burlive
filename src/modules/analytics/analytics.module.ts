@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AnalyticsController } from './analytics.controller';
 import { AppEvent, EventSchema } from '../common/schemas/event.schema';
 import { Payment, PaymentSchema } from '../common/schemas/payment.schema';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { Payment, PaymentSchema } from '../common/schemas/payment.schema';
       { name: AppEvent.name, schema: EventSchema },
       { name: Payment.name, schema: PaymentSchema },
     ]),
+    AuthModule,
   ],
   controllers: [AnalyticsController],
 })

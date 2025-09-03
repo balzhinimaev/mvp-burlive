@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { OnboardingGuard } from '../auth/onboarding.guard';
 
 @Controller('content')
 export class ContentController {
@@ -8,11 +9,13 @@ export class ContentController {
   }
 
   @Get('lesson1')
+  @UseGuards(OnboardingGuard)
   lesson1() {
     return { id: 1, title: 'Сайн байна', durationMin: 6 };
   }
 
   @Get('paywall')
+  @UseGuards(OnboardingGuard)
   paywall() {
     return {
       products: [

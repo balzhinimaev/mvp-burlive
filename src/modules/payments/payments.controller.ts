@@ -1,5 +1,6 @@
-import { Body, Controller, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Headers, Post, UseGuards } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
+import { OnboardingGuard } from '../auth/onboarding.guard';
 
 @Controller('payments')
 export class PaymentsController {

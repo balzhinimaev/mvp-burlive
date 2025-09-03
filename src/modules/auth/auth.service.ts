@@ -21,7 +21,13 @@ export class AuthService {
   ) {}
   async verifyTelegramInitData(
     initData: URLSearchParams,
-  ): Promise<{ userId: number; isFirstOpen: boolean; utm?: Record<string, string> }> {
+  ): Promise<{
+    userId: number;
+    isFirstOpen: boolean;
+    utm?: Record<string, string>;
+    onboardingCompleted: boolean;
+    proficiencyLevel?: 'beginner' | 'intermediate' | 'advanced';
+  }> {
     const hash = initData.get('hash') || '';
     const dataCheckString = Array.from(initData.entries())
       .filter(([key]) => key !== 'hash')
@@ -87,8 +93,19 @@ export class AuthService {
       isFirstOpen = Boolean((res as any).upsertedCount && (res as any).upsertedCount > 0);
     }
 
+    // Получаем информацию о статусе онбординга
+    const userDoc = await this.userModel.findOne({ userId }).lean();
+    const onboardingCompleted = Boolean(userDoc?.onboardingCompletedAt);
+    const proficiencyLevel = userDoc?.proficiencyLevel;
+
     await this.eventModel.create({ userId, name: 'open_app', ts: new Date(), properties: { ...utm } });
-    return { userId, isFirstOpen, utm: Object.keys(utm).length ? utm : undefined };
+    return {
+      userId,
+      isFirstOpen,
+      utm: Object.keys(utm).length ? utm : undefined,
+      onboardingCompleted,
+      proficiencyLevel,
+    };
   }
 }
 
