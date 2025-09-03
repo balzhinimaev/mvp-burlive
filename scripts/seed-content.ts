@@ -31,6 +31,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { CourseModule, CourseModuleSchema } from '../src/modules/common/schemas/course-module.schema';
 import { Lesson, LessonSchema } from '../src/modules/common/schemas/lesson.schema';
+import { MultilingualText, OptionalMultilingualText, validateMultilingualText } from '../src/modules/common/utils/i18n.util';
 
 // ------------------------ Types ------------------------
 
@@ -41,8 +42,8 @@ type TaskType = 'choice'|'gap'|'match'|'listen'|'speak'|'order'|'translate';
 interface ModuleSeed {
   moduleRef: string; // a0.travel
   level: CEFR;
-  title: string;
-  description?: string;
+  title: MultilingualText;
+  description?: OptionalMultilingualText;
   tags?: string[];
   order?: number;
   published?: boolean;
@@ -57,8 +58,8 @@ interface TaskSeed {
 interface LessonSeed {
   moduleRef: string; // denorm
   lessonRef: string; // a0.travel.001
-  title: string;
-  description?: string;
+  title: MultilingualText;
+  description?: OptionalMultilingualText;
   order?: number;
   published?: boolean;
   estimatedMinutes?: number; // 1..60
@@ -98,7 +99,8 @@ function assertModule(m: ModuleSeed) {
   const errs: string[] = [];
   if (!R_MODULE_REF.test(m.moduleRef)) errs.push(`moduleRef invalid: ${m.moduleRef}`);
   if (!['A0','A1','A2','B1','B2','C1','C2'].includes(m.level)) errs.push(`level invalid: ${m.level}`);
-  if (!m.title?.trim()) errs.push('title required');
+  if (!m.title || !validateMultilingualText(m.title)) errs.push('title must have both ru and en translations');
+  if (m.description && !validateMultilingualText(m.description, ['ru'])) errs.push('description must have at least ru translation when provided');
   if ((m as any).estimatedMinutes !== undefined) errs.push('module should not have estimatedMinutes');
   return errs;
 }
@@ -107,6 +109,8 @@ function assertLesson(l: LessonSeed) {
   const errs: string[] = [];
   if (!R_LESSON_REF.test(l.lessonRef)) errs.push(`lessonRef invalid: ${l.lessonRef}`);
   if (l.moduleRef !== l.lessonRef.split('.').slice(0,2).join('.')) errs.push(`lessonRef prefix must match moduleRef (${l.moduleRef})`);
+  if (!l.title || !validateMultilingualText(l.title)) errs.push('title must have both ru and en translations');
+  if (l.description && !validateMultilingualText(l.description, ['ru'])) errs.push('description must have at least ru translation when provided');
   const seen = new Set<string>();
   if (!l.tasks || l.tasks.length < 2) errs.push('lesson must have at least 2 tasks');
   l.tasks?.forEach((t, i) => {
@@ -138,14 +142,43 @@ const LessonModel  = mongoose.model<Lesson>("Lesson", LessonSchema, 'lessons');
 
 // Default inline seeds; can be overridden by --file=seeds/content.json
 const defaultModules: ModuleSeed[] = [
-  { moduleRef: 'a0.travel', level: 'A0', title: 'Travel A0', description: 'Basics for travel', tags: ['travel'], order: 1, published: true },
-  { moduleRef: 'a1.food',   level: 'A1', title: 'Food A1',   description: 'Food & Ordering', tags: ['food'], order: 1, published: true },
-  { moduleRef: 'a1.intro',  level: 'A1', title: 'Introductions', description: 'Greetings & People', tags: ['speaking'], order: 2, published: true },
+  { 
+    moduleRef: 'a0.travel', 
+    level: 'A0', 
+    title: { ru: 'Путешествия A0', en: 'Travel A0' }, 
+    description: { ru: 'Основы путешествий', en: 'Basics for travel' }, 
+    tags: ['travel'], 
+    order: 1, 
+    published: true 
+  },
+  { 
+    moduleRef: 'a1.food', 
+    level: 'A1', 
+    title: { ru: 'Еда A1', en: 'Food A1' }, 
+    description: { ru: 'Еда и заказы', en: 'Food & Ordering' }, 
+    tags: ['food'], 
+    order: 1, 
+    published: true 
+  },
+  { 
+    moduleRef: 'a1.intro', 
+    level: 'A1', 
+    title: { ru: 'Знакомство', en: 'Introductions' }, 
+    description: { ru: 'Приветствие и люди', en: 'Greetings & People' }, 
+    tags: ['speaking'], 
+    order: 2, 
+    published: true 
+  },
 ];
 
 const defaultLessons: LessonSeed[] = [
   {
-    moduleRef: 'a0.travel', lessonRef: 'a0.travel.001', title: 'At the airport', order: 1, published: true, estimatedMinutes: 10,
+    moduleRef: 'a0.travel', 
+    lessonRef: 'a0.travel.001', 
+    title: { ru: 'В аэропорту', en: 'At the airport' }, 
+    order: 1, 
+    published: true, 
+    estimatedMinutes: 10,
     tasks: [
       { ref: 'a0.travel.001.t1', type: 'choice', data: { question: 'How do you greet the officer?', options: ['Hello','Bye','Thanks'], correctIndex: 0, explanation: 'Formal greeting is appropriate here' } },
       { ref: 'a0.travel.001.t2', type: 'gap', data: { text: 'May I see your ____?', answer: 'passport', hints: ['document'] } },
@@ -153,7 +186,12 @@ const defaultLessons: LessonSeed[] = [
     ],
   },
   {
-    moduleRef: 'a0.travel', lessonRef: 'a0.travel.002', title: 'On the plane', order: 2, published: true, estimatedMinutes: 9,
+    moduleRef: 'a0.travel', 
+    lessonRef: 'a0.travel.002', 
+    title: { ru: 'В самолете', en: 'On the plane' }, 
+    order: 2, 
+    published: true, 
+    estimatedMinutes: 9,
     tasks: [
       { ref: 'a0.travel.002.t1', type: 'choice', data: { question: 'Window or aisle?', options: ['Window','Aisle'], correctIndex: 1 } },
       { ref: 'a0.travel.002.t2', type: 'gap', data: { text: 'Fasten your ____', answer: 'seatbelt' } },
@@ -161,7 +199,12 @@ const defaultLessons: LessonSeed[] = [
     ],
   },
   {
-    moduleRef: 'a1.food', lessonRef: 'a1.food.001', title: 'At the cafe', order: 1, published: true, estimatedMinutes: 8,
+    moduleRef: 'a1.food', 
+    lessonRef: 'a1.food.001', 
+    title: { ru: 'В кафе', en: 'At the cafe' }, 
+    order: 1, 
+    published: true, 
+    estimatedMinutes: 8,
     tasks: [
       { ref: 'a1.food.001.t1', type: 'choice', data: { question: 'Coffee or tea?', options: ['Coffee','Tea'], correctIndex: 0 } },
       { ref: 'a1.food.001.t2', type: 'gap', data: { text: 'I would like a ____ of water', answer: 'glass' } },
@@ -169,25 +212,34 @@ const defaultLessons: LessonSeed[] = [
     ],
   },
   {
-    moduleRef: 'a1.intro', lessonRef: 'a1.intro.001', title: 'Greetings', order: 1, published: true, estimatedMinutes: 7,
+    moduleRef: 'a1.intro', 
+    lessonRef: 'a1.intro.001', 
+    title: { ru: 'Приветствие', en: 'Greetings' }, 
+    order: 1, 
+    published: true, 
+    estimatedMinutes: 7,
     tasks: [
       { ref: 'a1.intro.001.t1', type: 'choice', data: { question: 'Formal greeting?', options: ['Hey','Hi','Good morning'], correctIndex: 2 } },
       { ref: 'a1.intro.001.t2', type: 'gap', data: { text: 'Nice to ____ you', answer: 'meet' } },
-      { ref: 'a1.intro.001.t3', type: 'speak', data: { prompt: 'Say: “Nice to meet you”', target: 'Nice to meet you' } },
+      { ref: 'a1.intro.001.t3', type: 'speak', data: { prompt: 'Say: "Nice to meet you"', target: 'Nice to meet you' } },
     ],
   },
 ];
 
 function loadSeedsFromFile(): { modules: ModuleSeed[]; lessons: LessonSeed[] } {
-  const file = getArg('file');
-  if (!file) return { modules: defaultModules, lessons: defaultLessons };
-  const p = path.resolve(file);
-  const raw = fs.readFileSync(p, 'utf8');
-  const json = JSON.parse(raw);
-  return {
-    modules: Array.isArray(json.modules) ? json.modules : defaultModules,
-    lessons: Array.isArray(json.lessons) ? json.lessons : defaultLessons,
-  };
+  const file = getArg('file') || 'seeds/content.json';
+  try {
+    const p = path.resolve(file);
+    const raw = fs.readFileSync(p, 'utf8');
+    const json = JSON.parse(raw);
+    return {
+      modules: Array.isArray(json.modules) ? json.modules : defaultModules,
+      lessons: Array.isArray(json.lessons) ? json.lessons : defaultLessons,
+    };
+  } catch (err) {
+    console.warn(`Warning: Could not load seeds from ${file}, using defaults:`, (err as Error).message);
+    return { modules: defaultModules, lessons: defaultLessons };
+  }
 }
 
 // ------------------------ Diff helpers ------------------------

@@ -5,6 +5,7 @@ import { OnboardingGuard } from '../auth/onboarding.guard';
 import { CourseModule, CourseModuleDocument } from '../common/schemas/course-module.schema';
 import { Lesson, LessonDocument } from '../common/schemas/lesson.schema';
 import { UserLessonProgress, UserLessonProgressDocument } from '../common/schemas/user-lesson-progress.schema';
+import { getLocalizedText, parseLanguage } from '../common/utils/i18n.util';
 
 @Controller('content')
 export class ContentController {
@@ -16,7 +17,8 @@ export class ContentController {
 
   @Get('modules')
   @UseGuards(OnboardingGuard)
-  async getModules(@Query('level') level?: string, @Query('userId') userId?: string) {
+  async getModules(@Query('level') level?: string, @Query('userId') userId?: string, @Query('lang') lang?: string) {
+    const language = parseLanguage(lang);
     const filter: any = { published: true };
     if (level) filter.level = level;
     
@@ -47,8 +49,8 @@ export class ContentController {
         modules: modules.map((m: any) => ({
           moduleRef: m.moduleRef,
           level: m.level,
-          title: m.title,
-          description: m.description,
+          title: getLocalizedText(m.title, language),
+          description: getLocalizedText(m.description, language),
           tags: m.tags || [],
           order: m.order || 0,
           progress: progressMap.get(m.moduleRef) || { completed: 0, total: 0, inProgress: 0 },
@@ -60,8 +62,8 @@ export class ContentController {
       modules: modules.map((m: any) => ({
         moduleRef: m.moduleRef,
         level: m.level,
-        title: m.title,
-        description: m.description,
+        title: getLocalizedText(m.title, language),
+        description: getLocalizedText(m.description, language),
         tags: m.tags || [],
         order: m.order || 0,
       })),
@@ -70,7 +72,8 @@ export class ContentController {
 
   @Get('lessons')
   @UseGuards(OnboardingGuard)
-  async getLessons(@Query('moduleRef') moduleRef?: string, @Query('userId') userId?: string) {
+  async getLessons(@Query('moduleRef') moduleRef?: string, @Query('userId') userId?: string, @Query('lang') lang?: string) {
+    const language = parseLanguage(lang);
     const filter: any = { published: true };
     if (moduleRef) filter.moduleRef = moduleRef;
     
@@ -99,8 +102,8 @@ export class ContentController {
         lessons: lessons.map((l: any) => ({
           lessonRef: l.lessonRef,
           moduleRef: l.moduleRef,
-          title: l.title,
-          description: l.description,
+          title: getLocalizedText(l.title, language),
+          description: getLocalizedText(l.description, language),
           estimatedMinutes: l.estimatedMinutes || 10,
           order: l.order || 0,
           progress: progressMap.get(l.lessonRef) || { status: 'not_started', score: 0, attempts: 0 },
@@ -112,8 +115,8 @@ export class ContentController {
       lessons: lessons.map((l: any) => ({
         lessonRef: l.lessonRef,
         moduleRef: l.moduleRef,
-        title: l.title,
-        description: l.description,
+        title: getLocalizedText(l.title, language),
+        description: getLocalizedText(l.description, language),
         estimatedMinutes: l.estimatedMinutes || 10,
         order: l.order || 0,
       })),
@@ -122,7 +125,8 @@ export class ContentController {
 
   @Get('lessons/:lessonRef')
   @UseGuards(OnboardingGuard)
-  async getLesson(@Param('lessonRef') lessonRef: string, @Query('userId') userId?: string) {
+  async getLesson(@Param('lessonRef') lessonRef: string, @Query('userId') userId?: string, @Query('lang') lang?: string) {
+    const language = parseLanguage(lang);
     const lesson = await this.lessonModel.findOne({ lessonRef, published: true }).lean();
     if (!lesson) {
       return { error: 'Lesson not found' };
@@ -137,8 +141,8 @@ export class ContentController {
       lesson: {
         lessonRef: (lesson as any).lessonRef,
         moduleRef: (lesson as any).moduleRef,
-        title: (lesson as any).title,
-        description: (lesson as any).description,
+        title: getLocalizedText((lesson as any).title, language),
+        description: getLocalizedText((lesson as any).description, language),
         estimatedMinutes: (lesson as any).estimatedMinutes || 10,
         order: (lesson as any).order || 0,
         tasks: (lesson as any).tasks || [],
@@ -154,19 +158,39 @@ export class ContentController {
   }
 
   @Get('onboarding')
-  onboarding() {
+  onboarding(@Query('lang') lang?: string) {
+    const language = parseLanguage(lang);
+    const content = {
+      title: {
+        ru: 'Добро пожаловать в изучение английского!',
+        en: 'Welcome to English Learning!'
+      },
+      description: {
+        ru: 'Начните свой 7-дневный курс английского: словарный запас, грамматика, аудирование и разговорная практика.',
+        en: 'Start your 7-day English course: vocabulary, grammar, listening, and speaking practice.'
+      }
+    };
+
     return { 
-      title: 'Welcome to English Learning!', 
-      description: 'Start your 7-day English course: vocabulary, grammar, listening, and speaking practice.' 
+      title: getLocalizedText(content.title, language), 
+      description: getLocalizedText(content.description, language) 
     };
   }
 
   @Get('lesson1')
   @UseGuards(OnboardingGuard)
-  lesson1() {
+  lesson1(@Query('lang') lang?: string) {
+    const language = parseLanguage(lang);
+    const content = {
+      title: {
+        ru: 'Приветствие и знакомство',
+        en: 'Hello & Greetings'
+      }
+    };
+
     return { 
       id: 1, 
-      title: 'Hello & Greetings', 
+      title: getLocalizedText(content.title, language), 
       level: 'A1',
       skillType: 'vocabulary',
       durationMin: 8,
@@ -183,26 +207,53 @@ export class ContentController {
 
   @Get('paywall')
   @UseGuards(OnboardingGuard)
-  paywall() {
-    return {
-      title: 'Unlock Full English Course',
-      description: 'Get access to all lessons, exercises, and advanced features',
+  paywall(@Query('lang') lang?: string) {
+    const language = parseLanguage(lang);
+    const content = {
+      title: {
+        ru: 'Откройте полный курс английского',
+        en: 'Unlock Full English Course'
+      },
+      description: {
+        ru: 'Получите доступ ко всем урокам, упражнениям и расширенным функциям',
+        en: 'Get access to all lessons, exercises, and advanced features'
+      },
       products: [
-        { 
-          id: 'monthly', 
-          name: 'Monthly Plan',
-          priceRub: 99, 
-          durationDays: 30,
-          features: ['All lessons A1-C2', 'Speaking practice', 'Grammar exercises', 'Progress tracking']
+        {
+          id: 'monthly',
+          name: {
+            ru: 'Месячный план',
+            en: 'Monthly Plan'
+          },
+          features: {
+            ru: ['Все уроки A1-C2', 'Разговорная практика', 'Упражнения по грамматике', 'Отслеживание прогресса'],
+            en: ['All lessons A1-C2', 'Speaking practice', 'Grammar exercises', 'Progress tracking']
+          }
         },
-        { 
-          id: 'quarterly', 
-          name: 'Quarterly Plan', 
-          priceRub: 249, 
-          durationDays: 90,
-          features: ['All lessons A1-C2', 'Speaking practice', 'Grammar exercises', 'Progress tracking', '15% discount']
-        },
-      ],
+        {
+          id: 'quarterly',
+          name: {
+            ru: 'Квартальный план',
+            en: 'Quarterly Plan'
+          },
+          features: {
+            ru: ['Все уроки A1-C2', 'Разговорная практика', 'Упражнения по грамматике', 'Отслеживание прогресса', 'Скидка 15%'],
+            en: ['All lessons A1-C2', 'Speaking practice', 'Grammar exercises', 'Progress tracking', '15% discount']
+          }
+        }
+      ]
+    };
+
+    return {
+      title: getLocalizedText(content.title, language),
+      description: getLocalizedText(content.description, language),
+      products: content.products.map(product => ({
+        id: product.id,
+        name: getLocalizedText(product.name, language),
+        priceRub: product.id === 'monthly' ? 99 : 249,
+        durationDays: product.id === 'monthly' ? 30 : 90,
+        features: (product.features as any)[language] || (product.features as any).en || []
+      }))
     };
   }
 }

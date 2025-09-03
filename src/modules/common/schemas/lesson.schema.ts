@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { MultilingualText, OptionalMultilingualText } from '../utils/i18n.util';
 
 export type LessonDocument = HydratedDocument<Lesson>;
 
@@ -11,11 +12,11 @@ export class Lesson {
   @Prop({ required: true })
   lessonRef!: string; // e.g., a0.travel.001
 
-  @Prop({ required: true })
-  title!: string;
+  @Prop({ required: true, type: Object })
+  title!: MultilingualText;
 
-  @Prop()
-  description?: string;
+  @Prop({ type: Object })
+  description?: OptionalMultilingualText;
 
   @Prop({ default: 10 })
   estimatedMinutes?: number;

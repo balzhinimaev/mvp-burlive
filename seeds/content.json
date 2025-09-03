@@ -1,45 +1,133 @@
 {
   "modules": [
-    { "moduleRef": "a0.basics", "level": "A0", "title": "Everyday Basics A0", "description": "Greetings, numbers, time", "tags": ["basics"], "order": 2, "published": true },
-    { "moduleRef": "a0.travel", "level": "A0", "title": "Travel A0", "description": "Basics for travel", "tags": ["travel"], "order": 1, "published": true },
-    { "moduleRef": "a1.food", "level": "A1", "title": "Food A1", "description": "Food & Ordering", "tags": ["food"], "order": 1, "published": true },
-    { "moduleRef": "a1.intro", "level": "A1", "title": "Introductions A1", "description": "Greetings & Small talk", "tags": ["speaking"], "order": 2, "published": true },
-    { "moduleRef": "a1.directions", "level": "A1", "title": "Directions & Transport A1", "description": "Asking and giving directions, public transport", "tags": ["travel"], "order": 3, "published": true }
+    { 
+      "moduleRef": "a0.basics", 
+      "level": "A0", 
+      "title": {
+        "ru": "Основы A0",
+        "en": "Everyday Basics A0"
+      },
+      "description": {
+        "ru": "Приветствие, числа, время",
+        "en": "Greetings, numbers, time"
+      },
+      "tags": ["basics"], 
+      "order": 2, 
+      "published": true 
+    },
+    { 
+      "moduleRef": "a0.travel", 
+      "level": "A0", 
+      "title": {
+        "ru": "Путешествия A0",
+        "en": "Travel A0"
+      },
+      "description": {
+        "ru": "Основы путешествий",
+        "en": "Basics for travel"
+      },
+      "tags": ["travel"], 
+      "order": 1, 
+      "published": true 
+    },
+    { 
+      "moduleRef": "a1.food", 
+      "level": "A1", 
+      "title": {
+        "ru": "Еда A1",
+        "en": "Food A1"
+      },
+      "description": {
+        "ru": "Еда и заказы",
+        "en": "Food & Ordering"
+      },
+      "tags": ["food"], 
+      "order": 1, 
+      "published": true 
+    },
+    { 
+      "moduleRef": "a1.intro", 
+      "level": "A1", 
+      "title": {
+        "ru": "Знакомство A1",
+        "en": "Introductions A1"
+      },
+      "description": {
+        "ru": "Приветствие и светские беседы",
+        "en": "Greetings & Small talk"
+      },
+      "tags": ["speaking"], 
+      "order": 2, 
+      "published": true 
+    },
+    { 
+      "moduleRef": "a1.directions", 
+      "level": "A1", 
+      "title": {
+        "ru": "Направления и транспорт A1",
+        "en": "Directions & Transport A1"
+      },
+      "description": {
+        "ru": "Как спросить дорогу, общественный транспорт",
+        "en": "Asking and giving directions, public transport"
+      },
+      "tags": ["travel"], 
+      "order": 3, 
+      "published": true 
+    }
   ],
   "lessons": [
     {
       "moduleRef": "a0.basics",
       "lessonRef": "a0.basics.001",
-      "title": "Alphabet & Sounds",
-      "description": "Pronunciation essentials",
+      "title": {
+        "ru": "Алфавит и звуки",
+        "en": "Alphabet & Sounds"
+      },
+      "description": {
+        "ru": "Основы произношения",
+        "en": "Pronunciation essentials"
+      },
       "order": 1,
       "published": true,
       "estimatedMinutes": 8,
       "tasks": [
         { "ref": "a0.basics.001.t1", "type": "listen", "data": { "audioUrl": "https://cdn.example.com/audio/hello.mp3", "transcript": "Hello" } },
-        { "ref": "a0.basics.001.t2", "type": "speak",   "data": { "prompt": "Say: ‘Hello’", "target": "Hello" } },
+        { "ref": "a0.basics.001.t2", "type": "speak",   "data": { "prompt": "Say: 'Hello'", "target": "Hello" } },
         { "ref": "a0.basics.001.t3", "type": "choice",  "data": { "question": "Which word starts with H?", "options": ["Apple", "Hello", "Zero"], "correctIndex": 1 } }
       ]
     },
     {
       "moduleRef": "a0.basics",
       "lessonRef": "a0.basics.002",
-      "title": "Numbers & Prices",
-      "description": "0–100 and buying things",
+      "title": {
+        "ru": "Числа и цены",
+        "en": "Numbers & Prices"
+      },
+      "description": {
+        "ru": "0–100 и покупки",
+        "en": "0–100 and buying things"
+      },
       "order": 2,
       "published": true,
       "estimatedMinutes": 10,
       "tasks": [
         { "ref": "a0.basics.002.t1", "type": "choice",    "data": { "question": "What is fifteen?", "options": ["50", "15", "5"], "correctIndex": 1 } },
         { "ref": "a0.basics.002.t2", "type": "gap",       "data": { "text": "It costs ____ dollars", "answer": "ten", "hints": ["number"] } },
-        { "ref": "a0.basics.002.t3", "type": "translate", "data": { "question": "Переведи: ‘сколько это стоит?’", "expected": ["How much is it?", "How much does it cost?"] } }
+        { "ref": "a0.basics.002.t3", "type": "translate", "data": { "question": "Переведи: 'сколько это стоит?'", "expected": ["How much is it?", "How much does it cost?"] } }
       ]
     },
     {
       "moduleRef": "a0.basics",
       "lessonRef": "a0.basics.003",
-      "title": "Days & Time",
-      "description": "Saying days and asking the time",
+      "title": {
+        "ru": "Дни и время",
+        "en": "Days & Time"
+      },
+      "description": {
+        "ru": "Называем дни и спрашиваем время",
+        "en": "Saying days and asking the time"
+      },
       "order": 3,
       "published": true,
       "estimatedMinutes": 9,
@@ -53,80 +141,116 @@
     {
       "moduleRef": "a0.travel",
       "lessonRef": "a0.travel.003",
-      "title": "Security check",
-      "description": "Bags, liquids, scanners",
+      "title": {
+        "ru": "Досмотр безопасности",
+        "en": "Security check"
+      },
+      "description": {
+        "ru": "Сумки, жидкости, сканеры",
+        "en": "Bags, liquids, scanners"
+      },
       "order": 3,
       "published": true,
       "estimatedMinutes": 8,
       "tasks": [
         { "ref": "a0.travel.003.t1", "type": "choice",    "data": { "question": "What do you remove?", "options": ["Shoes", "Hat", "Jacket"], "correctIndex": 0 } },
         { "ref": "a0.travel.003.t2", "type": "gap",       "data": { "text": "Please place your laptop in a ____ bin", "answer": "separate", "hints": ["one word"] } },
-        { "ref": "a0.travel.003.t3", "type": "speak",     "data": { "prompt": "Say: ‘Do I need to take off my belt?’", "target": "Do I need to take off my belt?" } }
+        { "ref": "a0.travel.003.t3", "type": "speak",     "data": { "prompt": "Say: 'Do I need to take off my belt?'", "target": "Do I need to take off my belt?" } }
       ]
     },
     {
       "moduleRef": "a0.travel",
       "lessonRef": "a0.travel.004",
-      "title": "Immigration",
-      "description": "Passport control questions",
+      "title": {
+        "ru": "Иммиграция",
+        "en": "Immigration"
+      },
+      "description": {
+        "ru": "Вопросы паспортного контроля",
+        "en": "Passport control questions"
+      },
       "order": 4,
       "published": true,
       "estimatedMinutes": 9,
       "tasks": [
         { "ref": "a0.travel.004.t1", "type": "listen",    "data": { "audioUrl": "https://cdn.example.com/audio/immigration-q1.mp3", "transcript": "What is the purpose of your visit?" } },
         { "ref": "a0.travel.004.t2", "type": "choice",    "data": { "question": "Best answer?", "options": ["Tourism", "Nothing"], "correctIndex": 0 } },
-        { "ref": "a0.travel.004.t3", "type": "translate", "data": { "question": "Переведи: ‘Я остановлюсь в отеле’", "expected": ["I will stay at a hotel", "I'm staying at a hotel"] } }
+        { "ref": "a0.travel.004.t3", "type": "translate", "data": { "question": "Переведи: 'Я остановлюсь в отеле'", "expected": ["I will stay at a hotel", "I'm staying at a hotel"] } }
       ]
     },
     {
       "moduleRef": "a0.travel",
       "lessonRef": "a0.travel.005",
-      "title": "Baggage & Customs",
-      "description": "Claim, lost luggage, customs",
+      "title": {
+        "ru": "Багаж и таможня",
+        "en": "Baggage & Customs"
+      },
+      "description": {
+        "ru": "Получение, утерянный багаж, таможня",
+        "en": "Claim, lost luggage, customs"
+      },
       "order": 5,
       "published": true,
       "estimatedMinutes": 10,
       "tasks": [
         { "ref": "a0.travel.005.t1", "type": "gap",       "data": { "text": "My bag is ____", "answer": "lost", "hints": ["adjective"] } },
         { "ref": "a0.travel.005.t2", "type": "choice",    "data": { "question": "Where do you go for lost baggage?", "options": ["Information desk", "Baggage claim"], "correctIndex": 1 } },
-        { "ref": "a0.travel.005.t3", "type": "speak",     "data": { "prompt": "Say: ‘I have nothing to declare’", "target": "I have nothing to declare" } }
+        { "ref": "a0.travel.005.t3", "type": "speak",     "data": { "prompt": "Say: 'I have nothing to declare'", "target": "I have nothing to declare" } }
       ]
     },
 
     {
       "moduleRef": "a1.food",
       "lessonRef": "a1.food.002",
-      "title": "At the restaurant",
-      "description": "Ordering meals and drinks",
+      "title": {
+        "ru": "В ресторане",
+        "en": "At the restaurant"
+      },
+      "description": {
+        "ru": "Заказываем еду и напитки",
+        "en": "Ordering meals and drinks"
+      },
       "order": 2,
       "published": true,
       "estimatedMinutes": 11,
       "tasks": [
         { "ref": "a1.food.002.t1", "type": "choice",    "data": { "question": "Starter, main, or dessert?", "options": ["Appetizer", "Plate"], "correctIndex": 0 } },
-        { "ref": "a1.food.002.t2", "type": "translate", "data": { "question": "Переведи: ‘Можно меню, пожалуйста?’", "expected": ["Can I have the menu, please?", "May I have the menu, please?"] } },
+        { "ref": "a1.food.002.t2", "type": "translate", "data": { "question": "Переведи: 'Можно меню, пожалуйста?'", "expected": ["Can I have the menu, please?", "May I have the menu, please?"] } },
         { "ref": "a1.food.002.t3", "type": "gap",       "data": { "text": "I would like to ____ a table", "answer": "book", "hints": ["verb"] } }
       ]
     },
     {
       "moduleRef": "a1.food",
       "lessonRef": "a1.food.003",
-      "title": "Special requests",
-      "description": "Allergies, substitutions, bills",
+      "title": {
+        "ru": "Особые просьбы",
+        "en": "Special requests"
+      },
+      "description": {
+        "ru": "Аллергии, замены, счет",
+        "en": "Allergies, substitutions, bills"
+      },
       "order": 3,
       "published": true,
       "estimatedMinutes": 9,
       "tasks": [
         { "ref": "a1.food.003.t1", "type": "choice",    "data": { "question": "How to ask for the bill?", "options": ["Check, please.", "Give me money."], "correctIndex": 0 } },
         { "ref": "a1.food.003.t2", "type": "gap",       "data": { "text": "I am ____ to nuts", "answer": "allergic", "hints": ["adjective"] } },
-        { "ref": "a1.food.003.t3", "type": "translate", "data": { "question": "Переведи: ‘Без сахара, пожалуйста’", "expected": ["No sugar, please", "Without sugar, please"] } }
+        { "ref": "a1.food.003.t3", "type": "translate", "data": { "question": "Переведи: 'Без сахара, пожалуйста'", "expected": ["No sugar, please", "Without sugar, please"] } }
       ]
     },
 
     {
       "moduleRef": "a1.intro",
       "lessonRef": "a1.intro.002",
-      "title": "Introducing others",
-      "description": "Names, jobs, where from",
+      "title": {
+        "ru": "Представляем других",
+        "en": "Introducing others"
+      },
+      "description": {
+        "ru": "Имена, профессии, откуда",
+        "en": "Names, jobs, where from"
+      },
       "order": 2,
       "published": true,
       "estimatedMinutes": 7,
@@ -139,37 +263,55 @@
     {
       "moduleRef": "a1.intro",
       "lessonRef": "a1.intro.003",
-      "title": "Small talk",
-      "description": "Weather, hobbies, simple opinions",
+      "title": {
+        "ru": "Светские беседы",
+        "en": "Small talk"
+      },
+      "description": {
+        "ru": "Погода, хобби, простые мнения",
+        "en": "Weather, hobbies, simple opinions"
+      },
       "order": 3,
       "published": true,
       "estimatedMinutes": 8,
       "tasks": [
         { "ref": "a1.intro.003.t1", "type": "choice",    "data": { "question": "Common small-talk topic?", "options": ["Tax law", "Weather"], "correctIndex": 1 } },
-        { "ref": "a1.intro.003.t2", "type": "translate", "data": { "question": "Переведи: ‘Мне нравится читать’", "expected": ["I like reading"] } },
-        { "ref": "a1.intro.003.t3", "type": "speak",     "data": { "prompt": "Say: ‘How was your weekend?’", "target": "How was your weekend?" } }
+        { "ref": "a1.intro.003.t2", "type": "translate", "data": { "question": "Переведи: 'Мне нравится читать'", "expected": ["I like reading"] } },
+        { "ref": "a1.intro.003.t3", "type": "speak",     "data": { "prompt": "Say: 'How was your weekend?'", "target": "How was your weekend?" } }
       ]
     },
 
     {
       "moduleRef": "a1.directions",
       "lessonRef": "a1.directions.001",
-      "title": "Asking for directions",
-      "description": "Key phrases for finding places",
+      "title": {
+        "ru": "Спрашиваем дорогу",
+        "en": "Asking for directions"
+      },
+      "description": {
+        "ru": "Ключевые фразы для поиска мест",
+        "en": "Key phrases for finding places"
+      },
       "order": 1,
       "published": true,
       "estimatedMinutes": 9,
       "tasks": [
-        { "ref": "a1.directions.001.t1", "type": "translate", "data": { "question": "Переведи: ‘Где находится ближайшее метро?’", "expected": ["Where is the nearest subway?", "Where is the nearest metro?"] } },
+        { "ref": "a1.directions.001.t1", "type": "translate", "data": { "question": "Переведи: 'Где находится ближайшее метро?'", "expected": ["Where is the nearest subway?", "Where is the nearest metro?"] } },
         { "ref": "a1.directions.001.t2", "type": "gap",       "data": { "text": "Go ____ and turn right", "answer": "straight" } },
-        { "ref": "a1.directions.001.t3", "type": "choice",    "data": { "question": "What does ‘block’ mean?", "options": ["Квартал", "Часы"], "correctIndex": 0 } }
+        { "ref": "a1.directions.001.t3", "type": "choice",    "data": { "question": "What does 'block' mean?", "options": ["Квартал", "Часы"], "correctIndex": 0 } }
       ]
     },
     {
       "moduleRef": "a1.directions",
       "lessonRef": "a1.directions.002",
-      "title": "On the bus/metro",
-      "description": "Tickets, lines, stops",
+      "title": {
+        "ru": "В автобусе/метро",
+        "en": "On the bus/metro"
+      },
+      "description": {
+        "ru": "Билеты, линии, остановки",
+        "en": "Tickets, lines, stops"
+      },
       "order": 2,
       "published": true,
       "estimatedMinutes": 8,
@@ -182,13 +324,19 @@
     {
       "moduleRef": "a1.directions",
       "lessonRef": "a1.directions.003",
-      "title": "Ride‑hailing",
-      "description": "Booking and giving pickup info",
+      "title": {
+        "ru": "Вызов такси",
+        "en": "Ride‑hailing"
+      },
+      "description": {
+        "ru": "Заказ и информация о подаче",
+        "en": "Booking and giving pickup info"
+      },
       "order": 3,
       "published": true,
       "estimatedMinutes": 7,
       "tasks": [
-        { "ref": "a1.directions.003.t1", "type": "translate", "data": { "question": "Переведи: ‘Подъедьте к главному входу’", "expected": ["Pick me up at the main entrance", "Come to the main entrance"] } },
+        { "ref": "a1.directions.003.t1", "type": "translate", "data": { "question": "Переведи: 'Подъедьте к главному входу'", "expected": ["Pick me up at the main entrance", "Come to the main entrance"] } },
         { "ref": "a1.directions.003.t2", "type": "gap",       "data": { "text": "The car arrives in ____ minutes", "answer": "five" } },
         { "ref": "a1.directions.003.t3", "type": "speak",     "data": { "prompt": "Say your address", "target": "221B Baker Street" } }
       ]

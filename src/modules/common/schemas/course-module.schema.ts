@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { MultilingualText, OptionalMultilingualText } from '../utils/i18n.util';
 
 export type CourseModuleDocument = HydratedDocument<CourseModule>;
 
@@ -11,11 +12,11 @@ export class CourseModule {
   @Prop({ required: true })
   level!: 'A0' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
-  @Prop({ required: true })
-  title!: string;
+  @Prop({ required: true, type: Object })
+  title!: MultilingualText;
 
-  @Prop()
-  description?: string;
+  @Prop({ type: Object })
+  description?: OptionalMultilingualText;
 
   @Prop({ type: [String], default: [] })
   tags?: string[]; // e.g., travel, speaking
