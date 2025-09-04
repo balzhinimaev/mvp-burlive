@@ -3,6 +3,21 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../common/schemas/user.schema';
 
+// Allowed values are defined at module scope to avoid referencing `this` in type annotations
+const ALLOWED_GOALS = [
+  'work_career',
+  'study_exams',
+  'travel',
+  'communication',
+  'entertainment',
+  'relocation',
+  'curiosity',
+] as const;
+type AllowedGoal = (typeof ALLOWED_GOALS)[number];
+
+const ALLOWED_REMINDER_TIMES = ['morning', 'afternoon', 'evening'] as const;
+type ReminderTime = (typeof ALLOWED_REMINDER_TIMES)[number];
+
 @Controller('profile')
 export class ProfileController {
   constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
@@ -64,17 +79,9 @@ export class ProfileController {
 
   // Allowed values for onboarding settings. Keep here to avoid scattering magic strings.
   // These should mirror the frontend contract and can be centralized later.
-  private readonly allowedGoals = [
-    'work_career',
-    'study_exams',
-    'travel',
-    'communication',
-    'entertainment',
-    'relocation',
-    'curiosity',
-  ] as const;
+  private readonly allowedGoals = ALLOWED_GOALS;
 
-  private readonly allowedReminderTimes = ['morning', 'afternoon', 'evening'] as const;
+  private readonly allowedReminderTimes = ALLOWED_REMINDER_TIMES;
 
   private isValidDailyGoal(value: number): value is 5 | 10 | 15 | 20 {
     return [5, 10, 15, 20].includes(value);
@@ -85,7 +92,7 @@ export class ProfileController {
     @Body()
     body: {
       userId: number;
-      goals: typeof this.allowedGoals[number][];
+      goals: AllowedGoal[];
     },
   ) {
     const { userId, goals } = body;
