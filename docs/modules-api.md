@@ -4,6 +4,114 @@
 
 API для получения списка учебных модулей с контролем доступа и прогрессом пользователя.
 
+---
+
+## Onboarding API
+
+### Сохранение целей обучения
+
+```
+POST /api/v2/profile/learning-goals
+```
+
+Request:
+
+```json
+{
+  "userId": 123,
+  "goals": ["work_career", "travel"]
+}
+```
+
+Response 200:
+
+```json
+{ "ok": true }
+```
+
+Ограничения:
+- `goals[]` допускает значения: `work_career | study_exams | travel | communication | entertainment | relocation | curiosity`
+
+### Сохранение ежедневной цели
+
+```
+POST /api/v2/profile/daily-goal
+```
+
+Request:
+
+```json
+{
+  "userId": 123,
+  "dailyGoalMinutes": 10,
+  "allowsNotifications": true
+}
+```
+
+Response 200:
+
+```json
+{ "ok": true }
+```
+
+Ограничения:
+- `dailyGoalMinutes` ∈ {5, 10, 15, 20}
+- `allowsNotifications` — глобальный флаг уведомлений
+
+### Сохранение настроек напоминаний
+
+```
+POST /api/v2/profile/reminder-settings
+```
+
+Request:
+
+```json
+{
+  "userId": 123,
+  "reminderSettings": {
+    "enabled": true,
+    "time": "evening",
+    "allowsNotifications": true
+  }
+}
+```
+
+Response 200:
+
+```json
+{ "ok": true }
+```
+
+Ограничения:
+- `time` ∈ {`morning`, `afternoon`, `evening`}
+- если указан `allowsNotifications`, обновляет глобальный флаг
+
+### Завершение онбординга
+
+```
+PATCH /api/v2/profile/onboarding/complete
+```
+
+Request:
+
+```json
+{
+  "userId": 123,
+  "proficiencyLevel": "intermediate"
+}
+```
+
+Response 200:
+
+```json
+{ "ok": true }
+```
+
+Заметки:
+- Поддерживается обратная совместимость через `englishLevel` (A1–C2) — будет сохранено в поле `englishLevel`.
+- Вызов идемпотентен: повторный PATCH возвращает `{ ok: true }` и обновляет только переданные поля.
+
 ## Endpoint
 
 ```

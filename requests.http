@@ -188,6 +188,38 @@ Content-Type: application/json
   "languageCode": "ru"
 }
 
+### Onboarding: save learning goals
+POST {{base}}/profile/learning-goals
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "goals": ["work_career", "travel"]
+}
+
+### Onboarding: save daily goal
+POST {{base}}/profile/daily-goal
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "dailyGoalMinutes": 10,
+  "allowsNotifications": true
+}
+
+### Onboarding: save reminder settings
+POST {{base}}/profile/reminder-settings
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "reminderSettings": {
+    "enabled": true,
+    "time": "evening",
+    "allowsNotifications": true
+  }
+}
+
 ### Complete onboarding
 PATCH {{base}}/profile/onboarding/complete
 Content-Type: application/json

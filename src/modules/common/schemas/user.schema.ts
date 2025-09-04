@@ -38,6 +38,18 @@ export class User {
   @Prop()
   learningGoals?: string[];
 
+  @Prop()
+  dailyGoalMinutes?: 5 | 10 | 15 | 20;
+
+  @Prop({ default: false })
+  notificationsAllowed?: boolean;
+
+  @Prop({ type: Object })
+  reminderSettings?: { enabled: boolean; time: 'morning' | 'afternoon' | 'evening' };
+
+  @Prop()
+  proficiencyLevel?: 'beginner' | 'intermediate' | 'advanced';
+
   @Prop({ default: 'UTC' })
   tz?: string;
 
