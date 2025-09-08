@@ -18,7 +18,7 @@ export class OnboardingGuard implements CanActivate {
       throw new BadRequestException('userId is required');
     }
 
-    const user = await this.userModel.findOne({ userId: Number(userId) }).lean();
+    const user = await this.userModel.findOne({ userId: String(userId) }).lean();
 
     if (!user) {
       // Если пользователь не найден, пропускаем (авторизация обработает это)

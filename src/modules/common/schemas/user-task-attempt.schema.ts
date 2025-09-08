@@ -7,8 +7,8 @@ export type AttemptSource = 'lesson' | 'review' | 'practice';
 
 @Schema({ timestamps: { createdAt: true, updatedAt: false }, collection: 'user_task_attempts' })
 export class UserTaskAttempt {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop({ required: true })
   lessonRef!: string; // a0.travel.001
@@ -42,8 +42,9 @@ export class UserTaskAttempt {
 }
 
 export const UserTaskAttemptSchema = SchemaFactory.createForClass(UserTaskAttempt);
+// Идемпотентность: уникальный индекс по userId, taskRef, clientAttemptId
+UserTaskAttemptSchema.index({ userId: 1, taskRef: 1, clientAttemptId: 1 }, { unique: true });
 UserTaskAttemptSchema.index({ userId: 1, lessonRef: 1, taskRef: 1, attemptNo: 1 }, { unique: true });
-UserTaskAttemptSchema.index({ userId: 1, clientAttemptId: 1 }, { unique: true, sparse: true });
 UserTaskAttemptSchema.index({ lessonRef: 1, taskRef: 1 });
 
 

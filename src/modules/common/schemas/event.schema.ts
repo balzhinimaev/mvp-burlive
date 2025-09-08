@@ -8,8 +8,8 @@ export type EventDocument = HydratedDocument<AppEvent>;
   collection: 'events',
 })
 export class AppEvent {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop({ required: true })
   name!: 'open_app' | 'start_lesson' | 'complete_lesson' | 'vocabulary_learned' | 'grammar_practiced' | 'speaking_completed' | 'listening_completed' | 'paywall_view' | 'purchase_success';

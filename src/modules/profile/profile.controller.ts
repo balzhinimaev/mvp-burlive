@@ -24,7 +24,7 @@ export class ProfileController {
 
   @Get(':userId')
   async get(@Param('userId') userId: string) {
-    const user = await this.userModel.findOne({ userId: Number(userId) }).lean();
+    const user = await this.userModel.findOne({ userId: String(userId) }).lean();
     return { user };
   }
 
@@ -32,7 +32,7 @@ export class ProfileController {
   async update(
     @Body()
     body: {
-      userId: number;
+      userId: string;
       firstName?: string;
       lastName?: string;
       username?: string;
@@ -49,7 +49,7 @@ export class ProfileController {
   async completeOnboarding(
     @Body()
     body: {
-      userId: number;
+      userId: string;
       // Backward compatibility: keep englishLevel, but also accept new proficiencyLevel
       englishLevel?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
       proficiencyLevel?: 'beginner' | 'intermediate' | 'advanced';
@@ -91,7 +91,7 @@ export class ProfileController {
   async saveLearningGoals(
     @Body()
     body: {
-      userId: number;
+      userId: string;
       goals: AllowedGoal[];
     },
   ) {
@@ -118,7 +118,7 @@ export class ProfileController {
   async saveDailyGoal(
     @Body()
     body: {
-      userId: number;
+      userId: string;
       dailyGoalMinutes: 5 | 10 | 15 | 20;
       allowsNotifications?: boolean;
     },
@@ -146,7 +146,7 @@ export class ProfileController {
   async saveReminderSettings(
     @Body()
     body: {
-      userId: number;
+      userId: string;
       reminderSettings: {
         enabled: boolean;
         time: 'morning' | 'afternoon' | 'evening';

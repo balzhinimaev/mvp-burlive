@@ -7,8 +7,8 @@ export type XpSource = 'task' | 'lesson_complete' | 'streak_bonus' | 'referral' 
 
 @Schema({ timestamps: { createdAt: true, updatedAt: false }, collection: 'xp_transactions' })
 export class XpTransaction {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop({ required: true, enum: ['task', 'lesson_complete', 'streak_bonus', 'referral', 'admin', 'promo'] })
   source!: XpSource;

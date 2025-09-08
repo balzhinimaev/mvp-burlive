@@ -9,7 +9,7 @@ export class EntitlementsController {
   @Get(':userId')
   @UseGuards(OnboardingGuard)
   async get(@Param('userId') userId: string) {
-    const ent = await this.entitlementsService.getActiveEntitlement(Number(userId));
+    const ent = await this.entitlementsService.getActiveEntitlement(String(userId));
     return { entitlement: ent };
   }
 }

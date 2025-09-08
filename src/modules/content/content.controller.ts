@@ -31,16 +31,17 @@ export class ContentController {
 
     // Enrich with progress and access rights if userId provided
     if (userId) {
-      const user = await this.userModel.findOne({ userId: Number(userId) }).lean();
+      const user = await this.userModel.findOne({ userId: String(userId) }).lean();
       const hasProAccess = user?.pro?.active === true;
       
       const progressMap = new Map();
       const progress = await this.ulpModel
-        .find({ userId: Number(userId) })
+        .find({ userId: String(userId) })
         .lean();
       
       for (const p of progress) {
-        const moduleRef = (p as any).lessonRef?.split('.').slice(0, 2).join('.');
+        // Используем денормализованный moduleRef или вычисляем из lessonRef
+        const moduleRef = (p as any).moduleRef || (p as any).lessonRef?.split('.').slice(0, 2).join('.');
         if (!progressMap.has(moduleRef)) {
           progressMap.set(moduleRef, { completed: 0, total: 0, inProgress: 0 });
         }
@@ -107,7 +108,7 @@ export class ContentController {
     if (userId) {
       const progressMap = new Map();
       const progress = await this.ulpModel
-        .find({ userId: Number(userId), ...(moduleRef ? { lessonRef: { $regex: `^${moduleRef}\\.` } } : {}) })
+        .find({ userId: String(userId), ...(moduleRef ? { lessonRef: { $regex: `^${moduleRef}\\.` } } : {}) })
         .lean();
       
       for (const p of progress) {
@@ -155,7 +156,7 @@ export class ContentController {
 
     let progress = null;
     if (userId) {
-      progress = await this.ulpModel.findOne({ userId: Number(userId), lessonRef }).lean();
+      progress = await this.ulpModel.findOne({ userId: String(userId), lessonRef }).lean();
     }
 
     return {

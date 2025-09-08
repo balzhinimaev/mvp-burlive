@@ -5,8 +5,8 @@ export type DailyStatDocument = HydratedDocument<DailyStat>;
 
 @Schema({ timestamps: true, collection: 'daily_stats' })
 export class DailyStat {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop({ required: true })
   dayKey!: string; // YYYY-MM-DD in user's tz

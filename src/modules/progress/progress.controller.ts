@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ProgressService } from './progress.service';
@@ -20,7 +20,7 @@ export class ProgressController {
 
   @Post('sessions/start')
   async startSession(
-    @Body() body: { userId: number; moduleRef?: string; lessonRef?: string; source?: 'reminder' | 'home' | 'deeplink' | 'unknown' },
+    @Body() body: { userId: string; moduleRef?: string; lessonRef?: string; source?: 'reminder' | 'home' | 'deeplink' | 'unknown' },
   ) {
     const session = await this.progress.startSession(body.userId, { moduleRef: body.moduleRef, lessonRef: body.lessonRef, source: body.source });
     return { sessionId: (session as any)._id };
@@ -34,9 +34,10 @@ export class ProgressController {
 
   @Post('attempts')
   async attempt(
+    @Headers('idempotency-key') idempotencyKey: string,
     @Body()
     body: {
-      userId: number;
+      userId: string;
       lessonRef: string;
       taskRef: string;
       isCorrect: boolean;
@@ -47,8 +48,14 @@ export class ProgressController {
       clientAttemptId?: string;
       lastTaskIndex?: number;
       isLastTask?: boolean;
+      userAnswer?: string;
+      correctAnswer?: string;
     },
   ) {
+    if (!idempotencyKey) {
+      throw new BadRequestException('Idempotency-Key header is required');
+    }
+
     const attempt = await this.progress.recordTaskAttempt({
       userId: body.userId,
       lessonRef: body.lessonRef,
@@ -58,9 +65,11 @@ export class ProgressController {
       durationMs: body.durationMs,
       variantKey: body.variantKey,
       sessionId: body.sessionId,
-      clientAttemptId: body.clientAttemptId,
+      clientAttemptId: idempotencyKey, // Используем заголовок как clientAttemptId
       lastTaskIndex: body.lastTaskIndex,
       isLastTask: body.isLastTask,
+      userAnswer: body.userAnswer,
+      correctAnswer: body.correctAnswer,
     });
     return { attemptId: (attempt as any)._id };
   }
@@ -68,7 +77,7 @@ export class ProgressController {
   @Get('stats/daily/:userId')
   async daily(@Param('userId') userId: string, @Query('limit') limit = '14') {
     const items = await this.dailyModel
-      .find({ userId: Number(userId) })
+      .find({ userId: String(userId) })
       .sort({ dayKey: -1 })
       .limit(Number(limit))
       .lean();
@@ -78,7 +87,7 @@ export class ProgressController {
   @Get('xp/:userId')
   async xp(@Param('userId') userId: string, @Query('limit') limit = '50') {
     const items = await this.xpModel
-      .find({ userId: Number(userId) })
+      .find({ userId: String(userId) })
       .sort({ createdAt: -1 })
       .limit(Number(limit))
       .lean();
@@ -87,7 +96,7 @@ export class ProgressController {
 
   @Get('lessons/:userId')
   async lessons(@Param('userId') userId: string, @Query('status') status?: 'not_started' | 'in_progress' | 'completed') {
-    const query: any = { userId: Number(userId) };
+    const query: any = { userId: String(userId) };
     if (status) query.status = status;
     const items = await this.ulpModel.find(query).sort({ updatedAt: -1 }).limit(100).lean();
     return { items };

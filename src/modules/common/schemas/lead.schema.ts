@@ -5,8 +5,8 @@ export type LeadDocument = HydratedDocument<Lead>;
 
 @Schema({ timestamps: true, collection: 'leads' })
 export class Lead {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop({ type: Object })
   firstUtm?: Record<string, string>;

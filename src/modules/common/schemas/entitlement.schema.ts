@@ -5,8 +5,8 @@ export type EntitlementDocument = HydratedDocument<Entitlement>;
 
 @Schema({ timestamps: true, collection: 'entitlements' })
 export class Entitlement {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop({ required: true })
   product!: 'monthly' | 'quarterly';

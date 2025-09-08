@@ -15,7 +15,7 @@ export class AuthController {
   async verify(
     @Query() query: Record<string, string>,
   ): Promise<{
-    userId: number;
+    userId: string;
     isFirstOpen: boolean;
     utm?: Record<string, string>;
     onboardingCompleted: boolean;
@@ -28,7 +28,7 @@ export class AuthController {
 
   @Get('onboarding/status/:userId')
   async getOnboardingStatus(@Param('userId') userId: string) {
-    const user = await this.userModel.findOne({ userId: Number(userId) }).lean();
+    const user = await this.userModel.findOne({ userId: String(userId) }).lean();
 
     if (!user) {
       return {

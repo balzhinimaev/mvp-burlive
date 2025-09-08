@@ -9,7 +9,7 @@ export class EntitlementsService {
     @InjectModel(Entitlement.name) private readonly entitlementModel: Model<EntitlementDocument>,
   ) {}
 
-  async getActiveEntitlement(userId: number): Promise<Entitlement | null> {
+  async getActiveEntitlement(userId: string): Promise<Entitlement | null> {
     const now = new Date();
     return this.entitlementModel.findOne({ userId, endsAt: { $gt: now } }).lean();
   }

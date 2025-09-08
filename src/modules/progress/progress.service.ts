@@ -36,13 +36,13 @@ export class ProgressService {
     return `${parts.year}-${parts.month}-${parts.day}`;
   }
 
-  async addXp(userId: number, delta: number, source: XpSource, ref?: string, sessionId?: string, meta?: Record<string, any>) {
+  async addXp(userId: string, delta: number, source: XpSource, ref?: string, sessionId?: string, meta?: Record<string, any>) {
     if (!delta) return;
     await this.xpModel.create({ userId, delta, source, ref, sessionId, meta });
     await this.userModel.updateOne({ userId }, { $inc: { xpTotal: delta } });
   }
 
-  async updateStreakOnActivity(userId: number, activityDate = new Date()): Promise<number> {
+  async updateStreakOnActivity(userId: string, activityDate = new Date()): Promise<number> {
     const user = await this.userModel.findOne({ userId }).lean();
     if (!user) return 0;
     const tz = user.tz || 'UTC';
@@ -61,7 +61,7 @@ export class ProgressService {
     return next;
   }
 
-  async startSession(userId: number, params: { moduleRef?: string; lessonRef?: string; source?: 'reminder' | 'home' | 'deeplink' | 'unknown' } = {}) {
+  async startSession(userId: string, params: { moduleRef?: string; lessonRef?: string; source?: 'reminder' | 'home' | 'deeplink' | 'unknown' } = {}) {
     const session = await this.sessionModel.create({ userId, moduleRef: params.moduleRef, lessonRef: params.lessonRef, source: params.source || 'unknown', startedAt: new Date() });
     return session;
   }
@@ -76,7 +76,7 @@ export class ProgressService {
   }
 
   async recordTaskAttempt(args: {
-    userId: number;
+    userId: string;
     lessonRef: string;
     taskRef: string;
     isCorrect: boolean;
@@ -88,22 +88,40 @@ export class ProgressService {
     lastTaskIndex?: number;
     isLastTask?: boolean;
     xpPerCorrect?: number;
+    userAnswer?: string;
+    correctAnswer?: string;
   }) {
     const xpPerCorrect = args.xpPerCorrect ?? 10;
 
-    // Ensure ULP exists
+    // Ensure ULP exists with moduleRef denormalization
+    const moduleRef = args.lessonRef.split('.').slice(0, 2).join('.');
     const ulp = await this.ulpModel.findOneAndUpdate(
       { userId: args.userId, lessonRef: args.lessonRef },
       {
         $setOnInsert: {
           userId: args.userId,
           lessonRef: args.lessonRef,
+          moduleRef: moduleRef,
           status: 'in_progress',
           startedAt: new Date(),
         },
       },
       { new: true, upsert: true },
     );
+
+    // Идемпотентность: проверяем, есть ли уже попытка с таким clientAttemptId
+    if (args.clientAttemptId) {
+      const existingAttempt = await this.attemptModel.findOne({
+        userId: args.userId,
+        taskRef: args.taskRef,
+        clientAttemptId: args.clientAttemptId,
+      }).lean();
+      
+      if (existingAttempt) {
+        // Возвращаем существующую попытку
+        return existingAttempt;
+      }
+    }
 
     // Next attempt number
     const last = await this.attemptModel

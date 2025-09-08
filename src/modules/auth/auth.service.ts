@@ -22,7 +22,7 @@ export class AuthService {
   async verifyTelegramInitData(
     initData: URLSearchParams,
   ): Promise<{
-    userId: number;
+    userId: string;
     isFirstOpen: boolean;
     utm?: Record<string, string>;
     onboardingCompleted: boolean;
@@ -66,7 +66,7 @@ export class AuthService {
       }
     }
 
-    const userId = user.id;
+    const userId = String(user.id);
     const profile: Record<string, any> = {};
     if (user.first_name) profile.firstName = user.first_name;
     if (user.last_name) profile.lastName = user.last_name;

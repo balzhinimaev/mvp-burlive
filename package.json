@@ -14,7 +14,12 @@
     "seed:content:apply": "ts-node ./scripts/seed-content.ts --apply",
     "seed:content:update": "ts-node ./scripts/seed-content.ts --apply --update",
     "seed:content:force": "ts-node ./scripts/seed-content.ts --apply --force",
-    "seed:content:prune": "ts-node ./scripts/seed-content.ts --apply --prune-tasks"
+    "seed:content:prune": "ts-node ./scripts/seed-content.ts --apply --prune-tasks",
+    "migrate:userid": "ts-node ./scripts/migrate-userid-to-string.ts",
+    "migrate:userid:dry": "cross-env DRY_RUN=true ts-node ./scripts/migrate-userid-to-string.ts",
+    "migrate:module-ref": "ts-node ./scripts/denormalize-module-ref.ts",
+    "migrate:module-ref:dry": "cross-env DRY_RUN=true ts-node ./scripts/denormalize-module-ref.ts",
+    "test:regression": "ts-node ./scripts/test-regression.ts"
   },
   "keywords": [],
   "author": "",
@@ -43,6 +48,8 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "mongoose": "^8.18.0",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
   }
 }

@@ -5,8 +5,8 @@ export type PaymentDocument = HydratedDocument<Payment>;
 
 @Schema({ timestamps: true, collection: 'payments' })
 export class Payment {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop({ required: true })
   provider!: string; // e.g., tinkoff/yookassa/mock

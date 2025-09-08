@@ -7,8 +7,8 @@ export type LessonStatus = 'not_started' | 'in_progress' | 'completed';
 
 @Schema({ timestamps: true, collection: 'user_lesson_progress' })
 export class UserLessonProgress {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop()
   moduleRef?: string; // optional content module reference
@@ -38,5 +38,7 @@ export class UserLessonProgress {
 export const UserLessonProgressSchema = SchemaFactory.createForClass(UserLessonProgress);
 UserLessonProgressSchema.index({ userId: 1, lessonRef: 1 }, { unique: true });
 UserLessonProgressSchema.index({ userId: 1, status: 1 });
+// Индекс для быстрого поиска прогресса по модулям
+UserLessonProgressSchema.index({ userId: 1, moduleRef: 1, status: 1 });
 
 

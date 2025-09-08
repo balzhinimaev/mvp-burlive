@@ -7,8 +7,8 @@ export type AchievementKey = 'first_lesson' | 'streak_3' | 'streak_7' | 'xp_500'
 
 @Schema({ timestamps: true, collection: 'achievements' })
 export class Achievement {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop({ required: true, enum: ['first_lesson', 'streak_3', 'streak_7', 'xp_500', 'voice_10'] })
   key!: AchievementKey;

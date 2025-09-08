@@ -7,8 +7,8 @@ export type SessionSource = 'reminder' | 'home' | 'deeplink' | 'unknown';
 
 @Schema({ timestamps: true, collection: 'learning_sessions' })
 export class LearningSession {
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop()
   moduleRef?: string;

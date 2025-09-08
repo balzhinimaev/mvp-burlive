@@ -8,8 +8,8 @@ export class PromoRedemption {
   @Prop({ required: true })
   promoId!: string; // e.g., BURI79
 
-  @Prop({ required: true })
-  userId!: number;
+  @Prop({ type: String, required: true })
+  userId!: string;
 
   @Prop({ required: true })
   discountPercent!: number;
