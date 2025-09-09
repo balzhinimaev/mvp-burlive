@@ -46,5 +46,7 @@ export const UserTaskAttemptSchema = SchemaFactory.createForClass(UserTaskAttemp
 UserTaskAttemptSchema.index({ userId: 1, taskRef: 1, clientAttemptId: 1 }, { unique: true });
 UserTaskAttemptSchema.index({ userId: 1, lessonRef: 1, taskRef: 1, attemptNo: 1 }, { unique: true });
 UserTaskAttemptSchema.index({ lessonRef: 1, taskRef: 1 });
+// Индекс для аналитики: как пользователь отвечает на задания (правильно/неправильно)
+UserTaskAttemptSchema.index({ userId: 1, correct: 1 });
 
 

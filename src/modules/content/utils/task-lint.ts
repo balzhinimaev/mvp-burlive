@@ -1,4 +1,4 @@
-import { TaskDto } from '../dto/task.dto';
+import { TaskDto } from '../dto/task-data.dto';
 
 export function lintLessonTasks(lessonRef: string, tasks?: TaskDto[]): string[] {
   const errors: string[] = [];

@@ -1,0 +1,5 @@
+[33m32fa8f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m feat: Полная унификация контрактов фронтенд-бэкенд
+[33m3222a29[m Update schemas, controllers and add migration scripts
+[33m256921d[m fix(profile): типы без ссылки на this в сигнатурах DTO
+[33m0157625[m feat: добавить эндпоинты онбординга
+[33md4be577[m docs: add modules API documentation

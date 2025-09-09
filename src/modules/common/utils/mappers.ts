@@ -6,6 +6,13 @@ import { User } from '../schemas/user.schema';
 import { ModuleItem, LessonItem, LessonProgress, VocabularyItem as VocabType, TaskType } from '../types/content';
 import { getLocalizedText, SupportedLanguage } from './i18n.util';
 
+const STRIP = new Set(['correct','isCorrect','correctIndex','correctIndexes','answer','answers','expected','expectedAnswers','target','targets','solution','solutions']);
+const redact = (v: any): any =>
+  Array.isArray(v) ? v.map(redact)
+  : v && typeof v === 'object'
+    ? Object.fromEntries(Object.entries(v).filter(([k]) => !STRIP.has(k)).map(([k, val]) => [k, redact(val)]))
+    : v;
+
 /**
  * Маппер для преобразования CourseModule схемы в ModuleItem DTO
  */
@@ -56,11 +63,7 @@ export class LessonMapper {
       previewText: lesson.previewText,
       taskTypes: taskTypes || lesson.tasks?.map(t => t.type as TaskType) || [],
       progress: progress,
-      tasks: lesson.tasks?.map(task => ({
-        ref: task.ref,
-        type: task.type as TaskType,
-        data: task.data
-      }))
+      tasks: lesson.tasks?.map(({ ref, type, data }) => ({ ref, type: type as TaskType, data: redact(data) }))
     };
   }
 }
