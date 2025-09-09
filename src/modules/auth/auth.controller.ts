@@ -19,7 +19,7 @@ export class AuthController {
     isFirstOpen: boolean;
     utm?: Record<string, string>;
     onboardingCompleted: boolean;
-    englishLevel?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+    englishLevel?: 'A0' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
     learningGoals?: string[];
   }> {
     const params = new URLSearchParams(query as any);

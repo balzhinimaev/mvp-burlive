@@ -12,6 +12,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { LeadsModule } from './modules/leads/leads.module';
 import { ProgressModule } from './modules/progress/progress.module';
+import { PaywallModule } from './modules/paywall/paywall.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ProgressModule } from './modules/progress/progress.module';
     ProfileModule,
     LeadsModule,
     ProgressModule,
+    PaywallModule,
   ],
   controllers: [HealthController],
 })

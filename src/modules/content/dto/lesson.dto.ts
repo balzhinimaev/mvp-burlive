@@ -1,10 +1,10 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { TaskDto } from './task.dto';
 
 export class CreateLessonDto {
-  @IsInt()
-  userId!: number;
+  @IsString()
+  userId!: string;
 
   @IsString()
   moduleRef!: string;
@@ -27,22 +27,33 @@ export class CreateLessonDto {
   @IsOptional() @IsBoolean()
   published?: boolean;
 
+  @IsOptional() @IsString()
+  type?: 'conversation'|'vocabulary'|'grammar';
+
+  @IsOptional() @IsString()
+  difficulty?: 'easy'|'medium'|'hard';
+
+  @IsOptional() @IsArray()
+  tags?: string[];
+
+  @IsOptional() @IsInt() @Min(0)
+  xpReward?: number;
+
+  @IsOptional() @IsBoolean()
+  hasAudio?: boolean;
+
+  @IsOptional() @IsBoolean()
+  hasVideo?: boolean;
+
+  @IsOptional() @IsString()
+  previewText?: string;
+
   @IsOptional()
   @IsArray()
   @Type(() => TaskDto)
   tasks?: TaskDto[];
 }
 
-export class UpdateLessonDto {
-  @IsInt()
-  userId!: number;
-
-  @IsOptional() @IsString() title?: string;
-  @IsOptional() @IsString() description?: string;
-  @IsOptional() @IsInt() @Min(1) estimatedMinutes?: number;
-  @IsOptional() @IsInt() @Min(0) order?: number;
-  @IsOptional() @IsBoolean() published?: boolean;
-  @IsOptional() @IsArray() @Type(() => TaskDto) tasks?: TaskDto[];
-}
+export class UpdateLessonDto extends CreateLessonDto {}
 
 

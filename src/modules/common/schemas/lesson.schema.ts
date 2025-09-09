@@ -29,6 +29,27 @@ export class Lesson {
 
   @Prop({ default: 0 })
   order?: number; // within module
+
+  @Prop({ enum: ['conversation','vocabulary','grammar'], default: 'vocabulary' })
+  type?: 'conversation'|'vocabulary'|'grammar';
+
+  @Prop({ enum: ['easy','medium','hard'], default: 'easy' })
+  difficulty?: 'easy'|'medium'|'hard';
+
+  @Prop({ type: [String], default: [] })
+  tags?: string[];
+
+  @Prop({ default: 25 })
+  xpReward?: number;
+
+  @Prop({ default: true })
+  hasAudio?: boolean;
+
+  @Prop({ default: false })
+  hasVideo?: boolean;
+
+  @Prop()
+  previewText?: string;
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);

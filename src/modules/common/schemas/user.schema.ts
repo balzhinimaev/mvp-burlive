@@ -33,7 +33,7 @@ export class User {
   onboardingCompletedAt?: Date;
 
   @Prop()
-  englishLevel?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+  englishLevel?: 'A0' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
   @Prop()
   learningGoals?: string[];
@@ -70,6 +70,10 @@ export class User {
 
   @Prop({ type: Object })
   pro?: { active: boolean; since?: Date; plan?: string };
+
+  // Timestamps fields (automatically added by Mongoose with timestamps: true)
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

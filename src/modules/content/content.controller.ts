@@ -7,6 +7,7 @@ import { Lesson, LessonDocument } from '../common/schemas/lesson.schema';
 import { User, UserDocument } from '../common/schemas/user.schema';
 import { UserLessonProgress, UserLessonProgressDocument } from '../common/schemas/user-lesson-progress.schema';
 import { getLocalizedText, parseLanguage } from '../common/utils/i18n.util';
+import { ModuleMapper, LessonMapper, LessonProgressMapper } from '../common/utils/mappers';
 
 @Controller('content')
 export class ContentController {
@@ -54,20 +55,10 @@ export class ContentController {
       return {
         modules: modules.map((m: any) => {
           const order = m.order || 0;
-          const requiresPro = order > 1; // Business rule: first module (order <= 1) is free
-          const isAvailable = !requiresPro || hasProAccess;
+          const requiresPro = m.requiresPro || order > 1; // Use schema field or business rule
+          const isAvailable = m.isAvailable ?? (!requiresPro || hasProAccess);
 
-          return {
-            moduleRef: m.moduleRef,
-            level: m.level,
-            title: getLocalizedText(m.title, language),
-            description: getLocalizedText(m.description, language),
-            tags: m.tags || [],
-            order: order,
-            progress: progressMap.get(m.moduleRef) || { completed: 0, total: 0, inProgress: 0 },
-            requiresPro: requiresPro,
-            isAvailable: isAvailable,
-          }
+          return ModuleMapper.toDto(m, String(userId), language, progressMap.get(m.moduleRef));
         }),
       };
     }
@@ -76,18 +67,10 @@ export class ContentController {
     return {
       modules: modules.map((m: any) => {
         const order = m.order || 0;
-        const requiresPro = order > 1;
+        const requiresPro = m.requiresPro || order > 1;
+        const isAvailable = m.isAvailable ?? !requiresPro; // Anonymous user never has pro access
         
-        return {
-          moduleRef: m.moduleRef,
-          level: m.level,
-          title: getLocalizedText(m.title, language),
-          description: getLocalizedText(m.description, language),
-          tags: m.tags || [],
-          order: order,
-          requiresPro: requiresPro,
-          isAvailable: !requiresPro, // Anonymous user never has pro access
-        }
+        return ModuleMapper.toDto(m, '', language, undefined);
       }),
     };
   }
@@ -121,27 +104,15 @@ export class ContentController {
       }
 
       return {
-        lessons: lessons.map((l: any) => ({
-          lessonRef: l.lessonRef,
-          moduleRef: l.moduleRef,
-          title: getLocalizedText(l.title, language),
-          description: getLocalizedText(l.description, language),
-          estimatedMinutes: l.estimatedMinutes || 10,
-          order: l.order || 0,
-          progress: progressMap.get(l.lessonRef) || { status: 'not_started', score: 0, attempts: 0 },
-        })),
+        lessons: lessons.map((l: any) => {
+          const progress = progressMap.get(l.lessonRef);
+          return LessonMapper.toDto(l, language, progress ? LessonProgressMapper.toDto(progress) : undefined);
+        }),
       };
     }
 
     return {
-      lessons: lessons.map((l: any) => ({
-        lessonRef: l.lessonRef,
-        moduleRef: l.moduleRef,
-        title: getLocalizedText(l.title, language),
-        description: getLocalizedText(l.description, language),
-        estimatedMinutes: l.estimatedMinutes || 10,
-        order: l.order || 0,
-      })),
+      lessons: lessons.map((l: any) => LessonMapper.toDto(l, language)),
     };
   }
 
@@ -160,22 +131,12 @@ export class ContentController {
     }
 
     return {
-      lesson: {
-        lessonRef: (lesson as any).lessonRef,
-        moduleRef: (lesson as any).moduleRef,
-        title: getLocalizedText((lesson as any).title, language),
-        description: getLocalizedText((lesson as any).description, language),
-        estimatedMinutes: (lesson as any).estimatedMinutes || 10,
-        order: (lesson as any).order || 0,
-        tasks: (lesson as any).tasks || [],
-        progress: progress ? {
-          status: (progress as any).status,
-          score: (progress as any).score || 0,
-          attempts: (progress as any).attempts || 0,
-          lastTaskIndex: (progress as any).lastTaskIndex,
-          completedAt: (progress as any).completedAt,
-        } : { status: 'not_started', score: 0, attempts: 0 },
-      },
+      lesson: LessonMapper.toDto(
+        lesson as any, 
+        language, 
+        progress ? LessonProgressMapper.toDto(progress as any) : undefined,
+        (lesson as any).tasks?.map((t: any) => t.type)
+      ),
     };
   }
 

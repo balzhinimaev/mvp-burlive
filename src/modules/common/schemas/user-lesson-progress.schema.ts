@@ -25,6 +25,9 @@ export class UserLessonProgress {
   @Prop({ default: 0 })
   attempts?: number;
 
+  @Prop({ default: 0 })
+  timeSpent?: number; // seconds
+
   @Prop()
   lastTaskIndex?: number;
 

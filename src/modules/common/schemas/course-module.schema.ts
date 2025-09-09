@@ -26,6 +26,12 @@ export class CourseModule {
 
   @Prop({ default: 0 })
   order?: number;
+
+  @Prop({ default: false })
+  requiresPro?: boolean;
+
+  @Prop({ default: true })
+  isAvailable?: boolean;
 }
 
 export const CourseModuleSchema = SchemaFactory.createForClass(CourseModule);

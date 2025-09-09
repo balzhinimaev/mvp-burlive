@@ -10,7 +10,7 @@ export class PromoService {
     private readonly redemptionModel: Model<PromoRedemptionDocument>,
   ) {}
 
-  async redeem(userId: number, promoId: string): Promise<{ ok: boolean; discountPercent: number }> {
+  async redeem(userId: string, promoId: string): Promise<{ ok: boolean; discountPercent: number }> {
     const discountPercent = promoId.toUpperCase() === 'BURI79' ? 50 : 0; // MVP rule
     if (discountPercent === 0) {
       throw new BadRequestException('Invalid promo');

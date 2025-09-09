@@ -1,0 +1,123 @@
+import { CourseModule } from '../schemas/course-module.schema';
+import { Lesson } from '../schemas/lesson.schema';
+import { UserLessonProgress } from '../schemas/user-lesson-progress.schema';
+import { VocabularyItem } from '../schemas/vocabulary.schema';
+import { User } from '../schemas/user.schema';
+import { ModuleItem, LessonItem, LessonProgress, VocabularyItem as VocabType, TaskType } from '../types/content';
+import { getLocalizedText, SupportedLanguage } from './i18n.util';
+
+/**
+ * Маппер для преобразования CourseModule схемы в ModuleItem DTO
+ */
+export class ModuleMapper {
+  static toDto(
+    module: CourseModule,
+    userId: string,
+    language: SupportedLanguage = 'ru',
+    progress?: { completed: number; total: number; inProgress: number }
+  ): ModuleItem {
+    return {
+      moduleRef: module.moduleRef,
+      level: module.level,
+      title: getLocalizedText(module.title, language),
+      description: getLocalizedText(module.description, language),
+      tags: module.tags || [],
+      order: module.order || 0,
+      requiresPro: module.requiresPro || false,
+      isAvailable: module.isAvailable ?? true,
+      progress: progress || { completed: 0, total: 0, inProgress: 0 }
+    };
+  }
+}
+
+/**
+ * Маппер для преобразования Lesson схемы в LessonItem DTO
+ */
+export class LessonMapper {
+  static toDto(
+    lesson: Lesson,
+    language: SupportedLanguage = 'ru',
+    progress?: LessonProgress,
+    taskTypes?: TaskType[]
+  ): LessonItem {
+    return {
+      lessonRef: lesson.lessonRef,
+      moduleRef: lesson.moduleRef,
+      title: getLocalizedText(lesson.title, language),
+      description: getLocalizedText(lesson.description, language),
+      estimatedMinutes: lesson.estimatedMinutes || 8,
+      order: lesson.order || 0,
+      type: lesson.type,
+      difficulty: lesson.difficulty,
+      tags: lesson.tags || [],
+      xpReward: lesson.xpReward || 25,
+      hasAudio: lesson.hasAudio ?? true,
+      hasVideo: lesson.hasVideo ?? false,
+      previewText: lesson.previewText,
+      taskTypes: taskTypes || lesson.tasks?.map(t => t.type as TaskType) || [],
+      progress: progress,
+      tasks: lesson.tasks?.map(task => ({
+        ref: task.ref,
+        type: task.type as TaskType,
+        data: task.data
+      }))
+    };
+  }
+}
+
+/**
+ * Маппер для преобразования UserLessonProgress схемы в LessonProgress DTO
+ */
+export class LessonProgressMapper {
+  static toDto(progress: UserLessonProgress): LessonProgress {
+    return {
+      status: progress.status,
+      score: progress.score || 0,
+      attempts: progress.attempts || 0,
+      completedAt: progress.completedAt?.toISOString(),
+      timeSpent: progress.timeSpent || 0
+    };
+  }
+}
+
+/**
+ * Маппер для преобразования VocabularyItem схемы в VocabType DTO
+ */
+export class VocabularyMapper {
+  static toDto(vocab: VocabularyItem): VocabType {
+    return {
+      id: vocab.id,
+      word: vocab.word,
+      translation: vocab.translation,
+      transcription: vocab.transcription,
+      pronunciation: vocab.pronunciation,
+      partOfSpeech: vocab.partOfSpeech,
+      difficulty: vocab.difficulty,
+      examples: vocab.examples || [],
+      tags: vocab.tags || [],
+      lessonRefs: vocab.lessonRefs || [],
+      isLearned: vocab.isLearned || false
+    };
+  }
+}
+
+/**
+ * Маппер для преобразования User схемы в упрощенный пользовательский объект
+ */
+export class UserMapper {
+  static toPublicProfile(user: User) {
+    return {
+      userId: user.userId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      languageCode: user.languageCode,
+      photoUrl: user.photoUrl,
+      englishLevel: user.englishLevel,
+      learningGoals: user.learningGoals,
+      xpTotal: user.xpTotal,
+      streak: user.streak,
+      pro: user.pro
+    };
+  }
+}

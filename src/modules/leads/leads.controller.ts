@@ -11,7 +11,7 @@ export class LeadsController {
   async botStart(
     @Body()
     body: {
-      userId: number;
+      userId: string;
       utm?: Record<string, string>;
       promoId?: string;
     },

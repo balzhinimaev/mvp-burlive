@@ -9,7 +9,7 @@ export class Entitlement {
   userId!: string;
 
   @Prop({ required: true })
-  product!: 'monthly' | 'quarterly';
+  product!: 'monthly' | 'quarterly' | 'yearly';
 
   @Prop({ required: true })
   startsAt!: Date;

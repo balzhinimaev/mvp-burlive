@@ -1,0 +1,99 @@
+// src/common/types/content.ts
+export type CEFR = 'A0'|'A1'|'A2'|'B1'|'B2'|'C1'|'C2';
+
+export interface ModuleProgress {
+  completed: number;
+  total: number;
+  inProgress: number;
+}
+
+export interface ModuleItem {
+  moduleRef: string;
+  level: CEFR;
+  title: string;              // Простой string как «presented» поле; хранить можно мультиязычно
+  description?: string;
+  tags: string[];
+  order: number;
+  requiresPro: boolean;
+  isAvailable: boolean;
+  progress?: ModuleProgress;  // вычисляется для текущего userId
+}
+
+export type LessonStatus = 'completed' | 'in_progress' | 'not_started';
+export type LessonType = 'conversation' | 'vocabulary' | 'grammar';
+export type LessonDifficulty = 'easy' | 'medium' | 'hard';
+export type TaskType =
+  | 'choice' | 'gap' | 'match' | 'listen' | 'speak' | 'order' | 'translate'
+  | 'multiple_choice' | 'flashcard' | 'listening' | 'matching';
+
+export interface LessonProgress {
+  status: LessonStatus;
+  score: number;
+  attempts: number;
+  completedAt?: string;
+  timeSpent?: number; // seconds
+}
+
+export interface Task {
+  ref: string;
+  type: TaskType;
+  data: Record<string, any>;
+}
+
+export interface LessonItem {
+  lessonRef: string;
+  moduleRef: string;
+  title: string;
+  description?: string;
+  estimatedMinutes: number;
+  order: number;
+  type?: LessonType;
+  difficulty?: LessonDifficulty;
+  tags?: string[];
+  xpReward?: number;
+  hasAudio?: boolean;
+  hasVideo?: boolean;
+  previewText?: string;
+  taskTypes?: TaskType[];
+  progress?: LessonProgress;
+  tasks?: Task[]; // для detailed
+}
+
+export interface VocabularyItem {
+  id: string;
+  word: string;
+  translation: string;
+  transcription?: string;
+  pronunciation?: string;
+  partOfSpeech?: string;
+  difficulty?: string;
+  examples?: Array<{ original: string; translation: string }>;
+  tags?: string[];
+  lessonRefs?: string[];
+  isLearned?: boolean;
+}
+
+export type UserCohort =
+  | 'new_user' | 'returning_user' | 'premium_trial'
+  | 'high_engagement' | 'low_engagement' | 'churned' | 'default';
+
+export interface CohortPricing {
+  cohort: UserCohort;
+  monthlyPrice: number;
+  monthlyOriginalPrice: number;
+  quarterlyPrice: number;
+  yearlyPrice: number;
+  promoCode?: string;
+  discountPercentage?: number;
+}
+
+export interface PaywallProduct {
+  id: 'monthly' | 'quarterly' | 'yearly';
+  name: string;
+  description: string;
+  price: number;
+  currency: 'RUB';
+  duration: 'month'|'quarter'|'year';
+  discount?: number;
+  isPopular?: boolean;
+}

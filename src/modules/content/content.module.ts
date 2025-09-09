@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ContentController } from './content.controller';
+import { ContentV2Controller } from './content-v2.controller';
 import { AuthModule } from '../auth/auth.module';
 import { User, UserSchema } from '../common/schemas/user.schema';
 import { CourseModule, CourseModuleSchema } from '../common/schemas/course-module.schema';
@@ -18,7 +19,7 @@ import { AdminContentController } from './admin-content.controller';
       { name: 'UserLessonProgress', schema: require('../common/schemas/user-lesson-progress.schema').UserLessonProgressSchema },
     ]),
   ],
-  controllers: [ContentController, AdminContentController],
+  controllers: [ContentController, ContentV2Controller, AdminContentController],
   providers: [ContentService],
 })
 export class ContentModule {}
