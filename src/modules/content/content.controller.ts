@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
 import { OptionalUserGuard } from '../common/guards/optional-user.guard';
+import { LessonPrerequisiteGuard } from './guards/lesson-prerequisite.guard';
 import { CourseModule, CourseModuleDocument } from '../common/schemas/course-module.schema';
 import { Lesson, LessonDocument } from '../common/schemas/lesson.schema';
 import { User, UserDocument } from '../common/schemas/user.schema';
@@ -10,6 +11,7 @@ import { UserLessonProgress, UserLessonProgressDocument } from '../common/schema
 import { getLocalizedText, parseLanguage } from '../common/utils/i18n.util';
 import { ModuleMapper, LessonMapper, LessonProgressMapper } from '../common/utils/mappers';
 import { GetModulesDto, GetLessonsDto, GetLessonDto } from './dto/get-content.dto';
+import { ContentService } from './content.service';
 
 @Controller('content')
 @UseGuards(OptionalUserGuard)
@@ -19,6 +21,7 @@ export class ContentController {
     @InjectModel(CourseModule.name) private readonly moduleModel: Model<CourseModuleDocument>,
     @InjectModel(Lesson.name) private readonly lessonModel: Model<LessonDocument>,
     @InjectModel(UserLessonProgress.name) private readonly ulpModel: Model<UserLessonProgressDocument>,
+    private readonly contentService: ContentService,
   ) {}
 
   @Get('modules')
@@ -133,7 +136,7 @@ export class ContentController {
   }
 
   @Get('lessons/:lessonRef')
-  @UseGuards(TelegramAuthGuard)
+  @UseGuards(TelegramAuthGuard, LessonPrerequisiteGuard)
   async getLesson(@Param('lessonRef') lessonRef: string, @Query() query: GetLessonDto) {
     const { userId, lang } = query;
     const language = parseLanguage(lang);
@@ -160,6 +163,31 @@ export class ContentController {
         progress ? LessonProgressMapper.toDto(progress as any) : undefined,
         (lesson as any).tasks?.map((t: any) => t.type)
       ),
+    };
+  }
+
+  /**
+   * Проверяет, может ли пользователь начать урок
+   * @param lessonRef - Ссылка на урок
+   * @param query - Параметры запроса с userId
+   * @returns Результат проверки предварительных условий
+   */
+  @Get('lessons/:lessonRef/check-prerequisite')
+  @UseGuards(TelegramAuthGuard)
+  async checkLessonPrerequisite(@Param('lessonRef') lessonRef: string, @Query() query: { userId: string }) {
+    const { userId } = query;
+    
+    if (!userId) {
+      return { error: 'userId is required' };
+    }
+
+    const result = await this.contentService.canStartLesson(userId, lessonRef);
+    
+    return {
+      canStart: result.canStart,
+      reason: result.reason,
+      requiredLesson: result.requiredLesson,
+      lessonRef
     };
   }
 
