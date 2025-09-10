@@ -31,6 +31,20 @@ x-idempotency-key: ik_1
   "status": "succeeded"
 }
 
+### YooKassa Webhook (local dev)
+POST http://localhost:7777/api/v2/payments/webhook/yookassa
+Content-Type: application/json
+Idempotence-Key: demo-idem-key-123
+
+{
+  "event": "payment.succeeded",
+  "object": {
+    "id": "23d93cac-000f-5000-8000-126628f15141",
+    "amount": { "value": "100.00", "currency": "RUB" },
+    "metadata": { "userId": "test-user-123", "product": "monthly" }
+  }
+}
+
 ### Entitlements
 GET {{base}}/entitlements/12345
 

@@ -10,8 +10,8 @@ interface WebhookPayload {
   provider: string;
   providerId: string;
   idempotencyKey: string;
-  userId: number;
-  product: 'monthly' | 'quarterly';
+  userId: string;
+  product: 'monthly' | 'quarterly' | 'yearly';
   amount: number; // RUB cents
   currency: string; // RUB
   status: 'succeeded' | 'pending' | 'failed';
@@ -48,15 +48,19 @@ export class PaymentsService {
         ], { session });
 
         if (payload.status === 'succeeded') {
-          const durationDays = payload.product === 'monthly' ? 30 : 90;
+          const durationDays = payload.product === 'yearly' ? 365 : payload.product === 'monthly' ? 30 : 90;
           const now = new Date();
-          const endsAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+          // Fetch existing entitlement to extend from current endsAt if in the future
+          const existing = await this.entitlementModel.findOne({ userId: payload.userId, product: payload.product }).session(session);
+          const base = existing?.endsAt && existing.endsAt > now ? existing.endsAt : now;
+          const newEndsAt = new Date(base.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
           await this.entitlementModel.updateOne(
             { userId: payload.userId, product: payload.product },
             {
-              $setOnInsert: { startsAt: now },
-              $set: { endsAt },
+              $setOnInsert: { startsAt: existing?.startsAt || now },
+              $set: { endsAt: newEndsAt },
             },
             { upsert: true, session },
           );
@@ -91,6 +95,52 @@ export class PaymentsService {
     } finally {
       await session.endSession();
     }
+  }
+
+  /**
+   * Process YooKassa webhook payload (payment.* events)
+   * See: https://yookassa.ru/developers/payment-acceptance/getting-started/quick-start
+   */
+  async processYooKassaWebhook(
+    payload: { event: string; object: any },
+    idempotenceKeyHeader?: string,
+  ): Promise<{ ok: boolean }> {
+    const eventType = payload?.event;
+    const paymentObj = payload?.object || {};
+
+    const provider = 'yookassa';
+    const providerId: string = paymentObj?.id || 'unknown';
+    const amountValue: number = Math.round(parseFloat(paymentObj?.amount?.value || '0') * 100);
+    const currency: string = paymentObj?.amount?.currency || 'RUB';
+    const metadata: any = paymentObj?.metadata || {};
+
+    // Expect client to send userId & product in metadata
+    const userIdRaw = metadata.userId;
+    const productRaw = metadata.product as 'monthly' | 'quarterly' | 'yearly' | undefined;
+    const userId = typeof userIdRaw === 'string' ? userIdRaw : String(userIdRaw || '');
+
+    const statusMap: Record<string, 'succeeded' | 'pending' | 'failed'> = {
+      'payment.succeeded': 'succeeded',
+      'payment.waiting_for_capture': 'pending',
+      'payment.canceled': 'failed',
+      'refund.succeeded': 'succeeded',
+    } as const;
+    const mappedStatus = statusMap[eventType] || 'pending';
+
+    // Determine product and entitlement duration
+    const product: 'monthly' | 'quarterly' | 'yearly' = (productRaw as any) || 'monthly';
+
+    // Reuse existing logic with normalized payload
+    return this.processWebhook({
+      provider,
+      providerId,
+      idempotencyKey: idempotenceKeyHeader || providerId,
+      userId,
+      product: product === 'yearly' ? 'yearly' : product,
+      amount: amountValue,
+      currency,
+      status: mappedStatus,
+    });
   }
 }
 
