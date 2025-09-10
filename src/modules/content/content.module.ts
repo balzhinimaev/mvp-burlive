@@ -8,6 +8,8 @@ import { CourseModule, CourseModuleSchema } from '../common/schemas/course-modul
 import { Lesson, LessonSchema } from '../common/schemas/lesson.schema';
 import { ContentService } from './content.service';
 import { AdminContentController } from './admin-content.controller';
+import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
+import { OptionalUserGuard } from '../common/guards/optional-user.guard';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { AdminContentController } from './admin-content.controller';
     ]),
   ],
   controllers: [ContentController, ContentV2Controller, AdminContentController],
-  providers: [ContentService],
+  providers: [ContentService, TelegramAuthGuard, OptionalUserGuard],
 })
 export class ContentModule {}
 

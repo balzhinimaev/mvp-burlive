@@ -2,17 +2,19 @@ import { Body, Controller, Get, Headers, Param, Post, Query, UseGuards, BadReque
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ProgressService } from './progress.service';
+import { AnswerValidatorService } from './answer-validator.service';
+import { SubmitAnswerDto } from './dto/submit-answer.dto';
 import { DailyStat, DailyStatDocument } from '../common/schemas/daily-stat.schema';
 import { XpTransaction, XpTransactionDocument } from '../common/schemas/xp-transaction.schema';
 import { UserLessonProgress, UserLessonProgressDocument } from '../common/schemas/user-lesson-progress.schema';
-
-import { OnboardingGuard } from '../auth/onboarding.guard';
+import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
 
 @Controller('progress')
-@UseGuards(OnboardingGuard)
+@UseGuards(TelegramAuthGuard)
 export class ProgressController {
   constructor(
     private readonly progress: ProgressService,
+    private readonly validator: AnswerValidatorService,
     @InjectModel(DailyStat.name) private readonly dailyModel: Model<DailyStatDocument>,
     @InjectModel(XpTransaction.name) private readonly xpModel: Model<XpTransactionDocument>,
     @InjectModel(UserLessonProgress.name) private readonly ulpModel: Model<UserLessonProgressDocument>,
@@ -32,6 +34,60 @@ export class ProgressController {
     return { ok: Boolean(session) };
   }
 
+  // 🔒 НОВЫЙ БЕЗОПАСНЫЙ ЭНДПОИНТ
+  @Post('submit-answer')
+  async submitAnswer(
+    @Headers('idempotency-key') idempotencyKey: string,
+    @Body() body: SubmitAnswerDto,
+  ) {
+    if (!idempotencyKey) {
+      throw new BadRequestException('Idempotency-Key header is required');
+    }
+
+    try {
+      // 🔒 ВАЛИДАЦИЯ НА СЕРВЕРЕ
+      const validation = await this.validator.validateAnswer(
+        body.lessonRef,
+        body.taskRef,
+        body.userAnswer
+      );
+
+      // Записываем попытку с результатом валидации
+      const attempt = await this.progress.recordTaskAttempt({
+        userId: body.userId,
+        lessonRef: body.lessonRef,
+        taskRef: body.taskRef,
+        isCorrect: validation.isCorrect,
+        score: validation.score,
+        durationMs: body.durationMs,
+        variantKey: body.variantKey,
+        sessionId: body.sessionId,
+        clientAttemptId: idempotencyKey,
+        lastTaskIndex: body.lastTaskIndex,
+        isLastTask: body.isLastTask,
+        userAnswer: body.userAnswer,
+        correctAnswer: validation.correctAnswer,
+      });
+
+      return {
+        attemptId: (attempt as any)._id,
+        isCorrect: validation.isCorrect,
+        score: validation.score,
+        feedback: validation.feedback,
+        correctAnswer: validation.correctAnswer, // Показываем ПОСЛЕ ответа
+        explanation: validation.explanation,
+      };
+    } catch (error) {
+      console.error('Answer validation error:', error);
+      return {
+        isCorrect: false,
+        score: 0,
+        feedback: 'An error occurred while checking your answer',
+      };
+    }
+  }
+
+  // 🚨 СТАРЫЙ НЕБЕЗОПАСНЫЙ ЭНДПОИНТ (для обратной совместимости)
   @Post('attempts')
   async attempt(
     @Headers('idempotency-key') idempotencyKey: string,
@@ -52,6 +108,8 @@ export class ProgressController {
       correctAnswer?: string;
     },
   ) {
+    console.warn(`⚠️ SECURITY WARNING: Using deprecated /attempts endpoint for ${body.taskRef}`);
+    
     if (!idempotencyKey) {
       throw new BadRequestException('Idempotency-Key header is required');
     }

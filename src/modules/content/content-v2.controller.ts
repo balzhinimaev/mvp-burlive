@@ -1,13 +1,15 @@
 // src/content/content-v2.controller.ts
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CourseModule, CourseModuleDocument } from '../common/schemas/course-module.schema';
 import { Lesson, LessonDocument } from '../common/schemas/lesson.schema';
 import { UserLessonProgress, UserLessonProgressDocument } from '../common/schemas/user-lesson-progress.schema';
 import { presentLesson, presentModule } from './presenter';
+import { OptionalUserGuard } from '../common/guards/optional-user.guard';
 
 @Controller('content/v2')
+@UseGuards(OptionalUserGuard)
 export class ContentV2Controller {
   constructor(
     @InjectModel(CourseModule.name) private moduleModel: Model<CourseModuleDocument>,

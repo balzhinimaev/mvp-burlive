@@ -1,15 +1,18 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { OnboardingGuard } from '../auth/onboarding.guard';
+import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
+import { OptionalUserGuard } from '../common/guards/optional-user.guard';
 import { CourseModule, CourseModuleDocument } from '../common/schemas/course-module.schema';
 import { Lesson, LessonDocument } from '../common/schemas/lesson.schema';
 import { User, UserDocument } from '../common/schemas/user.schema';
 import { UserLessonProgress, UserLessonProgressDocument } from '../common/schemas/user-lesson-progress.schema';
 import { getLocalizedText, parseLanguage } from '../common/utils/i18n.util';
 import { ModuleMapper, LessonMapper, LessonProgressMapper } from '../common/utils/mappers';
+import { GetModulesDto, GetLessonsDto, GetLessonDto } from './dto/get-content.dto';
 
 @Controller('content')
+@UseGuards(OptionalUserGuard)
 export class ContentController {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
@@ -19,11 +22,17 @@ export class ContentController {
   ) {}
 
   @Get('modules')
-  @UseGuards(OnboardingGuard)
-  async getModules(@Query('level') level?: string, @Query('userId') userId?: string, @Query('lang') lang?: string) {
+  @UseGuards(TelegramAuthGuard)
+  async getModules(@Query() query: GetModulesDto) {
+    const { userId, level, lang } = query;
     const language = parseLanguage(lang);
     const filter: any = { published: true };
     if (level) filter.level = level;
+
+    // 🔒 ДОПОЛНИТЕЛЬНАЯ ВАЛИДАЦИЯ moduleRef (если есть)
+    if (level && !['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(level)) {
+      return { error: 'Invalid level' };
+    }
     
     const modules = await this.moduleModel
       .find(filter)
@@ -76,11 +85,18 @@ export class ContentController {
   }
 
   @Get('lessons')
-  @UseGuards(OnboardingGuard)
-  async getLessons(@Query('moduleRef') moduleRef?: string, @Query('userId') userId?: string, @Query('lang') lang?: string) {
+  @UseGuards(TelegramAuthGuard)
+  async getLessons(@Query() query: GetLessonsDto) {
+    const { userId, moduleRef, lang } = query;
     const language = parseLanguage(lang);
     const filter: any = { published: true };
-    if (moduleRef) filter.moduleRef = moduleRef;
+    if (moduleRef) {
+      // 🔒 БАЗОВАЯ ВАЛИДАЦИЯ moduleRef
+      if (!/^[a-z0-9]+\.[a-z0-9_]+$/.test(moduleRef)) {
+        return { error: 'Invalid moduleRef format' };
+      }
+      filter.moduleRef = moduleRef;
+    }
     
     const lessons = await this.lessonModel
       .find(filter, { tasks: 0 }) // exclude tasks for list view
@@ -117,9 +133,16 @@ export class ContentController {
   }
 
   @Get('lessons/:lessonRef')
-  @UseGuards(OnboardingGuard)
-  async getLesson(@Param('lessonRef') lessonRef: string, @Query('userId') userId?: string, @Query('lang') lang?: string) {
+  @UseGuards(TelegramAuthGuard)
+  async getLesson(@Param('lessonRef') lessonRef: string, @Query() query: GetLessonDto) {
+    const { userId, lang } = query;
     const language = parseLanguage(lang);
+
+    // 🔒 БАЗОВАЯ ВАЛИДАЦИЯ lessonRef
+    if (!/^[a-z0-9]+\.[a-z0-9_]+\.\d{3}$/.test(lessonRef)) {
+      return { error: 'Invalid lessonRef format' };
+    }
+
     const lesson = await this.lessonModel.findOne({ lessonRef, published: true }).lean();
     if (!lesson) {
       return { error: 'Lesson not found' };
@@ -161,7 +184,7 @@ export class ContentController {
   }
 
   @Get('lesson1')
-  @UseGuards(OnboardingGuard)
+  @UseGuards(TelegramAuthGuard)
   lesson1(@Query('lang') lang?: string) {
     const language = parseLanguage(lang);
     const content = {
@@ -189,7 +212,7 @@ export class ContentController {
   }
 
   @Get('paywall')
-  @UseGuards(OnboardingGuard)
+  @UseGuards(TelegramAuthGuard)
   paywall(@Query('lang') lang?: string) {
     const language = parseLanguage(lang);
     const content = {
