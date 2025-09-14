@@ -1,8 +1,9 @@
-import { Controller, Get, Query, Param, Post, Body, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Query, Param, Post, Body, BadRequestException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../common/schemas/user.schema';
+import { PublicGuard } from '../common/guards/public.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -12,6 +13,7 @@ export class AuthController {
   ) {}
 
   @Get('verify')
+  @UseGuards(PublicGuard)
   async verify(
     @Query() query: Record<string, string>,
   ): Promise<{
@@ -21,12 +23,14 @@ export class AuthController {
     onboardingCompleted: boolean;
     englishLevel?: 'A0' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
     learningGoals?: string[];
+    accessToken: string;
   }> {
     const params = new URLSearchParams(query as any);
     return this.authService.verifyTelegramInitData(params);
   }
 
   @Get('onboarding/status/:userId')
+  @UseGuards(PublicGuard)
   async getOnboardingStatus(@Param('userId') userId: string) {
     const user = await this.userModel.findOne({ userId: String(userId) }).lean();
 

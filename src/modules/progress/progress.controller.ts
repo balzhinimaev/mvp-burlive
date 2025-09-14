@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Param, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Query, UseGuards, BadRequestException, Request } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ProgressService } from './progress.service';
@@ -7,10 +7,10 @@ import { SubmitAnswerDto } from './dto/submit-answer.dto';
 import { DailyStat, DailyStatDocument } from '../common/schemas/daily-stat.schema';
 import { XpTransaction, XpTransactionDocument } from '../common/schemas/xp-transaction.schema';
 import { UserLessonProgress, UserLessonProgressDocument } from '../common/schemas/user-lesson-progress.schema';
-import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('progress')
-@UseGuards(TelegramAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class ProgressController {
   constructor(
     private readonly progress: ProgressService,
@@ -22,9 +22,11 @@ export class ProgressController {
 
   @Post('sessions/start')
   async startSession(
-    @Body() body: { userId: string; moduleRef?: string; lessonRef?: string; source?: 'reminder' | 'home' | 'deeplink' | 'unknown' },
+    @Body() body: { moduleRef?: string; lessonRef?: string; source?: 'reminder' | 'home' | 'deeplink' | 'unknown' },
+    @Request() req: any,
   ) {
-    const session = await this.progress.startSession(body.userId, { moduleRef: body.moduleRef, lessonRef: body.lessonRef, source: body.source });
+    const userId = req.user?.userId; // Get userId from JWT token
+    const session = await this.progress.startSession(userId, { moduleRef: body.moduleRef, lessonRef: body.lessonRef, source: body.source });
     return { sessionId: (session as any)._id };
   }
 
@@ -39,7 +41,9 @@ export class ProgressController {
   async submitAnswer(
     @Headers('idempotency-key') idempotencyKey: string,
     @Body() body: SubmitAnswerDto,
+    @Request() req: any,
   ) {
+    const userId = req.user?.userId; // Get userId from JWT token
     if (!idempotencyKey) {
       throw new BadRequestException('Idempotency-Key header is required');
     }
@@ -54,7 +58,7 @@ export class ProgressController {
 
       // Записываем попытку с результатом валидации
       const attempt = await this.progress.recordTaskAttempt({
-        userId: body.userId,
+        userId: userId,
         lessonRef: body.lessonRef,
         taskRef: body.taskRef,
         isCorrect: validation.isCorrect,
@@ -93,7 +97,6 @@ export class ProgressController {
     @Headers('idempotency-key') idempotencyKey: string,
     @Body()
     body: {
-      userId: string;
       lessonRef: string;
       taskRef: string;
       isCorrect: boolean;
@@ -107,7 +110,9 @@ export class ProgressController {
       userAnswer?: string;
       correctAnswer?: string;
     },
+    @Request() req: any,
   ) {
+    const userId = req.user?.userId; // Get userId from JWT token
     console.warn(`⚠️ SECURITY WARNING: Using deprecated /attempts endpoint for ${body.taskRef}`);
     
     if (!idempotencyKey) {
@@ -115,7 +120,7 @@ export class ProgressController {
     }
 
     const attempt = await this.progress.recordTaskAttempt({
-      userId: body.userId,
+      userId: userId,
       lessonRef: body.lessonRef,
       taskRef: body.taskRef,
       isCorrect: body.isCorrect,
@@ -132,8 +137,9 @@ export class ProgressController {
     return { attemptId: (attempt as any)._id };
   }
 
-  @Get('stats/daily/:userId')
-  async daily(@Param('userId') userId: string, @Query('limit') limit = '14') {
+  @Get('stats/daily')
+  async daily(@Query('limit') limit = '14', @Request() req: any) {
+    const userId = req.user?.userId; // Get userId from JWT token
     const items = await this.dailyModel
       .find({ userId: String(userId) })
       .sort({ dayKey: -1 })
@@ -142,8 +148,9 @@ export class ProgressController {
     return { items };
   }
 
-  @Get('xp/:userId')
-  async xp(@Param('userId') userId: string, @Query('limit') limit = '50') {
+  @Get('xp')
+  async xp(@Query('limit') limit = '50', @Request() req: any) {
+    const userId = req.user?.userId; // Get userId from JWT token
     const items = await this.xpModel
       .find({ userId: String(userId) })
       .sort({ createdAt: -1 })
@@ -152,11 +159,13 @@ export class ProgressController {
     return { items };
   }
 
-  @Get('lessons/:userId')
-  async lessons(@Param('userId') userId: string, @Query('status') status?: 'not_started' | 'in_progress' | 'completed') {
-    const query: any = { userId: String(userId) };
-    if (status) query.status = status;
-    const items = await this.ulpModel.find(query).sort({ updatedAt: -1 }).limit(100).lean();
+  @Get('lessons')
+  async lessons(@Request() req?: any, @Query() queryParams?: { status?: 'not_started' | 'in_progress' | 'completed' }) {
+    const { status } = queryParams || {};
+    const userId = req?.user?.userId; // Get userId from JWT token
+    const dbQuery: any = { userId: String(userId) };
+    if (status) dbQuery.status = status;
+    const items = await this.ulpModel.find(dbQuery).sort({ updatedAt: -1 }).limit(100).lean();
     return { items };
   }
 }

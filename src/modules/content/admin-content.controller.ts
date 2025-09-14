@@ -1,19 +1,21 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, Request } from '@nestjs/common';
 import { ContentService } from './content.service';
-import { OnboardingGuard } from '../auth/onboarding.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AdminGuard } from '../auth/admin.guard';
 import { CreateModuleDto, UpdateModuleDto } from './dto/module.dto';
 import { CreateLessonDto, UpdateLessonDto } from './dto/lesson.dto';
 import { lintLessonTasks } from './utils/task-lint';
 
 @Controller('admin/content')
-@UseGuards(OnboardingGuard)
+@UseGuards(JwtAuthGuard, AdminGuard)
 export class AdminContentController {
   constructor(private readonly content: ContentService) {}
 
   // Modules
   @Post('modules')
-  async createModule(@Body() body: CreateModuleDto) {
-    const { userId, ...data } = body;
+  async createModule(@Body() body: CreateModuleDto, @Request() req: any) {
+    const userId = req.user?.userId; // Get userId from JWT token
+    const { userId: _, ...data } = body; // Remove userId from body
     const doc = await this.content.createModule(data as any);
     return { id: (doc as any)._id };
   }
@@ -25,15 +27,17 @@ export class AdminContentController {
   }
 
   @Patch('modules/:moduleRef')
-  async updateModule(@Param('moduleRef') moduleRef: string, @Body() body: UpdateModuleDto) {
-    const { userId, ...update } = body;
+  async updateModule(@Param('moduleRef') moduleRef: string, @Body() body: UpdateModuleDto, @Request() req: any) {
+    const userId = req.user?.userId; // Get userId from JWT token
+    const { userId: _, ...update } = body; // Remove userId from body
     return this.content.updateModule(moduleRef, update as any);
   }
 
   // Lessons
   @Post('lessons')
-  async createLesson(@Body() body: CreateLessonDto) {
-    const { userId, ...data } = body as any;
+  async createLesson(@Body() body: CreateLessonDto, @Request() req: any) {
+    const userId = req.user?.userId; // Get userId from JWT token
+    const { userId: _, ...data } = body as any; // Remove userId from body
     const errors = lintLessonTasks(data.lessonRef, data.tasks);
     if (errors.length) {
       return { ok: false, errors };
@@ -49,8 +53,9 @@ export class AdminContentController {
   }
 
   @Patch('lessons/:lessonRef')
-  async updateLesson(@Param('lessonRef') lessonRef: string, @Body() body: UpdateLessonDto) {
-    const { userId, ...update } = body as any;
+  async updateLesson(@Param('lessonRef') lessonRef: string, @Body() body: UpdateLessonDto, @Request() req: any) {
+    const userId = req.user?.userId; // Get userId from JWT token
+    const { userId: _, ...update } = body as any; // Remove userId from body
     const errors = lintLessonTasks(lessonRef, update.tasks);
     if (errors.length) {
       return { ok: false, errors };

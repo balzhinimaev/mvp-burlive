@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Patch, Post, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, BadRequestException, UseGuards, Request } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../common/schemas/user.schema';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 // Allowed values are defined at module scope to avoid referencing `this` in type annotations
 const ALLOWED_GOALS = [
@@ -19,11 +20,13 @@ const ALLOWED_REMINDER_TIMES = ['morning', 'afternoon', 'evening'] as const;
 type ReminderTime = (typeof ALLOWED_REMINDER_TIMES)[number];
 
 @Controller('profile')
+@UseGuards(JwtAuthGuard)
 export class ProfileController {
   constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
 
-  @Get(':userId')
-  async get(@Param('userId') userId: string) {
+  @Get()
+  async get(@Request() req: any) {
+    const userId = req.user?.userId; // Get userId from JWT token
     const user = await this.userModel.findOne({ userId: String(userId) }).lean();
     return { user };
   }
@@ -32,16 +35,16 @@ export class ProfileController {
   async update(
     @Body()
     body: {
-      userId: string;
       firstName?: string;
       lastName?: string;
       username?: string;
       languageCode?: string;
       photoUrl?: string;
     },
+    @Request() req: any,
   ) {
-    const { userId, ...profile } = body;
-    await this.userModel.updateOne({ userId }, { $set: profile }, { upsert: true });
+    const userId = req.user?.userId; // Get userId from JWT token
+    await this.userModel.updateOne({ userId }, { $set: body }, { upsert: true });
     return { ok: true };
   }
 
@@ -49,18 +52,15 @@ export class ProfileController {
   async completeOnboarding(
     @Body()
     body: {
-      userId: string;
       // Backward compatibility: keep englishLevel, but also accept new proficiencyLevel
       englishLevel?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
       proficiencyLevel?: 'beginner' | 'intermediate' | 'advanced';
       learningGoals?: string[];
     },
+    @Request() req: any,
   ) {
-    const { userId, englishLevel, proficiencyLevel, learningGoals } = body;
-    if (!userId) {
-      // For protected endpoints userId must be provided in the top-level request body
-      throw new BadRequestException('userId is required');
-    }
+    const userId = req.user?.userId; // Get userId from JWT token
+    const { englishLevel, proficiencyLevel, learningGoals } = body;
 
     // Prepare $set object idempotently
     const set: Record<string, any> = {
@@ -91,14 +91,12 @@ export class ProfileController {
   async saveLearningGoals(
     @Body()
     body: {
-      userId: string;
       goals: AllowedGoal[];
     },
+    @Request() req: any,
   ) {
-    const { userId, goals } = body;
-    if (!userId) {
-      throw new BadRequestException('userId is required');
-    }
+    const userId = req.user?.userId; // Get userId from JWT token
+    const { goals } = body;
     if (!Array.isArray(goals) || goals.length === 0) {
       throw new BadRequestException('goals must be a non-empty array');
     }
@@ -118,15 +116,13 @@ export class ProfileController {
   async saveDailyGoal(
     @Body()
     body: {
-      userId: string;
       dailyGoalMinutes: 5 | 10 | 15 | 20;
       allowsNotifications?: boolean;
     },
+    @Request() req: any,
   ) {
-    const { userId, dailyGoalMinutes, allowsNotifications } = body;
-    if (!userId) {
-      throw new BadRequestException('userId is required');
-    }
+    const userId = req.user?.userId; // Get userId from JWT token
+    const { dailyGoalMinutes, allowsNotifications } = body;
     if (!this.isValidDailyGoal(dailyGoalMinutes)) {
       throw new BadRequestException('dailyGoalMinutes must be one of 5, 10, 15, 20');
     }
@@ -146,18 +142,16 @@ export class ProfileController {
   async saveReminderSettings(
     @Body()
     body: {
-      userId: string;
       reminderSettings: {
         enabled: boolean;
         time: 'morning' | 'afternoon' | 'evening';
         allowsNotifications?: boolean;
       };
     },
+    @Request() req: any,
   ) {
-    const { userId, reminderSettings } = body;
-    if (!userId) {
-      throw new BadRequestException('userId is required');
-    }
+    const userId = req.user?.userId; // Get userId from JWT token
+    const { reminderSettings } = body;
     if (!reminderSettings || typeof reminderSettings !== 'object') {
       throw new BadRequestException('reminderSettings is required');
     }

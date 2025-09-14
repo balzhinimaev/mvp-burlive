@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OptionalUserGuard } from '../common/guards/optional-user.guard';
+import { PublicGuard } from '../common/guards/public.guard';
 import { LessonPrerequisiteGuard } from './guards/lesson-prerequisite.guard';
 import { CourseModule, CourseModuleDocument } from '../common/schemas/course-module.schema';
 import { Lesson, LessonDocument } from '../common/schemas/lesson.schema';
@@ -25,9 +26,10 @@ export class ContentController {
   ) {}
 
   @Get('modules')
-  @UseGuards(TelegramAuthGuard)
-  async getModules(@Query() query: GetModulesDto) {
-    const { userId, level, lang } = query;
+  @UseGuards(JwtAuthGuard)
+  async getModules(@Query() query: GetModulesDto, @Request() req: any) {
+    const { level, lang } = query;
+    const userId = req.user?.userId; // Get userId from JWT token
     const language = parseLanguage(lang);
     const filter: any = { published: true };
     if (level) filter.level = level;
@@ -88,9 +90,10 @@ export class ContentController {
   }
 
   @Get('lessons')
-  @UseGuards(TelegramAuthGuard)
-  async getLessons(@Query() query: GetLessonsDto) {
-    const { userId, moduleRef, lang } = query;
+  @UseGuards(JwtAuthGuard)
+  async getLessons(@Query() query: GetLessonsDto, @Request() req: any) {
+    const { moduleRef, lang } = query;
+    const userId = req.user?.userId; // Get userId from JWT token
     const language = parseLanguage(lang);
     const filter: any = { published: true };
     if (moduleRef) {
@@ -136,9 +139,10 @@ export class ContentController {
   }
 
   @Get('lessons/:lessonRef')
-  @UseGuards(TelegramAuthGuard, LessonPrerequisiteGuard)
-  async getLesson(@Param('lessonRef') lessonRef: string, @Query() query: GetLessonDto) {
-    const { userId, lang } = query;
+  @UseGuards(JwtAuthGuard, LessonPrerequisiteGuard)
+  async getLesson(@Param('lessonRef') lessonRef: string, @Query() query: GetLessonDto, @Request() req: any) {
+    const { lang } = query;
+    const userId = req.user?.userId; // Get userId from JWT token
     const language = parseLanguage(lang);
 
     // 🔒 БАЗОВАЯ ВАЛИДАЦИЯ lessonRef
@@ -173,9 +177,9 @@ export class ContentController {
    * @returns Результат проверки предварительных условий
    */
   @Get('lessons/:lessonRef/check-prerequisite')
-  @UseGuards(TelegramAuthGuard)
-  async checkLessonPrerequisite(@Param('lessonRef') lessonRef: string, @Query() query: { userId: string }) {
-    const { userId } = query;
+  @UseGuards(JwtAuthGuard)
+  async checkLessonPrerequisite(@Param('lessonRef') lessonRef: string, @Request() req: any) {
+    const userId = req.user?.userId; // Get userId from JWT token
     
     if (!userId) {
       return { error: 'userId is required' };
@@ -192,6 +196,7 @@ export class ContentController {
   }
 
   @Get('onboarding')
+  @UseGuards(PublicGuard)
   onboarding(@Query('lang') lang?: string) {
     const language = parseLanguage(lang);
     const content = {
@@ -212,7 +217,7 @@ export class ContentController {
   }
 
   @Get('lesson1')
-  @UseGuards(TelegramAuthGuard)
+  @UseGuards(JwtAuthGuard)
   lesson1(@Query('lang') lang?: string) {
     const language = parseLanguage(lang);
     const content = {
@@ -240,7 +245,7 @@ export class ContentController {
   }
 
   @Get('paywall')
-  @UseGuards(TelegramAuthGuard)
+  @UseGuards(JwtAuthGuard)
   paywall(@Query('lang') lang?: string) {
     const language = parseLanguage(lang);
     const content = {

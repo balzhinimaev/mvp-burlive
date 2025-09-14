@@ -4,9 +4,6 @@ import { TaskDto } from './task-data.dto';
 
 export class CreateLessonDto {
   @IsString()
-  userId!: string;
-
-  @IsString()
   moduleRef!: string;
 
   @IsString()

@@ -13,7 +13,6 @@ import { Achievement, AchievementSchema } from '../common/schemas/achievement.sc
 import { Lesson, LessonSchema } from '../common/schemas/lesson.schema';
 import { AuthModule } from '../auth/auth.module';
 import { SessionCleanupService } from './session-cleanup.service';
-import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
 
 @Module({
   imports: [
@@ -30,7 +29,7 @@ import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
     ]),
   ],
   controllers: [ProgressController],
-  providers: [ProgressService, AnswerValidatorService, SessionCleanupService, TelegramAuthGuard],
+  providers: [ProgressService, AnswerValidatorService, SessionCleanupService],
   exports: [ProgressService],
 })
 export class ProgressModule {}

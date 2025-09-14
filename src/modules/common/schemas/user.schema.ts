@@ -74,6 +74,9 @@ export class User {
   @Prop({ type: Object })
   pro?: { active: boolean; since?: Date; plan?: string };
 
+  @Prop({ default: false })
+  isAdmin?: boolean;
+
   // Timestamps fields (automatically added by Mongoose with timestamps: true)
   createdAt?: Date;
   updatedAt?: Date;

@@ -9,8 +9,8 @@ import { Lesson, LessonSchema } from '../common/schemas/lesson.schema';
 import { UserLessonProgress, UserLessonProgressSchema } from '../common/schemas/user-lesson-progress.schema';
 import { ContentService } from './content.service';
 import { AdminContentController } from './admin-content.controller';
-import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
 import { OptionalUserGuard } from '../common/guards/optional-user.guard';
+import { PublicGuard } from '../common/guards/public.guard';
 import { LessonPrerequisiteGuard } from './guards/lesson-prerequisite.guard';
 
 @Module({
@@ -24,7 +24,7 @@ import { LessonPrerequisiteGuard } from './guards/lesson-prerequisite.guard';
     ]),
   ],
   controllers: [ContentController, ContentV2Controller, AdminContentController],
-  providers: [ContentService, TelegramAuthGuard, OptionalUserGuard, LessonPrerequisiteGuard],
+  providers: [ContentService, OptionalUserGuard, PublicGuard, LessonPrerequisiteGuard],
 })
 export class ContentModule {}
 

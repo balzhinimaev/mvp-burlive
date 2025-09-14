@@ -1,8 +1,8 @@
-import { Body, Controller, Headers, HttpCode, Post, Get, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Headers, HttpCode, Post, Get, Query, UseGuards, Request } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { IsString, IsOptional, IsIn } from 'class-validator';
 import { PaymentsService } from './payments.service';
-import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 class YooKassaWebhookDto {
   event!: string; // e.g., 'payment.succeeded'
@@ -10,9 +10,6 @@ class YooKassaWebhookDto {
 }
 
 class CreatePaymentDto {
-  @IsString()
-  userId!: string;
-
   @IsString()
   @IsIn(['monthly', 'quarterly', 'yearly'])
   product!: 'monthly' | 'quarterly' | 'yearly';
@@ -33,11 +30,12 @@ export class PaymentsController {
   // Create payment endpoint
   @Post('create')
   @HttpCode(201)
-  @UseGuards(TelegramAuthGuard) // 🔒 Require authentication
+  @UseGuards(JwtAuthGuard) // 🔒 Require JWT authentication
   @ApiOperation({ summary: 'Create payment via YooKassa' })
   @ApiBody({ type: CreatePaymentDto })
-  async createPayment(@Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentsService.createPayment(createPaymentDto);
+  async createPayment(@Body() createPaymentDto: CreatePaymentDto, @Request() req: any) {
+    const userId = req.user?.userId; // Get userId from JWT token
+    return this.paymentsService.createPayment({ ...createPaymentDto, userId });
   }
 
   // Get payment status

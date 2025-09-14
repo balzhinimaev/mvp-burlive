@@ -1,13 +1,15 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Lead, LeadDocument } from '../common/schemas/lead.schema';
+import { PublicGuard } from '../common/guards/public.guard';
 
 @Controller('leads')
 export class LeadsController {
   constructor(@InjectModel(Lead.name) private readonly leadModel: Model<LeadDocument>) {}
 
   @Post('bot_start')
+  @UseGuards(PublicGuard)
   async botStart(
     @Body()
     body: {

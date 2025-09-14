@@ -5,7 +5,9 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { OnboardingGuard } from './onboarding.guard';
+import { AdminGuard } from './admin.guard';
 import { JwtStrategy } from './jwt.strategy';
+import { PublicGuard } from '../common/guards/public.guard';
 import { User, UserSchema } from '../common/schemas/user.schema';
 import { AppEvent, EventSchema } from '../common/schemas/event.schema';
 
@@ -21,9 +23,9 @@ import { AppEvent, EventSchema } from '../common/schemas/event.schema';
       signOptions: { expiresIn: '24h' },
     }),
   ],
-  providers: [AuthService, OnboardingGuard, JwtStrategy],
+  providers: [AuthService, OnboardingGuard, AdminGuard, JwtStrategy, PublicGuard],
   controllers: [AuthController],
-  exports: [AuthService, OnboardingGuard, JwtModule],
+  exports: [AuthService, OnboardingGuard, AdminGuard, PublicGuard, JwtModule],
 })
 export class AuthModule {}
 
