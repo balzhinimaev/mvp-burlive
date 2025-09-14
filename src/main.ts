@@ -5,6 +5,10 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { cors: true });
+  
+  // Set global prefix for all routes
+  app.setGlobalPrefix('api/v2');
+  
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -26,7 +30,7 @@ async function bootstrap(): Promise<void> {
       .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup('api/docs', app, document);
+    SwaggerModule.setup('docs', app, document);
   } catch (e) {
     // noop if swagger is not installed
   }

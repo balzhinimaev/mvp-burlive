@@ -15,7 +15,7 @@ class CreatePaymentDto {
 }
 
 @ApiTags('Payments')
-@Controller('api/v2/payments')
+@Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
