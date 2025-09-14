@@ -276,6 +276,18 @@ export class PaymentsService {
 
       const paymentResponse = await response.json() as YooKassaPaymentResponse;
 
+      // Save payment to database immediately
+      await this.paymentModel.create([{
+        userId: request.userId,
+        provider: 'yookassa',
+        providerId: paymentResponse.id,
+        idempotencyKey: idempotencyKey,
+        product: request.product,
+        amount: amount,
+        currency: 'RUB',
+        status: 'pending'
+      }]);
+
       // Log payment creation event
       await this.eventModel.create([{
         userId: request.userId,

@@ -8,7 +8,7 @@ import { AppEvent, EventSchema } from '../common/schemas/event.schema';
 import { User, UserSchema } from '../common/schemas/user.schema';
 import { UserLessonProgress, UserLessonProgressSchema } from '../common/schemas/user-lesson-progress.schema';
 import { AuthModule } from '../auth/auth.module';
-import { PricingService } from '../paywall/pricing.service';
+import { PaywallModule } from '../paywall/paywall.module';
 
 @Module({
   imports: [
@@ -20,8 +20,9 @@ import { PricingService } from '../paywall/pricing.service';
       { name: UserLessonProgress.name, schema: UserLessonProgressSchema },
     ]),
     AuthModule,
+    PaywallModule,
   ],
-  providers: [PaymentsService, PricingService],
+  providers: [PaymentsService],
   controllers: [PaymentsController],
 })
 export class PaymentsModule {}

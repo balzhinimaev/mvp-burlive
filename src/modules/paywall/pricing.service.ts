@@ -19,21 +19,21 @@ export class PricingService {
 
   getPricing(cohort: UserCohort): CohortPricing {
     const base = { 
-      monthlyOriginalPrice: 990, 
-      monthlyPrice: 890, 
-      quarterlyPrice: 1190, 
-      yearlyPrice: 2490 
+      monthlyOriginalPrice: 99000, // 990₽ в копейках
+      monthlyPrice: 89000, // 890₽ в копейках
+      quarterlyPrice: 119000, // 1190₽ в копейках
+      yearlyPrice: 249000 // 2490₽ в копейках
     };
     
     // Подставь свои скидки:
     const map: Record<UserCohort, Partial<CohortPricing>> = {
-      new_user: { discountPercentage: 25, monthlyPrice: 790, promoCode: 'WELCOME25' },
-      returning_user: { discountPercentage: 15, monthlyPrice: 840, promoCode: 'COMEBACK15' },
-      premium_trial: { discountPercentage: 50, monthlyPrice: 690, promoCode: 'TRIAL50' },
-      high_engagement: { discountPercentage: 20, monthlyPrice: 790, promoCode: 'ACTIVE20' },
-      low_engagement: { discountPercentage: 40, monthlyPrice: 590, promoCode: 'BOOST40' },
-      churned: { discountPercentage: 60, monthlyPrice: 490, promoCode: 'WINBACK60' },
-      default: { discountPercentage: 10, monthlyPrice: 890 },
+      new_user: { discountPercentage: 25, monthlyPrice: 79000, promoCode: 'WELCOME25' }, // 790₽
+      returning_user: { discountPercentage: 15, monthlyPrice: 84000, promoCode: 'COMEBACK15' }, // 840₽
+      premium_trial: { discountPercentage: 50, monthlyPrice: 69000, promoCode: 'TRIAL50' }, // 690₽
+      high_engagement: { discountPercentage: 20, monthlyPrice: 79000, promoCode: 'ACTIVE20' }, // 790₽
+      low_engagement: { discountPercentage: 40, monthlyPrice: 59000, promoCode: 'BOOST40' }, // 590₽
+      churned: { discountPercentage: 60, monthlyPrice: 49000, promoCode: 'WINBACK60' }, // 490₽
+      default: { discountPercentage: 10, monthlyPrice: 89000 }, // 890₽
     };
     
     return { cohort, ...base, ...(map[cohort] || {}) } as CohortPricing;
@@ -45,7 +45,7 @@ export class PricingService {
         id: 'monthly', 
         name: 'Месяц', 
         description: 'Полный доступ ко всем урокам', 
-        price: pricing.monthlyPrice, 
+        price: pricing.monthlyPrice, // в копейках
         currency: 'RUB', 
         duration: 'month', 
         discount: pricing.discountPercentage, 
@@ -55,7 +55,7 @@ export class PricingService {
         id: 'quarterly', 
         name: '3 месяца', 
         description: 'Экономия против помесячки', 
-        price: pricing.quarterlyPrice, 
+        price: pricing.quarterlyPrice, // в копейках
         currency: 'RUB', 
         duration: 'quarter' 
       },
@@ -63,7 +63,7 @@ export class PricingService {
         id: 'yearly', 
         name: 'Год', 
         description: 'Лучший выбор для прогресса', 
-        price: pricing.yearlyPrice, 
+        price: pricing.yearlyPrice, // в копейках
         currency: 'RUB', 
         duration: 'year' 
       },

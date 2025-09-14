@@ -1,5 +1,6 @@
 import { Body, Controller, Headers, HttpCode, Post, Get, Query } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { IsString, IsOptional, IsIn } from 'class-validator';
 import { PaymentsService } from './payments.service';
 
 class YooKassaWebhookDto {
@@ -8,9 +9,18 @@ class YooKassaWebhookDto {
 }
 
 class CreatePaymentDto {
+  @IsString()
   userId!: string;
+
+  @IsString()
+  @IsIn(['monthly', 'quarterly', 'yearly'])
   product!: 'monthly' | 'quarterly' | 'yearly';
+
+  @IsString()
   returnUrl!: string;
+
+  @IsOptional()
+  @IsString()
   description?: string;
 }
 
