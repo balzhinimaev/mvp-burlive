@@ -22,7 +22,10 @@
     "test:regression": "ts-node ./scripts/test-regression.ts",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "validate:content": "ts-node ./scripts/validate-content.ts"
+    "validate:content": "ts-node ./scripts/validate-content.ts",
+    "content:lint": "ts-node ./scripts/content-lint.ts",
+    "seed:a0": "ts-node ./scripts/seed-a0.ts --apply",
+    "seed:a0:dry": "ts-node ./scripts/seed-a0.ts --dry-run"
   },
   "keywords": [],
   "author": "",

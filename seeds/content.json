@@ -1,8 +1,8 @@
 {
   "modules": [
-    { 
-      "moduleRef": "a0.basics", 
-      "level": "A0", 
+    {
+      "moduleRef": "a0.basics",
+      "level": "A0",
       "title": {
         "ru": "Основы A0",
         "en": "Everyday Basics A0"
@@ -11,13 +11,15 @@
         "ru": "Приветствие, числа, время",
         "en": "Greetings, numbers, time"
       },
-      "tags": ["basics"], 
-      "order": 2, 
-      "published": true 
+      "tags": [
+        "basics"
+      ],
+      "order": 2,
+      "published": true
     },
-    { 
-      "moduleRef": "a0.travel", 
-      "level": "A0", 
+    {
+      "moduleRef": "a0.travel",
+      "level": "A0",
       "title": {
         "ru": "Путешествия A0",
         "en": "Travel A0"
@@ -26,13 +28,15 @@
         "ru": "Основы путешествий",
         "en": "Basics for travel"
       },
-      "tags": ["travel"], 
-      "order": 1, 
-      "published": true 
+      "tags": [
+        "travel"
+      ],
+      "order": 1,
+      "published": true
     },
-    { 
-      "moduleRef": "a1.food", 
-      "level": "A1", 
+    {
+      "moduleRef": "a1.food",
+      "level": "A1",
       "title": {
         "ru": "Еда A1",
         "en": "Food A1"
@@ -41,13 +45,15 @@
         "ru": "Еда и заказы",
         "en": "Food & Ordering"
       },
-      "tags": ["food"], 
-      "order": 1, 
-      "published": true 
+      "tags": [
+        "food"
+      ],
+      "order": 1,
+      "published": true
     },
-    { 
-      "moduleRef": "a1.intro", 
-      "level": "A1", 
+    {
+      "moduleRef": "a1.intro",
+      "level": "A1",
       "title": {
         "ru": "Знакомство A1",
         "en": "Introductions A1"
@@ -56,13 +62,15 @@
         "ru": "Приветствие и светские беседы",
         "en": "Greetings & Small talk"
       },
-      "tags": ["speaking"], 
-      "order": 2, 
-      "published": true 
+      "tags": [
+        "speaking"
+      ],
+      "order": 2,
+      "published": true
     },
-    { 
-      "moduleRef": "a1.directions", 
-      "level": "A1", 
+    {
+      "moduleRef": "a1.directions",
+      "level": "A1",
       "title": {
         "ru": "Направления и транспорт A1",
         "en": "Directions & Transport A1"
@@ -71,9 +79,11 @@
         "ru": "Как спросить дорогу, общественный транспорт",
         "en": "Asking and giving directions, public transport"
       },
-      "tags": ["travel"], 
-      "order": 3, 
-      "published": true 
+      "tags": [
+        "travel"
+      ],
+      "order": 3,
+      "published": true
     }
   ],
   "lessons": [
@@ -90,11 +100,120 @@
       },
       "order": 1,
       "published": true,
-      "estimatedMinutes": 8,
+      "estimatedMinutes": 12,
+      "type": "vocabulary",
+      "difficulty": "easy",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a0.basics.001.t1", "type": "listen", "data": { "audioUrl": "https://cdn.example.com/audio/hello.mp3", "transcript": "Hello" } },
-        { "ref": "a0.basics.001.t2", "type": "speak",   "data": { "prompt": "Say: 'Hello'", "target": "Hello" } },
-        { "ref": "a0.basics.001.t3", "type": "choice",  "data": { "question": "Which word starts with H?", "options": ["Apple", "Hello", "Zero"], "correctIndex": 1 } }
+        {
+          "ref": "a0.basics.001.t1",
+          "type": "listen",
+          "data": {
+            "audioKey": "a0.basics.001.t1.hello",
+            "transcript": "Hello",
+            "translation": "Привет",
+            "question": "What did you hear?",
+            "options": [
+              "Hello",
+              "Help",
+              "Hill",
+              "Hall"
+            ],
+            "correctIndex": 0,
+            "hint": "Основное английское приветствие",
+            "explanation": "Hello — самое частое приветствие в английском."
+          }
+        },
+        {
+          "ref": "a0.basics.001.t2",
+          "type": "speak",
+          "data": {
+            "prompt": "Say: 'Hello'",
+            "target": "Hello",
+            "audioKey": "a0.basics.001.t2.hello_model",
+            "hint": "Повторите за образцом: английское приветствие",
+            "explanation": "Отрабатываем правильное произношение Hello [həˈloʊ]."
+          }
+        },
+        {
+          "ref": "a0.basics.001.t3",
+          "type": "choice",
+          "data": {
+            "question": "Which word starts with H?",
+            "options": [
+              "Apple",
+              "Hello",
+              "Zero",
+              "Orange"
+            ],
+            "correctIndex": 1,
+            "hint": "Какое слово начинается с буквы H?",
+            "explanation": "Hello начинается с H. Apple с A, Zero с Z, Orange с O."
+          }
+        },
+        {
+          "ref": "a0.basics.001.t4",
+          "type": "gap",
+          "data": {
+            "text": "Good _____ ! (утром)",
+            "answer": "morning",
+            "hint": "Утреннее приветствие на английском",
+            "explanation": "Good morning — приветствие до 12:00.",
+            "caseInsensitive": true,
+            "context": "Встречаете коллегу в 9 утра"
+          }
+        },
+        {
+          "ref": "a0.basics.001.t5",
+          "type": "match",
+          "data": {
+            "pairs": [
+              {
+                "left": "Hello",
+                "right": "Привет"
+              },
+              {
+                "left": "Good morning",
+                "right": "Доброе утро"
+              },
+              {
+                "left": "Good evening",
+                "right": "Добрый вечер"
+              },
+              {
+                "left": "Goodbye",
+                "right": "До свидания"
+              },
+              {
+                "left": "Thank you",
+                "right": "Спасибо"
+              },
+              {
+                "left": "Please",
+                "right": "Пожалуйста"
+              }
+            ],
+            "hint": "Сопоставьте английские фразы с переводом",
+            "explanation": "Базовая вежливая лексика для общения."
+          }
+        },
+        {
+          "ref": "a0.basics.001.t6",
+          "type": "choice",
+          "data": {
+            "question": "How do you say goodbye?",
+            "options": [
+              "Hello",
+              "Goodbye",
+              "Morning",
+              "Apple"
+            ],
+            "correctIndex": 1,
+            "hint": "Как сказать 'до свидания' по-английски?",
+            "explanation": "Goodbye — основной способ попрощаться. Hello приветствие, Morning/Apple не подходят."
+          }
+        }
       ]
     },
     {
@@ -110,11 +229,126 @@
       },
       "order": 2,
       "published": true,
-      "estimatedMinutes": 10,
+      "estimatedMinutes": 14,
+      "type": "vocabulary",
+      "difficulty": "easy",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a0.basics.002.t1", "type": "choice",    "data": { "question": "What is fifteen?", "options": ["50", "15", "5"], "correctIndex": 1 } },
-        { "ref": "a0.basics.002.t2", "type": "gap",       "data": { "text": "It costs ____ dollars", "answer": "ten", "hints": ["number"] } },
-        { "ref": "a0.basics.002.t3", "type": "translate", "data": { "question": "Переведи: 'сколько это стоит?'", "expected": ["How much is it?", "How much does it cost?"] } }
+        {
+          "ref": "a0.basics.002.t1",
+          "type": "choice",
+          "data": {
+            "question": "What is fifteen?",
+            "options": [
+              "50",
+              "15",
+              "5",
+              "25"
+            ],
+            "correctIndex": 1,
+            "hint": "Какая цифра означает fifteen?",
+            "explanation": "Fifteen = 15. Fifty = 50, five = 5, twenty-five = 25."
+          }
+        },
+        {
+          "ref": "a0.basics.002.t2",
+          "type": "gap",
+          "data": {
+            "text": "It costs ____ dollars",
+            "answer": "ten",
+            "hint": "Напишите число словами или цифрами: 10 долларов",
+            "accept": [
+              "10",
+              "ten",
+              "Ten"
+            ],
+            "explanation": "В ценниках часто указывают число: ten (10) dollars.",
+            "caseInsensitive": true,
+            "context": "Ценник в магазине: $10"
+          }
+        },
+        {
+          "ref": "a0.basics.002.t3",
+          "type": "translate",
+          "data": {
+            "question": "Переведи: 'сколько это стоит?'",
+            "expected": [
+              "How much is it?",
+              "How much does it cost?"
+            ],
+            "hint": "Основной вопрос о цене товара",
+            "explanation": "How much is it? — самый частый способ спросить цену."
+          }
+        },
+        {
+          "ref": "a0.basics.002.t4",
+          "type": "listen",
+          "data": {
+            "audioKey": "a0.basics.002.t4.twenty_dollars",
+            "transcript": "Twenty dollars",
+            "translation": "Двадцать долларов",
+            "question": "How much does it cost?",
+            "options": [
+              "$12",
+              "$20",
+              "$22",
+              "$2"
+            ],
+            "correctIndex": 1,
+            "hint": "Слушайте внимательно: сколько долларов?",
+            "explanation": "Twenty = 20, значит $20."
+          }
+        },
+        {
+          "ref": "a0.basics.002.t5",
+          "type": "order",
+          "data": {
+            "tokens": [
+              "How",
+              "much",
+              "is",
+              "this",
+              "?"
+            ],
+            "hint": "Соберите вопрос о цене предмета",
+            "explanation": "How much is this? — вопрос о цене конкретного предмета."
+          }
+        },
+        {
+          "ref": "a0.basics.002.t6",
+          "type": "gap",
+          "data": {
+            "text": "I need ____ apples",
+            "answer": "three",
+            "hint": "Число 3 словами или цифрами",
+            "accept": [
+              "3",
+              "three",
+              "Three"
+            ],
+            "explanation": "Three (3) apples — три яблока.",
+            "caseInsensitive": true,
+            "context": "Список покупок: 3 яблока"
+          }
+        },
+        {
+          "ref": "a0.basics.002.t7",
+          "type": "choice",
+          "data": {
+            "question": "Review: How do you greet someone?",
+            "options": [
+              "Goodbye",
+              "Hello",
+              "Numbers",
+              "Money"
+            ],
+            "correctIndex": 1,
+            "hint": "Повтор: как поприветствовать человека?",
+            "explanation": "Hello — приветствие (повтор из урока Алфавит).",
+            "context": "review of alphabet lesson"
+          }
+        }
       ]
     },
     {
@@ -130,14 +364,146 @@
       },
       "order": 3,
       "published": true,
-      "estimatedMinutes": 9,
+      "estimatedMinutes": 15,
+      "type": "vocabulary",
+      "difficulty": "easy",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a0.basics.003.t1", "type": "order",     "data": { "tokens": ["What", "time", "is", "it", "?"] } },
-        { "ref": "a0.basics.003.t2", "type": "choice",    "data": { "question": "Which is a day of the week?", "options": ["Apple", "Monday", "Coffee"], "correctIndex": 1 } },
-        { "ref": "a0.basics.003.t3", "type": "gap",       "data": { "text": "See you on ____", "answer": "Monday", "hints": ["day"] } }
+        {
+          "ref": "a0.basics.003.t1",
+          "type": "order",
+          "data": {
+            "tokens": [
+              "What",
+              "time",
+              "is",
+              "it",
+              "?"
+            ],
+            "hint": "Соберите вопрос о времени",
+            "explanation": "What time is it? — основной вопрос о времени."
+          }
+        },
+        {
+          "ref": "a0.basics.003.t2",
+          "type": "choice",
+          "data": {
+            "question": "Which is a day of the week?",
+            "options": [
+              "Apple",
+              "Monday",
+              "Coffee",
+              "Number"
+            ],
+            "correctIndex": 1,
+            "hint": "Какое слово означает день недели?",
+            "explanation": "Monday — понедельник, день недели. Apple — яблоко, Coffee — кофе, Number — число."
+          }
+        },
+        {
+          "ref": "a0.basics.003.t3",
+          "type": "choice",
+          "data": {
+            "question": "Meeting arranged for Monday. Complete: 'See you on ____'",
+            "options": [
+              "Tuesday",
+              "Monday",
+              "Weekend",
+              "Tomorrow"
+            ],
+            "correctIndex": 1,
+            "hint": "Встреча назначена на понедельник",
+            "explanation": "См. вы в понедельник — See you on Monday. Контекст указывает конкретный день.",
+            "context": "Договариваетесь о встрече: понедельник"
+          }
+        },
+        {
+          "ref": "a0.basics.003.t4",
+          "type": "gap",
+          "data": {
+            "text": "Today is ____",
+            "answer": "Friday",
+            "hint": "Сегодня пятница — впишите день недели",
+            "accept": [
+              "Friday",
+              "Fri"
+            ],
+            "explanation": "Today is Friday — сегодня пятница.",
+            "caseInsensitive": true,
+            "context": "Календарь показывает: Friday"
+          }
+        },
+        {
+          "ref": "a0.basics.003.t5",
+          "type": "listen",
+          "data": {
+            "audioKey": "a0.basics.003.t5.three_oclock",
+            "transcript": "It's three o'clock",
+            "translation": "Сейчас три часа",
+            "question": "What time is it?",
+            "options": [
+              "2:00",
+              "3:00",
+              "4:00",
+              "13:00"
+            ],
+            "correctIndex": 1,
+            "hint": "Слушайте время: сколько часов?",
+            "explanation": "Three o'clock = 3:00."
+          }
+        },
+        {
+          "ref": "a0.basics.003.t6",
+          "type": "match",
+          "data": {
+            "pairs": [
+              {
+                "left": "Monday",
+                "right": "Понедельник"
+              },
+              {
+                "left": "Tuesday",
+                "right": "Вторник"
+              },
+              {
+                "left": "Wednesday",
+                "right": "Среда"
+              },
+              {
+                "left": "Thursday",
+                "right": "Четверг"
+              },
+              {
+                "left": "Friday",
+                "right": "Пятница"
+              },
+              {
+                "left": "Saturday",
+                "right": "Суббота"
+              }
+            ],
+            "hint": "Сопоставьте дни недели с переводом",
+            "explanation": "Основные дни недели для ежедневного общения."
+          }
+        },
+        {
+          "ref": "a0.basics.003.t7",
+          "type": "gap",
+          "data": {
+            "text": "How much is ____?",
+            "answer": "it",
+            "hint": "Повтор: завершите вопрос о цене",
+            "accept": [
+              "it"
+            ],
+            "explanation": "How much is it? — вопрос о цене (повтор из урока Числа).",
+            "caseInsensitive": true,
+            "context": "review of numbers lesson"
+          }
+        }
       ]
     },
-
     {
       "moduleRef": "a0.travel",
       "lessonRef": "a0.travel.003",
@@ -151,11 +517,107 @@
       },
       "order": 3,
       "published": true,
-      "estimatedMinutes": 8,
+      "estimatedMinutes": 12,
+      "type": "conversation",
+      "difficulty": "easy",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a0.travel.003.t1", "type": "choice",    "data": { "question": "What do you remove?", "options": ["Shoes", "Hat", "Jacket"], "correctIndex": 0 } },
-        { "ref": "a0.travel.003.t2", "type": "gap",       "data": { "text": "Please place your laptop in a ____ bin", "answer": "separate", "hints": ["one word"] } },
-        { "ref": "a0.travel.003.t3", "type": "speak",     "data": { "prompt": "Say: 'Do I need to take off my belt?'", "target": "Do I need to take off my belt?" } }
+        {
+          "ref": "a0.travel.003.t1",
+          "type": "choice",
+          "data": {
+            "question": "What do you remove at security?",
+            "options": [
+              "Shoes",
+              "Hat",
+              "Jacket",
+              "Watch"
+            ],
+            "correctIndex": 0,
+            "hint": "Что снимают на досмотре в аэропорту?",
+            "explanation": "Shoes (обувь) обычно снимают. Hat, Jacket, Watch — реже."
+          }
+        },
+        {
+          "ref": "a0.travel.003.t2",
+          "type": "gap",
+          "data": {
+            "text": "Please place your laptop in a ____ bin",
+            "answer": "separate",
+            "hint": "Одно слово: отдельный контейнер для ноутбука",
+            "explanation": "На досмотре просят класть ноутбук в отдельный (separate) лоток.",
+            "caseInsensitive": true,
+            "context": "Инструкция сотрудника безопасности"
+          }
+        },
+        {
+          "ref": "a0.travel.003.t3",
+          "type": "speak",
+          "data": {
+            "prompt": "Ask: 'Do I need to take off my belt?'",
+            "target": [
+              "belt",
+              "take off",
+              "need"
+            ],
+            "audioKey": "a0.travel.003.t3.belt_question",
+            "hint": "Спросите о необходимости снять ремень",
+            "explanation": "Ключевые слова: belt (ремень), take off (снять), need (нужно)."
+          }
+        },
+        {
+          "ref": "a0.travel.003.t4",
+          "type": "listen",
+          "data": {
+            "audioKey": "a0.travel.003.t4.liquids",
+            "transcript": "Remove all liquids from your bag",
+            "translation": "Выньте все жидкости из сумки",
+            "question": "What should you remove?",
+            "options": [
+              "Electronics",
+              "Liquids",
+              "Shoes",
+              "Papers"
+            ],
+            "correctIndex": 1,
+            "hint": "Что нужно вынуть из сумки?",
+            "explanation": "Liquids — жидкости нужно отдельно показать."
+          }
+        },
+        {
+          "ref": "a0.travel.003.t5",
+          "type": "order",
+          "data": {
+            "tokens": [
+              "Put",
+              "your",
+              "bags",
+              "on",
+              "the",
+              "belt"
+            ],
+            "hint": "Соберите инструкцию для досмотра багажа",
+            "explanation": "Put your bags on the belt — стандартная инструкция на досмотре."
+          }
+        },
+        {
+          "ref": "a0.travel.003.t6",
+          "type": "choice",
+          "data": {
+            "question": "Review: What time question do you ask?",
+            "options": [
+              "How much is it?",
+              "What time is it?",
+              "Where is it?",
+              "Who is it?"
+            ],
+            "correctIndex": 1,
+            "hint": "Повтор: как спросить время?",
+            "explanation": "What time is it? — вопрос о времени (повтор из урока Дни и время).",
+            "context": "review of time lesson"
+          }
+        }
       ]
     },
     {
@@ -171,11 +633,106 @@
       },
       "order": 4,
       "published": true,
-      "estimatedMinutes": 9,
+      "estimatedMinutes": 13,
+      "type": "conversation",
+      "difficulty": "easy",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a0.travel.004.t1", "type": "listen",    "data": { "audioUrl": "https://cdn.example.com/audio/immigration-q1.mp3", "transcript": "What is the purpose of your visit?" } },
-        { "ref": "a0.travel.004.t2", "type": "choice",    "data": { "question": "Best answer?", "options": ["Tourism", "Nothing"], "correctIndex": 0 } },
-        { "ref": "a0.travel.004.t3", "type": "translate", "data": { "question": "Переведи: 'Я остановлюсь в отеле'", "expected": ["I will stay at a hotel", "I'm staying at a hotel"] } }
+        {
+          "ref": "a0.travel.004.t1",
+          "type": "listen",
+          "data": {
+            "audioKey": "a0.travel.004.t1.purpose_visit",
+            "transcript": "What is the purpose of your visit?",
+            "translation": "Какова цель вашего визита?",
+            "question": "What is the officer asking about?",
+            "options": [
+              "Your name",
+              "Visit purpose",
+              "Your job",
+              "Your address"
+            ],
+            "correctIndex": 1,
+            "hint": "О чём спрашивает офицер?",
+            "explanation": "Purpose of visit — цель визита, стандартный вопрос иммиграции."
+          }
+        },
+        {
+          "ref": "a0.travel.004.t2",
+          "type": "choice",
+          "data": {
+            "question": "Best answer for tourism visit?",
+            "options": [
+              "Tourism",
+              "Nothing",
+              "Business",
+              "Work"
+            ],
+            "correctIndex": 0,
+            "hint": "Лучший ответ для туристической поездки?",
+            "explanation": "Tourism — туризм. Nothing неверно, Business/Work для других целей."
+          }
+        },
+        {
+          "ref": "a0.travel.004.t3",
+          "type": "translate",
+          "data": {
+            "question": "Переведи: 'Я остановлюсь в отеле'",
+            "expected": [
+              "I will stay at a hotel",
+              "I'm staying at a hotel"
+            ],
+            "hint": "Где вы остановитесь во время визита?",
+            "explanation": "I will stay at a hotel — буду останавливаться в отеле."
+          }
+        },
+        {
+          "ref": "a0.travel.004.t4",
+          "type": "gap",
+          "data": {
+            "text": "How long will you ____?",
+            "answer": "stay",
+            "hint": "Как долго вы будете... (находиться)?",
+            "accept": [
+              "stay"
+            ],
+            "explanation": "How long will you stay? — как долго пробудете?",
+            "caseInsensitive": true,
+            "context": "Вопрос иммиграционного офицера"
+          }
+        },
+        {
+          "ref": "a0.travel.004.t5",
+          "type": "speak",
+          "data": {
+            "prompt": "Answer about duration: 'Two weeks'",
+            "target": [
+              "two",
+              "weeks"
+            ],
+            "audioKey": "a0.travel.004.t5.two_weeks",
+            "hint": "Ответьте о продолжительности: две недели",
+            "explanation": "Ключевые слова: two weeks (две недели)."
+          }
+        },
+        {
+          "ref": "a0.travel.004.t6",
+          "type": "choice",
+          "data": {
+            "question": "Review: How do you ask to remove shoes?",
+            "options": [
+              "Take off shoes",
+              "Put on shoes",
+              "Buy shoes",
+              "Clean shoes"
+            ],
+            "correctIndex": 0,
+            "hint": "Повтор: как сказать снять обувь?",
+            "explanation": "Take off — снять. Put on — надеть (повтор из урока Досмотр).",
+            "context": "review of security lesson"
+          }
+        }
       ]
     },
     {
@@ -191,14 +748,105 @@
       },
       "order": 5,
       "published": true,
-      "estimatedMinutes": 10,
+      "estimatedMinutes": 14,
+      "type": "conversation",
+      "difficulty": "easy",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a0.travel.005.t1", "type": "gap",       "data": { "text": "My bag is ____", "answer": "lost", "hints": ["adjective"] } },
-        { "ref": "a0.travel.005.t2", "type": "choice",    "data": { "question": "Where do you go for lost baggage?", "options": ["Information desk", "Baggage claim"], "correctIndex": 1 } },
-        { "ref": "a0.travel.005.t3", "type": "speak",     "data": { "prompt": "Say: 'I have nothing to declare'", "target": "I have nothing to declare" } }
+        {
+          "ref": "a0.travel.005.t1",
+          "type": "gap",
+          "data": {
+            "text": "My bag is ____",
+            "answer": "lost",
+            "hint": "Ситуация у стойки: багаж пропал",
+            "explanation": "Фраза для утраченного багажа: My bag is lost.",
+            "caseInsensitive": true,
+            "context": "У стойки регистрации утерянного багажа"
+          }
+        },
+        {
+          "ref": "a0.travel.005.t2",
+          "type": "choice",
+          "data": {
+            "question": "Where do you go for lost baggage?",
+            "options": [
+              "Information desk",
+              "Baggage claim",
+              "Security",
+              "Immigration"
+            ],
+            "correctIndex": 1,
+            "hint": "Куда идти за утерянным багажом?",
+            "explanation": "Baggage claim — зона выдачи багажа. Information desk даёт справки, Security/Immigration не занимаются багажом."
+          }
+        },
+        {
+          "ref": "a0.travel.005.t3",
+          "type": "speak",
+          "data": {
+            "prompt": "Say the customs phrase: 'I have nothing to declare'",
+            "target": [
+              "nothing",
+              "declare"
+            ],
+            "audioKey": "a0.travel.005.t3.nothing_declare",
+            "hint": "Фраза для таможни: нечего декларировать",
+            "explanation": "Ключевые слова: nothing to declare (нечего декларировать)."
+          }
+        },
+        {
+          "ref": "a0.travel.005.t4",
+          "type": "listen",
+          "data": {
+            "audioKey": "a0.travel.005.t4.carousel_three",
+            "transcript": "Your bags are at carousel three",
+            "translation": "Ваши сумки на карусели номер три",
+            "question": "Where are the bags?",
+            "options": [
+              "Carousel 2",
+              "Carousel 3",
+              "Security",
+              "Information"
+            ],
+            "correctIndex": 1,
+            "hint": "Где находятся сумки?",
+            "explanation": "Carousel three — карусель номер три."
+          }
+        },
+        {
+          "ref": "a0.travel.005.t5",
+          "type": "order",
+          "data": {
+            "tokens": [
+              "Please",
+              "show",
+              "your",
+              "passport"
+            ],
+            "hint": "Соберите просьбу показать документ",
+            "explanation": "Please show your passport — стандартная просьба предъявить паспорт."
+          }
+        },
+        {
+          "ref": "a0.travel.005.t6",
+          "type": "gap",
+          "data": {
+            "text": "The purpose is ____",
+            "answer": "tourism",
+            "hint": "Повтор: цель визита для отпуска",
+            "accept": [
+              "tourism",
+              "Tourism"
+            ],
+            "explanation": "Tourism — туризм, цель визита (повтор из урока Иммиграция).",
+            "caseInsensitive": true,
+            "context": "review of immigration lesson"
+          }
+        }
       ]
     },
-
     {
       "moduleRef": "a1.food",
       "lessonRef": "a1.food.002",
@@ -212,11 +860,143 @@
       },
       "order": 2,
       "published": true,
-      "estimatedMinutes": 11,
+      "estimatedMinutes": 15,
+      "type": "conversation",
+      "difficulty": "medium",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a1.food.002.t1", "type": "choice",    "data": { "question": "Starter, main, or dessert?", "options": ["Appetizer", "Plate"], "correctIndex": 0 } },
-        { "ref": "a1.food.002.t2", "type": "translate", "data": { "question": "Переведи: 'Можно меню, пожалуйста?'", "expected": ["Can I have the menu, please?", "May I have the menu, please?"] } },
-        { "ref": "a1.food.002.t3", "type": "gap",       "data": { "text": "I would like to ____ a table", "answer": "book", "hints": ["verb"] } }
+        {
+          "ref": "a1.food.002.t1",
+          "type": "choice",
+          "data": {
+            "question": "What is an appetizer?",
+            "options": [
+              "Starter",
+              "Main course",
+              "Dessert",
+              "Drink"
+            ],
+            "correctIndex": 0,
+            "hint": "Что такое аппетайзер в ресторане?",
+            "explanation": "Appetizer = Starter (закуска). Main course — основное, Dessert — десерт, Drink — напиток."
+          }
+        },
+        {
+          "ref": "a1.food.002.t2",
+          "type": "translate",
+          "data": {
+            "question": "Переведи: 'Можно меню, пожалуйста?'",
+            "expected": [
+              "Can I have the menu, please?",
+              "May I have the menu, please?"
+            ],
+            "hint": "Вежливая просьба принести меню",
+            "explanation": "Can/May I have the menu, please? — стандартная фраза для заказа меню."
+          }
+        },
+        {
+          "ref": "a1.food.002.t3",
+          "type": "gap",
+          "data": {
+            "text": "I would like to ____ a table",
+            "answer": "book",
+            "hint": "Глагол: забронировать столик в ресторане",
+            "accept": [
+              "book",
+              "reserve",
+              "Reserve",
+              "Book"
+            ],
+            "explanation": "В ресторанном контексте естественно: book (или reserve) a table.",
+            "caseInsensitive": true,
+            "context": "Звонок в ресторан для брони"
+          }
+        },
+        {
+          "ref": "a1.food.002.t4",
+          "type": "listen",
+          "data": {
+            "audioKey": "a1.food.002.t4.ready_order",
+            "transcript": "Are you ready to order?",
+            "translation": "Готовы сделать заказ?",
+            "question": "What is the waiter asking?",
+            "options": [
+              "About payment",
+              "About orders",
+              "About drinks",
+              "About reservation"
+            ],
+            "correctIndex": 1,
+            "hint": "О чём спрашивает официант?",
+            "explanation": "Ready to order — готовы заказать, то есть спрашивает о заказе."
+          }
+        },
+        {
+          "ref": "a1.food.002.t5",
+          "type": "speak",
+          "data": {
+            "prompt": "Order: 'I'll have the chicken'",
+            "target": [
+              "I'll have",
+              "chicken"
+            ],
+            "audioKey": "a1.food.002.t5.chicken_order",
+            "hint": "Закажите курицу в ресторане",
+            "explanation": "Ключевые слова: I'll have (я буду) + chicken (курица)."
+          }
+        },
+        {
+          "ref": "a1.food.002.t6",
+          "type": "match",
+          "data": {
+            "pairs": [
+              {
+                "left": "Starter",
+                "right": "Закуска"
+              },
+              {
+                "left": "Main course",
+                "right": "Основное блюдо"
+              },
+              {
+                "left": "Dessert",
+                "right": "Десерт"
+              },
+              {
+                "left": "Bill",
+                "right": "Счёт"
+              },
+              {
+                "left": "Tip",
+                "right": "Чаевые"
+              },
+              {
+                "left": "Menu",
+                "right": "Меню"
+              }
+            ],
+            "hint": "Сопоставьте ресторанную лексику с переводом",
+            "explanation": "Основные слова для заказа еды в ресторане."
+          }
+        },
+        {
+          "ref": "a1.food.002.t7",
+          "type": "choice",
+          "data": {
+            "question": "Review: Where do you go for lost luggage?",
+            "options": [
+              "Security",
+              "Baggage claim",
+              "Immigration",
+              "Customs"
+            ],
+            "correctIndex": 1,
+            "hint": "Повтор: куда идти за утерянным багажом?",
+            "explanation": "Baggage claim — зона выдачи багажа (повтор из урока Багаж).",
+            "context": "review of baggage lesson"
+          }
+        }
       ]
     },
     {
@@ -232,14 +1012,106 @@
       },
       "order": 3,
       "published": true,
-      "estimatedMinutes": 9,
+      "estimatedMinutes": 13,
+      "type": "conversation",
+      "difficulty": "medium",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a1.food.003.t1", "type": "choice",    "data": { "question": "How to ask for the bill?", "options": ["Check, please.", "Give me money."], "correctIndex": 0 } },
-        { "ref": "a1.food.003.t2", "type": "gap",       "data": { "text": "I am ____ to nuts", "answer": "allergic", "hints": ["adjective"] } },
-        { "ref": "a1.food.003.t3", "type": "translate", "data": { "question": "Переведи: 'Без сахара, пожалуйста'", "expected": ["No sugar, please", "Without sugar, please"] } }
+        {
+          "ref": "a1.food.003.t1",
+          "type": "choice",
+          "data": {
+            "question": "How to ask for the bill?",
+            "options": [
+              "Check, please",
+              "Give me money",
+              "Where's food",
+              "I'm leaving"
+            ],
+            "correctIndex": 0,
+            "hint": "Как попросить счёт в ресторане?",
+            "explanation": "Check, please — вежливая просьба о счёте. Остальные варианты неуместны."
+          }
+        },
+        {
+          "ref": "a1.food.003.t2",
+          "type": "gap",
+          "data": {
+            "text": "I am ____ to nuts",
+            "answer": "allergic",
+            "hint": "При заказе сообщите: у меня аллергия на орехи",
+            "explanation": "Корректная форма: be allergic to + что-то.",
+            "caseInsensitive": true,
+            "context": "Предупреждение официанта об аллергии"
+          }
+        },
+        {
+          "ref": "a1.food.003.t3",
+          "type": "translate",
+          "data": {
+            "question": "Переведи: 'Без сахара, пожалуйста'",
+            "expected": [
+              "No sugar, please",
+              "Without sugar, please"
+            ],
+            "hint": "Просьба не добавлять сахар",
+            "explanation": "No sugar, please — без сахара, пожалуйста."
+          }
+        },
+        {
+          "ref": "a1.food.003.t4",
+          "type": "listen",
+          "data": {
+            "audioKey": "a1.food.003.t4.dairy_free",
+            "transcript": "Is this dairy-free?",
+            "translation": "Это без молочных продуктов?",
+            "question": "What is the customer asking about?",
+            "options": [
+              "Price",
+              "Ingredients",
+              "Size",
+              "Time"
+            ],
+            "correctIndex": 1,
+            "hint": "О чём спрашивает клиент?",
+            "explanation": "Dairy-free касается ингредиентов — есть ли молочные продукты."
+          }
+        },
+        {
+          "ref": "a1.food.003.t5",
+          "type": "order",
+          "data": {
+            "tokens": [
+              "Can",
+              "I",
+              "pay",
+              "by",
+              "card",
+              "?"
+            ],
+            "hint": "Соберите вопрос об оплате картой",
+            "explanation": "Can I pay by card? — можно ли заплатить картой?"
+          }
+        },
+        {
+          "ref": "a1.food.003.t6",
+          "type": "gap",
+          "data": {
+            "text": "I'll have the ____",
+            "answer": "chicken",
+            "hint": "Повтор: что вы закажете в ресторане?",
+            "accept": [
+              "chicken",
+              "Chicken"
+            ],
+            "explanation": "I'll have the chicken — я буду курицу (повтор из урока В ресторане).",
+            "caseInsensitive": true,
+            "context": "review of restaurant lesson"
+          }
+        }
       ]
     },
-
     {
       "moduleRef": "a1.intro",
       "lessonRef": "a1.intro.002",
@@ -253,11 +1125,105 @@
       },
       "order": 2,
       "published": true,
-      "estimatedMinutes": 7,
+      "estimatedMinutes": 11,
+      "type": "conversation",
+      "difficulty": "easy",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a1.intro.002.t1", "type": "order",     "data": { "tokens": ["This", "is", "my", "colleague", "Anna"] } },
-        { "ref": "a1.intro.002.t2", "type": "choice",    "data": { "question": "Choose the correct form", "options": ["She are a designer", "She is a designer"], "correctIndex": 1 } },
-        { "ref": "a1.intro.002.t3", "type": "gap",       "data": { "text": "Nice to ____ you", "answer": "meet" } }
+        {
+          "ref": "a1.intro.002.t1",
+          "type": "order",
+          "data": {
+            "tokens": [
+              "This",
+              "is",
+              "my",
+              "colleague",
+              "Anna"
+            ],
+            "hint": "Соберите фразу знакомства с коллегой",
+            "explanation": "This is my colleague Anna — знакомство с коллегой по имени Анна."
+          }
+        },
+        {
+          "ref": "a1.intro.002.t2",
+          "type": "choice",
+          "data": {
+            "question": "Choose the correct form",
+            "options": [
+              "She are a designer",
+              "She is a designer",
+              "She am a designer",
+              "She be designer"
+            ],
+            "correctIndex": 1,
+            "hint": "Какая правильная форма глагола с She?",
+            "explanation": "She is — правильная форма. She are/am/be неграмматично."
+          }
+        },
+        {
+          "ref": "a1.intro.002.t3",
+          "type": "gap",
+          "data": {
+            "text": "Nice to ____ you",
+            "answer": "meet",
+            "hint": "Фраза при знакомстве: приятно познакомиться",
+            "explanation": "Устойчивое выражение: Nice to meet you.",
+            "caseInsensitive": true,
+            "context": "Первая встреча с новым человеком"
+          }
+        },
+        {
+          "ref": "a1.intro.002.t4",
+          "type": "speak",
+          "data": {
+            "prompt": "Introduce someone: 'This is John'",
+            "target": [
+              "This is",
+              "John"
+            ],
+            "audioKey": "a1.intro.002.t4.this_is_john",
+            "hint": "Представьте кого-то: это Джон",
+            "explanation": "Ключевые слова: This is + имя (знакомство)."
+          }
+        },
+        {
+          "ref": "a1.intro.002.t5",
+          "type": "listen",
+          "data": {
+            "audioKey": "a1.intro.002.t5.where_from",
+            "transcript": "Where are you from?",
+            "translation": "Откуда вы?",
+            "question": "What information is requested?",
+            "options": [
+              "Name",
+              "Job",
+              "Origin",
+              "Age"
+            ],
+            "correctIndex": 2,
+            "hint": "Какую информацию запрашивают?",
+            "explanation": "Where are you from? — спрашивают о происхождении, откуда человек."
+          }
+        },
+        {
+          "ref": "a1.intro.002.t6",
+          "type": "choice",
+          "data": {
+            "question": "Review: What does 'allergic' mean?",
+            "options": [
+              "Hungry",
+              "Sick from food",
+              "Happy",
+              "Tired"
+            ],
+            "correctIndex": 1,
+            "hint": "Повтор: что означает allergic?",
+            "explanation": "Allergic — больной от еды, аллергия (повтор из урока Особые просьбы).",
+            "context": "review of food allergies lesson"
+          }
+        }
       ]
     },
     {
@@ -273,14 +1239,124 @@
       },
       "order": 3,
       "published": true,
-      "estimatedMinutes": 8,
+      "estimatedMinutes": 12,
+      "type": "conversation",
+      "difficulty": "medium",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a1.intro.003.t1", "type": "choice",    "data": { "question": "Common small-talk topic?", "options": ["Tax law", "Weather"], "correctIndex": 1 } },
-        { "ref": "a1.intro.003.t2", "type": "translate", "data": { "question": "Переведи: 'Мне нравится читать'", "expected": ["I like reading"] } },
-        { "ref": "a1.intro.003.t3", "type": "speak",     "data": { "prompt": "Say: 'How was your weekend?'", "target": "How was your weekend?" } }
+        {
+          "ref": "a1.intro.003.t1",
+          "type": "choice",
+          "data": {
+            "question": "Best small-talk topic?",
+            "options": [
+              "Tax law",
+              "Weather",
+              "Salary",
+              "Medical issues"
+            ],
+            "correctIndex": 1,
+            "hint": "Лучшая тема для лёгкой беседы?",
+            "explanation": "Weather — безопасная тема. Tax law/Salary/Medical слишком личное."
+          }
+        },
+        {
+          "ref": "a1.intro.003.t2",
+          "type": "translate",
+          "data": {
+            "question": "Переведи: 'Мне нравится читать'",
+            "expected": [
+              "I like reading",
+              "I like to read"
+            ],
+            "hint": "Выражение своих предпочтений в хобби",
+            "explanation": "I like reading/to read — мне нравится читать."
+          }
+        },
+        {
+          "ref": "a1.intro.003.t3",
+          "type": "speak",
+          "data": {
+            "prompt": "Ask about weekend: 'How was your weekend?'",
+            "target": [
+              "How was",
+              "weekend"
+            ],
+            "audioKey": "a1.intro.003.t3.weekend_question",
+            "hint": "Спросите о выходных",
+            "explanation": "Ключевые слова: How was your weekend? (как прошли выходные)."
+          }
+        },
+        {
+          "ref": "a1.intro.003.t4",
+          "type": "gap",
+          "data": {
+            "text": "The weather is ____",
+            "answer": "nice",
+            "hint": "Хорошая погода — какая она?",
+            "accept": [
+              "nice",
+              "good",
+              "great",
+              "lovely"
+            ],
+            "explanation": "Nice/good/great/lovely — варианты для хорошей погоды.",
+            "caseInsensitive": true,
+            "context": "Разговор о приятной погоде"
+          }
+        },
+        {
+          "ref": "a1.intro.003.t5",
+          "type": "listen",
+          "data": {
+            "audioKey": "a1.intro.003.t5.hobby_reading",
+            "transcript": "My hobby is reading",
+            "translation": "Моё хобби — чтение",
+            "question": "What is the person's hobby?",
+            "options": [
+              "Sports",
+              "Reading",
+              "Cooking",
+              "Travel"
+            ],
+            "correctIndex": 1,
+            "hint": "Какое хобби у человека?",
+            "explanation": "My hobby is reading — хобби это чтение."
+          }
+        },
+        {
+          "ref": "a1.intro.003.t6",
+          "type": "order",
+          "data": {
+            "tokens": [
+              "Nice",
+              "to",
+              "meet",
+              "you",
+              "too"
+            ],
+            "hint": "Соберите ответ на знакомство",
+            "explanation": "Nice to meet you too — ответ на знакомство (тоже приятно)."
+          }
+        },
+        {
+          "ref": "a1.intro.003.t7",
+          "type": "gap",
+          "data": {
+            "text": "This is my ____",
+            "answer": "colleague",
+            "hint": "Повтор: кого вы представляете на работе?",
+            "accept": [
+              "colleague"
+            ],
+            "explanation": "This is my colleague — это мой коллега (повтор из урока Представляем других).",
+            "caseInsensitive": true,
+            "context": "review of introductions lesson"
+          }
+        }
       ]
     },
-
     {
       "moduleRef": "a1.directions",
       "lessonRef": "a1.directions.001",
@@ -294,11 +1370,141 @@
       },
       "order": 1,
       "published": true,
-      "estimatedMinutes": 9,
+      "estimatedMinutes": 13,
+      "type": "conversation",
+      "difficulty": "medium",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a1.directions.001.t1", "type": "translate", "data": { "question": "Переведи: 'Где находится ближайшее метро?'", "expected": ["Where is the nearest subway?", "Where is the nearest metro?"] } },
-        { "ref": "a1.directions.001.t2", "type": "gap",       "data": { "text": "Go ____ and turn right", "answer": "straight" } },
-        { "ref": "a1.directions.001.t3", "type": "choice",    "data": { "question": "What does 'block' mean?", "options": ["Квартал", "Часы"], "correctIndex": 0 } }
+        {
+          "ref": "a1.directions.001.t1",
+          "type": "translate",
+          "data": {
+            "question": "Переведи: 'Где находится ближайшее метро?'",
+            "expected": [
+              "Where is the nearest subway?",
+              "Where is the nearest metro?"
+            ],
+            "hint": "Как спросить о местоположении метро?",
+            "explanation": "Where is the nearest subway/metro? — где ближайшее метро?"
+          }
+        },
+        {
+          "ref": "a1.directions.001.t2",
+          "type": "gap",
+          "data": {
+            "text": "Go ____ and turn right",
+            "answer": "straight",
+            "hint": "Подсказка: идите прямо, затем поверните направо",
+            "accept": [
+              "straight",
+              "ahead"
+            ],
+            "explanation": "Фраза направления: go straight/ahead (идите прямо).",
+            "caseInsensitive": true,
+            "context": "Объяснение маршрута прохожим"
+          }
+        },
+        {
+          "ref": "a1.directions.001.t3",
+          "type": "choice",
+          "data": {
+            "question": "What does 'block' mean in directions?",
+            "options": [
+              "Квартал",
+              "Часы",
+              "Машина",
+              "Здание"
+            ],
+            "correctIndex": 0,
+            "hint": "Что означает block в объяснении дороги?",
+            "explanation": "Block = квартал. Часы/Машина/Здание не используются в направлениях."
+          }
+        },
+        {
+          "ref": "a1.directions.001.t4",
+          "type": "listen",
+          "data": {
+            "audioKey": "a1.directions.001.t4.turn_left",
+            "transcript": "Turn left at the traffic lights",
+            "translation": "Поверните налево у светофора",
+            "question": "Where do you turn left?",
+            "options": [
+              "At the corner",
+              "At traffic lights",
+              "At the shop",
+              "At the park"
+            ],
+            "correctIndex": 1,
+            "hint": "Где нужно повернуть налево?",
+            "explanation": "Turn left at the traffic lights — у светофора."
+          }
+        },
+        {
+          "ref": "a1.directions.001.t5",
+          "type": "speak",
+          "data": {
+            "prompt": "Ask for directions: 'Excuse me, where is...?'",
+            "target": [
+              "Excuse me",
+              "where is"
+            ],
+            "audioKey": "a1.directions.001.t5.excuse_me_where",
+            "hint": "Вежливо спросите дорогу",
+            "explanation": "Ключевые слова: Excuse me, where is (извините, где находится)."
+          }
+        },
+        {
+          "ref": "a1.directions.001.t6",
+          "type": "match",
+          "data": {
+            "pairs": [
+              {
+                "left": "Turn left",
+                "right": "Поверните налево"
+              },
+              {
+                "left": "Turn right",
+                "right": "Поверните направо"
+              },
+              {
+                "left": "Go straight",
+                "right": "Идите прямо"
+              },
+              {
+                "left": "Cross the street",
+                "right": "Перейдите дорогу"
+              },
+              {
+                "left": "Traffic lights",
+                "right": "Светофор"
+              },
+              {
+                "left": "Corner",
+                "right": "Угол"
+              }
+            ],
+            "hint": "Сопоставьте направления с переводом",
+            "explanation": "Основные фразы для объяснения маршрута."
+          }
+        },
+        {
+          "ref": "a1.directions.001.t7",
+          "type": "choice",
+          "data": {
+            "question": "Review: How do you talk about weather?",
+            "options": [
+              "Weather is nice",
+              "I like reading",
+              "This is colleague",
+              "Where is metro"
+            ],
+            "correctIndex": 0,
+            "hint": "Повтор: как говорить о погоде?",
+            "explanation": "Weather is nice — говорим о погоде (повтор из урока Светские беседы).",
+            "context": "review of small talk lesson"
+          }
+        }
       ]
     },
     {
@@ -314,11 +1520,125 @@
       },
       "order": 2,
       "published": true,
-      "estimatedMinutes": 8,
+      "estimatedMinutes": 12,
+      "type": "conversation",
+      "difficulty": "medium",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a1.directions.002.t1", "type": "choice",    "data": { "question": "Single or return?", "options": ["One-way", "Taxi"], "correctIndex": 0 } },
-        { "ref": "a1.directions.002.t2", "type": "gap",       "data": { "text": "One ____ to the city center", "answer": "ticket" } },
-        { "ref": "a1.directions.002.t3", "type": "listen",    "data": { "audioUrl": "https://cdn.example.com/audio/next-stop.mp3", "transcript": "Next stop: Central Station" } }
+        {
+          "ref": "a1.directions.002.t1",
+          "type": "choice",
+          "data": {
+            "question": "What type of ticket: single or return?",
+            "options": [
+              "One-way",
+              "Taxi",
+              "Bus card",
+              "Monthly pass"
+            ],
+            "correctIndex": 0,
+            "hint": "Какой билет означает 'в одну сторону'?",
+            "explanation": "One-way = single билет. Taxi не билет, Bus card/Monthly pass — другие типы."
+          }
+        },
+        {
+          "ref": "a1.directions.002.t2",
+          "type": "gap",
+          "data": {
+            "text": "One ____ to the city center",
+            "answer": "ticket",
+            "hint": "В кассе покупаете один билет в центр",
+            "explanation": "Просьба о билете: One ticket to the city center.",
+            "caseInsensitive": true,
+            "context": "У кассы общественного транспорта"
+          }
+        },
+        {
+          "ref": "a1.directions.002.t3",
+          "type": "listen",
+          "data": {
+            "audioKey": "a1.directions.002.t3.next_stop",
+            "transcript": "Next stop: Central Station",
+            "translation": "Следующая остановка: Центральный вокзал",
+            "question": "What is the next stop?",
+            "options": [
+              "City Hall",
+              "Central Station",
+              "Main Street",
+              "Park Avenue"
+            ],
+            "correctIndex": 1,
+            "hint": "Какая следующая остановка?",
+            "explanation": "Next stop: Central Station — следующая Центральный вокзал."
+          }
+        },
+        {
+          "ref": "a1.directions.002.t4",
+          "type": "speak",
+          "data": {
+            "prompt": "Ask: 'Does this bus go to downtown?'",
+            "target": [
+              "bus go",
+              "downtown"
+            ],
+            "audioKey": "a1.directions.002.t4.bus_downtown",
+            "hint": "Спросите, едет ли автобус в центр",
+            "explanation": "Ключевые слова: bus go to downtown (автобус едет в центр)."
+          }
+        },
+        {
+          "ref": "a1.directions.002.t5",
+          "type": "order",
+          "data": {
+            "tokens": [
+              "Excuse",
+              "me",
+              "is",
+              "this",
+              "your",
+              "stop",
+              "?"
+            ],
+            "hint": "Соберите вопрос о чужой остановке",
+            "explanation": "Excuse me, is this your stop? — это ваша остановка?"
+          }
+        },
+        {
+          "ref": "a1.directions.002.t6",
+          "type": "listen",
+          "data": {
+            "audioKey": "a1.directions.002.t6.turn-right",
+            "question": "Что сказал прохожий?",
+            "options": [
+              "Go straight and turn right at the bank.",
+              "Go straight and turn left at the bank.",
+              "Go back to the hotel."
+            ],
+            "correctIndex": 0,
+            "transcript": "Go straight and turn right at the bank.",
+            "translation": "Идите прямо и поверните направо у банка.",
+            "hint": "Слушайте слово right или left в середине фразы.",
+            "explanation": "В ответе звучит right, значит поворачиваем направо."
+          }
+        },
+        {
+          "ref": "a1.directions.002.t7",
+          "type": "gap",
+          "data": {
+            "text": "Go straight and turn ____ at the bank.",
+            "answer": "right",
+            "accept": [
+              "right",
+              "Right"
+            ],
+            "hint": "Повтор фразы из аудио: поворот у банка.",
+            "explanation": "В аудио было «turn right at the bank». Закрепляем формулу.",
+            "caseInsensitive": true,
+            "audioKey": "a1.directions.002.t6.turn-right",
+            "context": "Review of the previous listening"
+          }
+        }
       ]
     },
     {
@@ -334,11 +1654,109 @@
       },
       "order": 3,
       "published": true,
-      "estimatedMinutes": 7,
+      "estimatedMinutes": 11,
+      "type": "conversation",
+      "difficulty": "medium",
+      "xpReward": 25,
+      "hasAudio": true,
       "tasks": [
-        { "ref": "a1.directions.003.t1", "type": "translate", "data": { "question": "Переведи: 'Подъедьте к главному входу'", "expected": ["Pick me up at the main entrance", "Come to the main entrance"] } },
-        { "ref": "a1.directions.003.t2", "type": "gap",       "data": { "text": "The car arrives in ____ minutes", "answer": "five" } },
-        { "ref": "a1.directions.003.t3", "type": "speak",     "data": { "prompt": "Say your address", "target": "221B Baker Street" } }
+        {
+          "ref": "a1.directions.003.t1",
+          "type": "translate",
+          "data": {
+            "question": "Переведи: 'Подъедьте к главному входу'",
+            "expected": [
+              "Pick me up at the main entrance",
+              "Come to the main entrance"
+            ],
+            "hint": "Инструкция водителю такси о месте встречи",
+            "explanation": "Pick me up at the main entrance — заберите у главного входа."
+          }
+        },
+        {
+          "ref": "a1.directions.003.t2",
+          "type": "gap",
+          "data": {
+            "text": "The car arrives in ____ minutes",
+            "answer": "five",
+            "hint": "На экране такси показано время подачи: число минут",
+            "accept": [
+              "5",
+              "five",
+              "Five"
+            ],
+            "explanation": "В такси время ожидания указывается числом: five (5) minutes.",
+            "context": "Экран приложения такси показывает: прибудет через 5 минут.",
+            "audioKey": "a1.directions.003.t2.time",
+            "caseInsensitive": true
+          }
+        },
+        {
+          "ref": "a1.directions.003.t3",
+          "type": "speak",
+          "data": {
+            "prompt": "Give address example",
+            "target": [
+              "Baker Street",
+              "Main Street",
+              "address"
+            ],
+            "audioKey": "a1.directions.003.t3.address_example",
+            "hint": "Назовите адрес для такси",
+            "explanation": "Ключевые слова: названия улиц + слово address."
+          }
+        },
+        {
+          "ref": "a1.directions.003.t4",
+          "type": "listen",
+          "data": {
+            "audioKey": "a1.directions.003.t4.driver_arrived",
+            "transcript": "Your driver has arrived",
+            "translation": "Ваш водитель прибыл",
+            "question": "What happened?",
+            "options": [
+              "Driver is coming",
+              "Driver arrived",
+              "Driver cancelled",
+              "Driver is lost"
+            ],
+            "correctIndex": 1,
+            "hint": "Что случилось с водителем?",
+            "explanation": "Driver has arrived — водитель прибыл."
+          }
+        },
+        {
+          "ref": "a1.directions.003.t5",
+          "type": "choice",
+          "data": {
+            "question": "How to ask for ETA?",
+            "options": [
+              "When will you arrive?",
+              "Where are you?",
+              "Who are you?",
+              "What car?"
+            ],
+            "correctIndex": 0,
+            "hint": "Как спросить время прибытия?",
+            "explanation": "When will you arrive? — когда прибудете? Where/Who/What — другие вопросы."
+          }
+        },
+        {
+          "ref": "a1.directions.003.t6",
+          "type": "gap",
+          "data": {
+            "text": "One ticket to the ____",
+            "answer": "center",
+            "hint": "Повтор: билет куда в городском транспорте?",
+            "accept": [
+              "center",
+              "city center"
+            ],
+            "explanation": "One ticket to the center — билет в центр (повтор из урока В автобусе/метро).",
+            "caseInsensitive": true,
+            "context": "review of public transport lesson"
+          }
+        }
       ]
     }
   ]

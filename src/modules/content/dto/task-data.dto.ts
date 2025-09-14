@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsInt,
   IsIn,
   IsNotEmpty,
@@ -37,6 +38,14 @@ export class ChoiceTaskDataDto {
   @IsArray()
   @IsString({ each: true })
   options!: string[];
+
+  @IsOptional()
+  @IsNumber()
+  correctIndex?: number; // Index of correct answer
+
+  @IsOptional()
+  @IsString()
+  explanation?: string; // Explanation of the correct answer
 }
 
 export class GapTaskDataDto {
@@ -48,16 +57,49 @@ export class GapTaskDataDto {
   @IsString({ each: true })
   @IsOptional()
   hints?: string[];
+
+  @IsOptional()
+  @IsString()
+  hint?: string; // RU подсказка, 6–12 слов
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  accept?: string[]; // синонимы/варианты: регистр, цифры/слова
+
+  @IsOptional()
+  @IsString()
+  explanation?: string; // RU объяснение, зачем именно такой ответ
+
+  @IsOptional()
+  @IsString()
+  context?: string; // 1 строка сцены/ситуации
+
+  @IsOptional()
+  @IsString()
+  audioKey?: string; // короткая подсказка-аудио
+
+  @IsOptional()
+  @IsBoolean()
+  caseInsensitive?: boolean; // true по умолчанию для A0–A1
 }
 
 export class ListenTaskDataDto {
   @IsString()
   @IsNotEmpty()
-  audioUrl!: string;
+  audioKey!: string; // Changed from audioUrl to audioKey
 
   @IsString()
   @IsOptional()
   transcript?: string; // Может быть на клиенте для self-check
+
+  @IsOptional()
+  @IsString()
+  question?: string; // Question for listening task
+
+  @IsOptional()
+  @IsString()
+  translation?: string; // Translation of the transcript
 }
 
 export class SpeakTaskDataDto {
@@ -76,6 +118,57 @@ export class TranslateTaskDataDto {
   @IsString()
   @IsNotEmpty()
   question!: string; // e.g., "Переведи: 'сколько это стоит?'"
+}
+
+export class FlashcardTaskDataDto {
+  @IsString()
+  @IsNotEmpty()
+  front!: string; // e.g., "Hello"
+
+  @IsString()
+  @IsNotEmpty()
+  back!: string; // e.g., "Привет"
+
+  @IsOptional()
+  @IsString()
+  example?: string; // e.g., "Hello, my name is John"
+
+  @IsOptional()
+  @IsString()
+  audioKey?: string; // e.g., "a0.basics.001.t1.hello"
+
+  @IsOptional()
+  @IsString()
+  transcript?: string;
+
+  @IsOptional()
+  @IsString()
+  translation?: string;
+}
+
+export class MatchingPairDto {
+  @IsString()
+  @IsNotEmpty()
+  left!: string; // e.g., "Hello"
+
+  @IsString()
+  @IsNotEmpty()
+  right!: string; // e.g., "Привет"
+
+  @IsOptional()
+  @IsString()
+  audioKey?: string; // audio for left item
+}
+
+export class MatchingTaskDataDto {
+  @IsOptional()
+  @IsString()
+  instruction?: string; // e.g., "Соедините английские слова с переводом"
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MatchingPairDto)
+  pairs!: MatchingPairDto[]; // 6-10 pairs
 }
 
 // --- Базовый Task DTO ---
@@ -104,9 +197,12 @@ export class TaskDto {
         return OrderTaskDataDto;
       case 'translate':
         return TranslateTaskDataDto;
+      case 'flashcard':
+        return FlashcardTaskDataDto;
+      case 'match':
+      case 'matching':
+        return MatchingTaskDataDto;
       default:
-        // Для 'match', 'flashcard', 'matching' и других - пока оставляем общую заглушку
-        // В идеале - для них тоже создать DTO
         class DefaultTaskData {}
         return DefaultTaskData;
     }
@@ -118,5 +214,7 @@ export class TaskDto {
     | SpeakTaskDataDto
     | OrderTaskDataDto
     | TranslateTaskDataDto
+    | FlashcardTaskDataDto
+    | MatchingTaskDataDto
     | Record<string, any>;
 }
