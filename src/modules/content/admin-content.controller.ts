@@ -15,8 +15,7 @@ export class AdminContentController {
   @Post('modules')
   async createModule(@Body() body: CreateModuleDto, @Request() req: any) {
     const userId = req.user?.userId; // Get userId from JWT token
-    const { userId: _, ...data } = body; // Remove userId from body
-    const doc = await this.content.createModule(data as any);
+    const doc = await this.content.createModule(body as any);
     return { id: (doc as any)._id };
   }
 
@@ -29,20 +28,18 @@ export class AdminContentController {
   @Patch('modules/:moduleRef')
   async updateModule(@Param('moduleRef') moduleRef: string, @Body() body: UpdateModuleDto, @Request() req: any) {
     const userId = req.user?.userId; // Get userId from JWT token
-    const { userId: _, ...update } = body; // Remove userId from body
-    return this.content.updateModule(moduleRef, update as any);
+    return this.content.updateModule(moduleRef, body as any);
   }
 
   // Lessons
   @Post('lessons')
   async createLesson(@Body() body: CreateLessonDto, @Request() req: any) {
     const userId = req.user?.userId; // Get userId from JWT token
-    const { userId: _, ...data } = body as any; // Remove userId from body
-    const errors = lintLessonTasks(data.lessonRef, data.tasks);
+    const errors = lintLessonTasks(body.lessonRef, body.tasks);
     if (errors.length) {
       return { ok: false, errors };
     }
-    const doc = await this.content.createLesson(data as any);
+    const doc = await this.content.createLesson(body as any);
     return { id: (doc as any)._id };
   }
 
@@ -55,12 +52,11 @@ export class AdminContentController {
   @Patch('lessons/:lessonRef')
   async updateLesson(@Param('lessonRef') lessonRef: string, @Body() body: UpdateLessonDto, @Request() req: any) {
     const userId = req.user?.userId; // Get userId from JWT token
-    const { userId: _, ...update } = body as any; // Remove userId from body
-    const errors = lintLessonTasks(lessonRef, update.tasks);
+    const errors = lintLessonTasks(lessonRef, body.tasks);
     if (errors.length) {
       return { ok: false, errors };
     }
-    return this.content.updateLesson(lessonRef, update as any);
+    return this.content.updateLesson(lessonRef, body as any);
   }
 }
 
