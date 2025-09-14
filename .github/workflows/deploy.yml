@@ -47,7 +47,7 @@ jobs:
 
       - name: Create app directory and .env on VPS
         run: |
-          ENV_B64=$(printf "MONGODB_URI=%s\nTELEGRAM_BOT_TOKEN=%s\nPORT=7777\nNODE_ENV=production\nYOOKASSA_SHOP_ID=%s\nYOOKASSA_SECRET_KEY=%s\nYOOKASSA_API_URL=%s\n" "${{ secrets.MONGODB_URI }}" "${{ secrets.TELEGRAM_BOT_TOKEN }}" "${{ secrets.YOOKASSA_SHOP_ID }}" "${{ secrets.YOOKASSA_SECRET_KEY }}" "${{ secrets.YOOKASSA_API_URL || 'https://api.yookassa.ru/v3' }}" | base64 -w0)
+          ENV_B64=$(printf "MONGODB_URI=%s\nTELEGRAM_BOT_TOKEN=%s\nPORT=7777\nNODE_ENV=production\nYOOKASSA_SHOP_ID=%s\nYOOKASSA_SECRET_KEY=%s\nYOOKASSA_API_URL=%s\nJWT_SECRET=%s\n" "${{ secrets.MONGODB_URI }}" "${{ secrets.TELEGRAM_BOT_TOKEN }}" "${{ secrets.YOOKASSA_SHOP_ID }}" "${{ secrets.YOOKASSA_SECRET_KEY }}" "${{ secrets.YOOKASSA_API_URL || 'https://api.yookassa.ru/v3' }}" "${{ secrets.JWT_SECRET }}" | base64 -w0)
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p /opt/re-burlive && echo $ENV_B64 | base64 -d | sudo tee /opt/re-burlive/.env > /dev/null"
 
       - name: Log in to GHCR on VPS and run container
