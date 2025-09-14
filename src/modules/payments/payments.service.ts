@@ -274,7 +274,7 @@ export class PaymentsService {
         throw new BadRequestException(`Payment creation failed: ${response.status}`);
       }
 
-      const paymentResponse: YooKassaPaymentResponse = await response.json();
+      const paymentResponse = await response.json() as YooKassaPaymentResponse;
 
       // Log payment creation event
       await this.eventModel.create([{
@@ -322,7 +322,7 @@ export class PaymentsService {
         throw new BadRequestException(`Failed to get payment status: ${response.status}`);
       }
 
-      const payment: YooKassaPaymentResponse = await response.json();
+      const payment = await response.json() as YooKassaPaymentResponse;
       
       return {
         status: payment.status,
