@@ -7,7 +7,7 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { cors: true });
   
   // Set global prefix for all routes
-  app.setGlobalPrefix('api/v2');
+  // app.setGlobalPrefix('api/v2'); // Disabled - nginx strips the prefix
   
   app.useGlobalPipes(
     new ValidationPipe({
