@@ -62,6 +62,29 @@ export class PaymentsService {
   private readonly shopId = process.env.YOOKASSA_SHOP_ID;
   private readonly secretKey = process.env.YOOKASSA_SECRET_KEY;
 
+  /**
+   * Generate informative payment description with subscription details
+   */
+  private generatePaymentDescription(product: 'monthly' | 'quarterly' | 'yearly', amount: number, cohort: string): string {
+    const productNames = {
+      monthly: 'месячная',
+      quarterly: 'квартальная', 
+      yearly: 'годовая'
+    };
+
+    const durations = {
+      monthly: '30 дней',
+      quarterly: '90 дней',
+      yearly: '365 дней'
+    };
+
+    const price = (amount / 100).toFixed(0);
+    const productName = productNames[product];
+    const duration = durations[product];
+    
+    return `Инглиш в ТГ - ${productName} подписка (${duration}) • ${price} ₽`;
+  }
+
   async processWebhook(payload: WebhookPayload): Promise<{ ok: boolean }> {
     // Idempotency check based on unique index will protect us; try to insert in tx
     const session = await this.connection.startSession();
@@ -248,15 +271,39 @@ export class PaymentsService {
         type: 'redirect',
         return_url: request.returnUrl
       },
-      description: request.description || `Подписка ${request.product} - BurLive`,
+      description: request.description || this.generatePaymentDescription(request.product, amount, cohort),
+      receipt: {
+        customer: {
+          email: user.email || `user_${request.userId}@burlive.ru` // Use email or fallback to userId-based email
+        },
+        items: [
+          {
+            description: this.generatePaymentDescription(request.product, amount, cohort),
+            quantity: '1.00',
+            amount: {
+              value: (amount / 100).toFixed(2),
+              currency: 'RUB'
+            },
+            vat_code: 1 // НДС 20%
+          }
+        ]
+      },
       metadata: {
         userId: request.userId,
         product: request.product,
         cohort: cohort
-      }
+      },
+      // Explicitly set test: false to ensure production mode
+      test: false
     };
 
     try {
+      // Log payment details for debugging
+      this.logger.log(`Creating payment with YooKassa API: ${this.yookassaApiUrl}`);
+      this.logger.log(`Payment description: ${paymentData.description}`);
+      this.logger.log(`Shop ID: ${this.shopId?.substring(0, 8)}...`);
+      this.logger.log(`Payment data: ${JSON.stringify(paymentData, null, 2)}`);
+
       // Make request to YooKassa API
       const response = await fetch(`${this.yookassaApiUrl}/payments`, {
         method: 'POST',
@@ -275,6 +322,11 @@ export class PaymentsService {
       }
 
       const paymentResponse = await response.json() as YooKassaPaymentResponse;
+      
+      // Log payment response for debugging
+      this.logger.log(`YooKassa payment created: ${paymentResponse.id}`);
+      this.logger.log(`Payment status: ${paymentResponse.status}`);
+      this.logger.log(`Payment description in response: ${paymentResponse.description}`);
 
       // Save payment to database immediately
       await this.paymentModel.create([{

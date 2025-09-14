@@ -24,6 +24,9 @@ export class User {
   username?: string;
 
   @Prop()
+  email?: string;
+
+  @Prop()
   languageCode?: string;
 
   @Prop()
