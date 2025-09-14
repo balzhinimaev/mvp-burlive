@@ -16,6 +16,20 @@ Content-Type: application/json
   "properties": { "utm_source": "vk" }
 }
 
+### Create payment
+POST {{base}}/payments/create
+Content-Type: application/json
+
+{
+  "userId": "12345",
+  "product": "monthly",
+  "returnUrl": "https://burlive.ru/payment/success",
+  "description": "Подписка на месяц - BurLive"
+}
+
+### Get payment status
+GET {{base}}/payments/status?paymentId=23d93cac-000f-5000-8000-126628f15141
+
 ### Payments webhook
 POST {{base}}/payments/webhook
 Content-Type: application/json
