@@ -2,6 +2,7 @@ import * as crypto from 'crypto';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from '../common/schemas/user.schema';
 import { AppEvent, EventDocument } from '../common/schemas/event.schema';
 
@@ -18,6 +19,7 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(AppEvent.name) private readonly eventModel: Model<EventDocument>,
+    private readonly jwtService: JwtService,
   ) {}
   async verifyTelegramInitData(
     initData: URLSearchParams,
@@ -28,6 +30,7 @@ export class AuthService {
     onboardingCompleted: boolean;
     englishLevel?: 'A0' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
     learningGoals?: string[];
+    accessToken: string;
   }> {
     const hash = initData.get('hash') || '';
     const dataCheckString = Array.from(initData.entries())
@@ -101,6 +104,13 @@ export class AuthService {
     const learningGoals = userDoc?.learningGoals;
 
     await this.eventModel.create({ userId, name: 'open_app', ts: new Date(), properties: { ...utm } });
+    
+    // Generate JWT token
+    const payload = { userId };
+    const accessToken = this.jwtService.sign(payload, { 
+      expiresIn: '24h' // Token valid for 24 hours
+    });
+    
     return {
       userId,
       isFirstOpen,
@@ -108,6 +118,7 @@ export class AuthService {
       onboardingCompleted,
       englishLevel,
       learningGoals,
+      accessToken,
     };
   }
 }

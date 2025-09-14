@@ -51,7 +51,8 @@ export class PaywallController {
       lastActiveDate: user.updatedAt,
       lessonCount,
       hasSubscription,
-      subscriptionExpired: !!subscriptionExpired
+      subscriptionExpired: !!subscriptionExpired,
+      userId: userId // Pass userId for test detection
     });
 
     // Получаем ценообразование

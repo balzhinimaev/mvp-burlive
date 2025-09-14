@@ -82,6 +82,11 @@ export class PaymentsService {
     const productName = productNames[product];
     const duration = durations[product];
     
+    // Special description for test payments
+    if (amount === 1000) { // 10₽ test payment
+      return `[ТЕСТ] Инглиш в ТГ - ${productName} подписка (${duration}) • ${price} ₽`;
+    }
+    
     return `Инглиш в ТГ - ${productName} подписка (${duration}) • ${price} ₽`;
   }
 
@@ -214,6 +219,18 @@ export class PaymentsService {
       throw new BadRequestException('User not found');
     }
 
+    // 🔒 Rate limiting: Check for too many pending payments
+    const pendingPayments = await this.paymentModel.countDocuments({
+      userId: request.userId,
+      status: 'pending',
+      createdAt: { $gte: new Date(Date.now() - 5 * 60 * 1000) } // Last 5 minutes
+    });
+
+    if (pendingPayments >= 10) {
+      this.logger.warn(`Rate limit exceeded for user ${request.userId}: ${pendingPayments} pending payments`);
+      throw new BadRequestException('Too many pending payments. Please wait before creating a new one.');
+    }
+
     // Calculate pricing based on user cohort
     const lessonCount = await this.progressModel.countDocuments({ 
       userId: request.userId, 
@@ -236,7 +253,8 @@ export class PaymentsService {
       lastActiveDate: user.updatedAt,
       lessonCount,
       hasSubscription,
-      subscriptionExpired: !!subscriptionExpired
+      subscriptionExpired: !!subscriptionExpired,
+      userId: request.userId // Pass userId for test detection
     });
 
     const pricing = this.pricingService.getPricing(cohort);
@@ -302,6 +320,12 @@ export class PaymentsService {
       this.logger.log(`Creating payment with YooKassa API: ${this.yookassaApiUrl}`);
       this.logger.log(`Payment description: ${paymentData.description}`);
       this.logger.log(`Shop ID: ${this.shopId?.substring(0, 8)}...`);
+      this.logger.log(`User cohort: ${cohort}, Amount: ${amount} kopecks (${(amount/100).toFixed(2)} ₽)`);
+      
+      if (cohort === 'test_payment') {
+        this.logger.warn(`🧪 TEST PAYMENT: User ${request.userId} - ${amount} kopecks (${(amount/100).toFixed(2)} ₽)`);
+      }
+      
       this.logger.log(`Payment data: ${JSON.stringify(paymentData, null, 2)}`);
 
       // Make request to YooKassa API

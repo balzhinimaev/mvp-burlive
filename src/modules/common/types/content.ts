@@ -75,7 +75,7 @@ export interface VocabularyItem {
 
 export type UserCohort =
   | 'new_user' | 'returning_user' | 'premium_trial'
-  | 'high_engagement' | 'low_engagement' | 'churned' | 'default';
+  | 'high_engagement' | 'low_engagement' | 'churned' | 'test_payment' | 'default';
 
 export interface CohortPricing {
   cohort: UserCohort;

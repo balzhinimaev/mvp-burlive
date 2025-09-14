@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param } from '@nestjs/common';
+import { Controller, Get, Query, Param, Post, Body, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -44,6 +44,45 @@ export class AuthController {
       englishLevel: user.englishLevel || null,
       learningGoals: user.learningGoals || [],
       onboardingRequired: !Boolean(user.onboardingCompletedAt),
+    };
+  }
+
+  @Post('test-user')
+  async createTestUser(@Body() body: { userId: string; firstName?: string; email?: string }) {
+    // 🔒 Basic security: only allow test users in development or with specific pattern
+    if (process.env.NODE_ENV === 'production' && !body.userId.includes('test')) {
+      throw new BadRequestException('Test user creation not allowed in production');
+    }
+    const { userId, firstName = 'Test User', email } = body;
+    
+    // Check if user already exists
+    const existingUser = await this.userModel.findOne({ userId }).lean();
+    if (existingUser) {
+      return {
+        success: true,
+        message: 'User already exists',
+        userId,
+        user: existingUser
+      };
+    }
+
+    // Create test user
+    const testUser = await this.userModel.create({
+      userId,
+      firstName,
+      email,
+      onboardingCompletedAt: new Date(), // Mark as completed for testing
+      englishLevel: 'A1',
+      learningGoals: ['test'],
+      firstUtm: { source: 'test' },
+      lastUtm: { source: 'test' }
+    });
+
+    return {
+      success: true,
+      message: 'Test user created successfully',
+      userId,
+      user: testUser
     };
   }
 }

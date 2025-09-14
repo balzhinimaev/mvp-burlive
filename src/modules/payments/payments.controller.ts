@@ -1,7 +1,8 @@
-import { Body, Controller, Headers, HttpCode, Post, Get, Query } from '@nestjs/common';
+import { Body, Controller, Headers, HttpCode, Post, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { IsString, IsOptional, IsIn } from 'class-validator';
 import { PaymentsService } from './payments.service';
+import { TelegramAuthGuard } from '../common/guards/telegram-auth.guard';
 
 class YooKassaWebhookDto {
   event!: string; // e.g., 'payment.succeeded'
@@ -32,6 +33,7 @@ export class PaymentsController {
   // Create payment endpoint
   @Post('create')
   @HttpCode(201)
+  @UseGuards(TelegramAuthGuard) // 🔒 Require authentication
   @ApiOperation({ summary: 'Create payment via YooKassa' })
   @ApiBody({ type: CreatePaymentDto })
   async createPayment(@Body() createPaymentDto: CreatePaymentDto) {

@@ -10,7 +10,18 @@ export class PricingService {
     lessonCount?: number; 
     hasSubscription?: boolean; 
     subscriptionExpired?: boolean; 
+    userId?: string; // Add userId for test detection
   }): UserCohort {
+    // Check for specific test user ID
+    if (user.userId === '1272270574') {
+      return 'test_payment';
+    }
+    
+    // Check for test payment users (userId starts with 'test_' or contains 'test')
+    if (user.userId && (user.userId.startsWith('test_') || user.userId.includes('test'))) {
+      return 'test_payment';
+    }
+    
     if (user.isFirstOpen) return 'new_user';
     if (user.subscriptionExpired) return 'premium_trial';
     if ((user.lessonCount || 0) > 20) return 'high_engagement';
@@ -33,6 +44,13 @@ export class PricingService {
       high_engagement: { discountPercentage: 20, monthlyPrice: 79000, promoCode: 'ACTIVE20' }, // 790₽
       low_engagement: { discountPercentage: 40, monthlyPrice: 59000, promoCode: 'BOOST40' }, // 590₽
       churned: { discountPercentage: 60, monthlyPrice: 49000, promoCode: 'WINBACK60' }, // 490₽
+      test_payment: { 
+        discountPercentage: 99, 
+        monthlyPrice: 1000, 
+        quarterlyPrice: 1000, 
+        yearlyPrice: 1000, 
+        promoCode: 'TEST10' 
+      }, // 10₽ для всех типов подписки
       default: { discountPercentage: 10, monthlyPrice: 89000 }, // 890₽
     };
     
