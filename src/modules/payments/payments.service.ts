@@ -43,6 +43,30 @@ interface YooKassaPaymentResponse {
   metadata: Record<string, any>;
 }
 
+interface BotPaymentCreationLog {
+  userId: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  paymentId: string;
+  amount: number;
+  currency: string;
+  tariffName: string;
+  utm: {
+    utm_source: string;
+    utm_medium: string;
+  };
+}
+
+interface BotPaymentSuccessLog {
+  userId: number;
+  paymentId: string;
+  amount: number;
+  currency: string;
+  registrationTime: string;
+  paymentTime: string;
+}
+
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
@@ -61,6 +85,10 @@ export class PaymentsService {
   private readonly yookassaApiUrl = process.env.YOOKASSA_API_URL || 'https://api.yookassa.ru/v3';
   private readonly shopId = process.env.YOOKASSA_SHOP_ID;
   private readonly secretKey = process.env.YOOKASSA_SECRET_KEY;
+
+  // Bot API configuration for logging
+  private readonly botApiUrl = process.env.BOT_API_URL;
+  private readonly botApiKey = process.env.BOT_API_KEY;
 
   /**
    * Generate informative payment description with subscription details
@@ -142,6 +170,11 @@ export class PaymentsService {
               },
             },
           ], { session });
+
+          // Log successful payment to bot API
+          const registrationTime = new Date().toISOString();
+          const paymentTime = new Date().toISOString();
+          await this.logPaymentSuccess(payload.userId, payload.providerId, payload.amount, registrationTime, paymentTime);
         }
       });
 
@@ -294,6 +327,10 @@ export class PaymentsService {
         customer: {
           email: user.email || `user_${request.userId}@burlive.ru` // Use email or fallback to userId-based email
         },
+        // ИНН самозанятого для автоматической регистрации чеков в "Мой налог"
+        // ВАЖНО: Убедитесь, что в личном кабинете YooKassa настроено разрешение
+        // на регистрацию чеков для самозанятого с данным ИНН
+        // inn: process.env.SELF_EMPLOYED_INN || '123456789012', // Замените на ваш ИНН
         items: [
           {
             description: this.generatePaymentDescription(request.product, amount, cohort),
@@ -302,7 +339,7 @@ export class PaymentsService {
               value: (amount / 100).toFixed(2),
               currency: 'RUB'
             },
-            vat_code: 1 // НДС 20%
+            vat_code: 1 // Без НДС (для самозанятого)
           }
         ]
       },
@@ -379,6 +416,9 @@ export class PaymentsService {
         }
       }]);
 
+      // Log payment creation to bot API
+      await this.logPaymentCreation(user, paymentResponse.id, amount, request.product);
+
       return {
         paymentUrl: paymentResponse.confirmation.confirmation_url,
         paymentId: paymentResponse.id
@@ -420,6 +460,94 @@ export class PaymentsService {
     } catch (error: any) {
       this.logger.error(`Failed to get payment status: ${error.message}`);
       throw new BadRequestException('Failed to get payment status');
+    }
+  }
+
+  /**
+   * Log payment creation to bot API
+   */
+  private async logPaymentCreation(user: any, paymentId: string, amount: number, product: string): Promise<void> {
+    if (!this.botApiUrl || !this.botApiKey) {
+      this.logger.warn('Bot API credentials not configured, skipping payment creation log');
+      return;
+    }
+
+    try {
+      const tariffNames = {
+        monthly: 'Премиум на месяц',
+        quarterly: 'Премиум на квартал', 
+        yearly: 'Премиум на год'
+      };
+
+      const logData: BotPaymentCreationLog = {
+        userId: parseInt(user.userId),
+        username: user.username || 'unknown',
+        firstName: user.firstName || 'Unknown',
+        lastName: user.lastName || 'User',
+        paymentId: paymentId,
+        amount: amount / 100, // Convert from cents to rubles
+        currency: 'RUB',
+        tariffName: tariffNames[product as keyof typeof tariffNames] || product,
+        utm: {
+          utm_source: 'telegram',
+          utm_medium: 'bot'
+        }
+      };
+
+      const response = await fetch(`${this.botApiUrl}/api/payment-creation-log`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.botApiKey}`
+        },
+        body: JSON.stringify(logData)
+      });
+
+      if (!response.ok) {
+        this.logger.error(`Failed to log payment creation: ${response.status} - ${await response.text()}`);
+      } else {
+        this.logger.log(`Payment creation logged successfully for user ${user.userId}`);
+      }
+    } catch (error: any) {
+      this.logger.error(`Error logging payment creation: ${error.message}`);
+    }
+  }
+
+  /**
+   * Log successful payment to bot API
+   */
+  private async logPaymentSuccess(userId: string, paymentId: string, amount: number, registrationTime: string, paymentTime: string): Promise<void> {
+    if (!this.botApiUrl || !this.botApiKey) {
+      this.logger.warn('Bot API credentials not configured, skipping payment success log');
+      return;
+    }
+
+    try {
+      const logData: BotPaymentSuccessLog = {
+        userId: parseInt(userId),
+        paymentId: paymentId,
+        amount: amount / 100, // Convert from cents to rubles
+        currency: 'RUB',
+        registrationTime: registrationTime,
+        paymentTime: paymentTime
+      };
+
+      const response = await fetch(`${this.botApiUrl}/api/payment-log`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.botApiKey}`
+        },
+        body: JSON.stringify(logData)
+      });
+
+      if (!response.ok) {
+        this.logger.error(`Failed to log payment success: ${response.status} - ${await response.text()}`);
+      } else {
+        this.logger.log(`Payment success logged successfully for user ${userId}`);
+      }
+    } catch (error: any) {
+      this.logger.error(`Error logging payment success: ${error.message}`);
     }
   }
 }
