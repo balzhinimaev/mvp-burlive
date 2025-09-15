@@ -3,6 +3,7 @@ import { ApiBody, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { IsString, IsOptional, IsIn } from 'class-validator';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import * as ipaddr from 'ipaddr.js';
 
 class YooKassaWebhookDto {
   event!: string; // e.g., 'payment.succeeded'
@@ -30,8 +31,8 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   /**
-   * Check if IP address is in allowed range
-   * Supports both IPv4 and IPv6 CIDR notation
+   * Check if IP address is in allowed range using ipaddr.js
+   * Supports both IPv4 and IPv6 with proper CIDR notation
    */
   private isIPAllowed(clientIP: string, allowedRanges: string[]): boolean {
     if (clientIP === 'unknown') return false;
@@ -39,99 +40,54 @@ export class PaymentsController {
     // Handle forwarded IP (take first one if multiple)
     const cleanIP = clientIP.split(',')[0].trim();
     
-    for (const range of allowedRanges) {
-      if (range.includes('/')) {
-        // CIDR notation - improved check
-        const [network, prefix] = range.split('/');
-        const prefixLength = parseInt(prefix);
-        
-        if (this.isIPInCIDR(cleanIP, network, prefixLength)) {
-          return true;
-        }
-      } else {
-        // Exact IP match
-        if (cleanIP === range) {
-          return true;
-        }
-      }
-    }
-    
-    return false;
-  }
-
-  /**
-   * Check if IP is in CIDR range (simplified implementation)
-   */
-  private isIPInCIDR(ip: string, network: string, prefixLength: number): boolean {
     try {
-      // Convert IPs to binary representation
-      const ipBinary = this.ipToBinary(ip);
-      const networkBinary = this.ipToBinary(network);
+      // Parse IP address
+      const addr = ipaddr.process(cleanIP);
       
-      // Validate binary conversion
-      if (!ipBinary || !networkBinary) {
-        this.logger.warn(`Invalid IP format: ${ip} or ${network}`);
-        return false;
-      }
-      
-      // Check if IP matches network prefix
-      const prefix = networkBinary.substring(0, prefixLength);
-      return ipBinary.startsWith(prefix);
-    } catch (error: any) {
-      this.logger.warn(`Error checking CIDR: ${error.message}`);
-      return false;
-    }
-  }
-
-  /**
-   * Convert IP address to binary string
-   * Supports both IPv4 and IPv6
-   */
-  private ipToBinary(ip: string): string {
-    if (ip.includes(':')) {
-      // IPv6 processing
-      return this.ipv6ToBinary(ip);
-    } else {
-      // IPv4 processing  
-      return ip.split('.').map(octet => 
-        parseInt(octet).toString(2).padStart(8, '0')
-      ).join('');
-    }
-  }
-
-  /**
-   * Convert IPv6 address to binary string
-   * Simplified implementation - for production use a proper IPv6 library
-   */
-  private ipv6ToBinary(ip: string): string {
-    try {
-      // Remove any brackets and normalize
-      const cleanIP = ip.replace(/[\[\]]/g, '');
-      
-      // Split by colons and expand
-      const parts = cleanIP.split(':');
-      const expandedParts: string[] = [];
-      
-      for (let i = 0; i < parts.length; i++) {
-        if (parts[i] === '') {
-          // Handle :: expansion
-          const missingParts = 8 - parts.length + 1;
-          for (let j = 0; j < missingParts; j++) {
-            expandedParts.push('0000');
+      for (const range of allowedRanges) {
+        if (range.includes('/')) {
+          // CIDR range
+          const [network, prefixStr] = range.split('/');
+          const prefix = parseInt(prefixStr);
+          
+          try {
+            const networkAddr = ipaddr.process(network);
+            
+            // Check that IP types match (IPv4 with IPv4, IPv6 with IPv6)
+            if (addr.kind() !== networkAddr.kind()) {
+              continue;
+            }
+            
+            // Check if IP is in range
+            if (addr.match(networkAddr, prefix)) {
+              this.logger.log(`✅ IP ${cleanIP} matches range ${range}`);
+              return true;
+            }
+          } catch (error: any) {
+            this.logger.warn(`Invalid network range: ${range} - ${error.message}`);
+            continue;
           }
         } else {
-          // Pad each part to 4 hex digits
-          expandedParts.push(parts[i].padStart(4, '0'));
+          // Exact IP match
+          try {
+            const allowedAddr = ipaddr.process(range);
+            if (addr.toString() === allowedAddr.toString()) {
+              this.logger.log(`✅ IP ${cleanIP} exactly matches ${range}`);
+              return true;
+            }
+          } catch (error: any) {
+            this.logger.warn(`Invalid IP address: ${range} - ${error.message}`);
+            continue;
+          }
         }
       }
       
-      // Convert each part to binary
-      return expandedParts.map(part => 
-        parseInt(part, 16).toString(2).padStart(16, '0')
-      ).join('');
+      this.logger.warn(`❌ IP ${cleanIP} not in allowed ranges`);
+      return false;
+      
     } catch (error: any) {
-      this.logger.warn(`Error converting IPv6 to binary: ${error.message}`);
-      return '';
+      this.logger.error(`Invalid client IP format: ${cleanIP} - ${error.message}`);
+      return false;
     }
   }
 
@@ -177,7 +133,19 @@ export class PaymentsController {
     // Security checks according to YooKassa documentation
     const clientIP = headers['x-real-ip'] || headers['x-forwarded-for'] || 'unknown';
     this.logger.log(`🌐 Client IP: ${clientIP}`);
-    this.logger.log(`🔍 IP Type: ${clientIP.includes(':') ? 'IPv6' : 'IPv4'}`);
+    
+    // Determine IP type using ipaddr.js
+    try {
+      const cleanIP = clientIP.split(',')[0].trim();
+      if (cleanIP !== 'unknown') {
+        const addr = ipaddr.process(cleanIP);
+        this.logger.log(`🔍 IP Type: ${addr.kind()}`);
+      } else {
+        this.logger.log(`🔍 IP Type: unknown`);
+      }
+    } catch (error: any) {
+      this.logger.log(`🔍 IP Type: invalid (${error.message})`);
+    }
     
     // Check IP whitelist (YooKassa official IPs)
     const yookassaIPs = [
