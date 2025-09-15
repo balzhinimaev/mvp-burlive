@@ -269,6 +269,21 @@ export class PaymentsService {
 
     this.logger.log(`🔄 Processing Webhook:`);
 
+    // Verify payment status according to YooKassa documentation
+    // Check if payment exists in our database and verify status
+    if (status === 'succeeded') {
+      const existingPayment = await this.paymentModel.findOne({ providerId }).lean();
+      if (existingPayment) {
+        this.logger.log(`✅ Payment found in database: ${existingPayment.status}`);
+        if (existingPayment.status === 'succeeded') {
+          this.logger.warn(`⚠️  Payment already processed as succeeded - skipping duplicate`);
+          return { ok: true };
+        }
+      } else {
+        this.logger.warn(`⚠️  Payment not found in database - may be invalid webhook`);
+      }
+    }
+
     // Reuse existing logic with normalized payload
     const result = await this.processWebhook({
       provider,

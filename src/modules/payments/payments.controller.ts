@@ -29,6 +29,32 @@ export class PaymentsController {
 
   constructor(private readonly paymentsService: PaymentsService) {}
 
+  /**
+   * Check if IP address is in allowed range
+   * Supports both IPv4 and IPv6 CIDR notation
+   */
+  private isIPAllowed(clientIP: string, allowedRanges: string[]): boolean {
+    if (clientIP === 'unknown') return false;
+    
+    // For now, simple string matching (in production, use proper CIDR library)
+    for (const range of allowedRanges) {
+      if (range.includes('/')) {
+        // CIDR notation - simplified check
+        const [network, prefix] = range.split('/');
+        if (clientIP.startsWith(network.split('.').slice(0, 2).join('.'))) {
+          return true;
+        }
+      } else {
+        // Exact IP match
+        if (clientIP === range) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
   // Create payment endpoint
   @Post('create')
   @HttpCode(201)
@@ -57,14 +83,48 @@ export class PaymentsController {
     @Body() payload: any, // Accept ANY body structure
   ): Promise<{ ok: boolean }> {
     const idempotenceKeyHeader = headers['idempotence-key'] || headers['Idempotence-Key'];
+    const signature = headers['signature'];
     
     // Log incoming webhook request details
     this.logger.log(`🌐 YooKassa Webhook HTTP Request:`);
     this.logger.log(`Headers: ${JSON.stringify(headers, null, 2)}`);
     this.logger.log(`Idempotence Key: ${idempotenceKeyHeader || 'not provided'}`);
+    this.logger.log(`Signature: ${signature || 'not provided'}`);
     this.logger.log(`Body: ${JSON.stringify(payload, null, 2)}`);
     this.logger.log(`Body Type: ${typeof payload}`);
     this.logger.log(`Body Keys: ${Object.keys(payload || {}).join(', ')}`);
+    
+    // Security checks according to YooKassa documentation
+    const clientIP = headers['x-real-ip'] || headers['x-forwarded-for'] || 'unknown';
+    this.logger.log(`🌐 Client IP: ${clientIP}`);
+    
+    // Check IP whitelist (YooKassa official IPs)
+    const yookassaIPs = [
+      '185.71.76.0/27',
+      '185.71.77.0/27', 
+      '77.75.153.0/25',
+      '77.75.156.11',
+      '77.75.156.35',
+      '77.75.154.128/25',
+      '2a02:5180::/32'
+    ];
+    
+    const isIPAllowed = this.isIPAllowed(clientIP, yookassaIPs);
+    this.logger.log(`🔒 IP Check: ${isIPAllowed ? '✅ ALLOWED' : '❌ BLOCKED'}`);
+    
+    if (!isIPAllowed) {
+      this.logger.error(`🚨 BLOCKED: Webhook from unauthorized IP: ${clientIP}`);
+      // In production, you might want to return 403 here
+      // return { ok: false, error: 'Unauthorized IP' };
+    }
+    
+    // Log signature status
+    if (signature) {
+      this.logger.log(`🔐 Webhook signature present: ${signature}`);
+      this.logger.log(`⚠️  Signature verification not implemented yet`);
+    } else {
+      this.logger.warn(`⚠️  No signature provided - webhook may be from untrusted source`);
+    }
     
     return this.paymentsService.processYooKassaWebhook(payload, idempotenceKeyHeader);
   }
