@@ -36,23 +36,54 @@ export class PaymentsController {
   private isIPAllowed(clientIP: string, allowedRanges: string[]): boolean {
     if (clientIP === 'unknown') return false;
     
-    // For now, simple string matching (in production, use proper CIDR library)
+    // Handle forwarded IP (take first one if multiple)
+    const cleanIP = clientIP.split(',')[0].trim();
+    
     for (const range of allowedRanges) {
       if (range.includes('/')) {
-        // CIDR notation - simplified check
+        // CIDR notation - improved check
         const [network, prefix] = range.split('/');
-        if (clientIP.startsWith(network.split('.').slice(0, 2).join('.'))) {
+        const prefixLength = parseInt(prefix);
+        
+        if (this.isIPInCIDR(cleanIP, network, prefixLength)) {
           return true;
         }
       } else {
         // Exact IP match
-        if (clientIP === range) {
+        if (cleanIP === range) {
           return true;
         }
       }
     }
     
     return false;
+  }
+
+  /**
+   * Check if IP is in CIDR range (simplified implementation)
+   */
+  private isIPInCIDR(ip: string, network: string, prefixLength: number): boolean {
+    try {
+      // Convert IPs to binary representation
+      const ipBinary = this.ipToBinary(ip);
+      const networkBinary = this.ipToBinary(network);
+      
+      // Check if IP matches network prefix
+      const prefix = networkBinary.substring(0, prefixLength);
+      return ipBinary.startsWith(prefix);
+    } catch (error: any) {
+      this.logger.warn(`Error checking CIDR: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Convert IP address to binary string
+   */
+  private ipToBinary(ip: string): string {
+    return ip.split('.').map(octet => 
+      parseInt(octet).toString(2).padStart(8, '0')
+    ).join('');
   }
 
   // Create payment endpoint
@@ -114,8 +145,7 @@ export class PaymentsController {
     
     if (!isIPAllowed) {
       this.logger.error(`🚨 BLOCKED: Webhook from unauthorized IP: ${clientIP}`);
-      // In production, you might want to return 403 here
-      // return { ok: false, error: 'Unauthorized IP' };
+      return { ok: false };
     }
     
     // Log signature status
