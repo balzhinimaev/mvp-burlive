@@ -68,6 +68,12 @@ export class PaymentsController {
       const ipBinary = this.ipToBinary(ip);
       const networkBinary = this.ipToBinary(network);
       
+      // Validate binary conversion
+      if (!ipBinary || !networkBinary) {
+        this.logger.warn(`Invalid IP format: ${ip} or ${network}`);
+        return false;
+      }
+      
       // Check if IP matches network prefix
       const prefix = networkBinary.substring(0, prefixLength);
       return ipBinary.startsWith(prefix);
@@ -79,11 +85,54 @@ export class PaymentsController {
 
   /**
    * Convert IP address to binary string
+   * Supports both IPv4 and IPv6
    */
   private ipToBinary(ip: string): string {
-    return ip.split('.').map(octet => 
-      parseInt(octet).toString(2).padStart(8, '0')
-    ).join('');
+    if (ip.includes(':')) {
+      // IPv6 processing
+      return this.ipv6ToBinary(ip);
+    } else {
+      // IPv4 processing  
+      return ip.split('.').map(octet => 
+        parseInt(octet).toString(2).padStart(8, '0')
+      ).join('');
+    }
+  }
+
+  /**
+   * Convert IPv6 address to binary string
+   * Simplified implementation - for production use a proper IPv6 library
+   */
+  private ipv6ToBinary(ip: string): string {
+    try {
+      // Remove any brackets and normalize
+      const cleanIP = ip.replace(/[\[\]]/g, '');
+      
+      // Split by colons and expand
+      const parts = cleanIP.split(':');
+      const expandedParts: string[] = [];
+      
+      for (let i = 0; i < parts.length; i++) {
+        if (parts[i] === '') {
+          // Handle :: expansion
+          const missingParts = 8 - parts.length + 1;
+          for (let j = 0; j < missingParts; j++) {
+            expandedParts.push('0000');
+          }
+        } else {
+          // Pad each part to 4 hex digits
+          expandedParts.push(parts[i].padStart(4, '0'));
+        }
+      }
+      
+      // Convert each part to binary
+      return expandedParts.map(part => 
+        parseInt(part, 16).toString(2).padStart(16, '0')
+      ).join('');
+    } catch (error: any) {
+      this.logger.warn(`Error converting IPv6 to binary: ${error.message}`);
+      return '';
+    }
   }
 
   // Create payment endpoint
@@ -128,6 +177,7 @@ export class PaymentsController {
     // Security checks according to YooKassa documentation
     const clientIP = headers['x-real-ip'] || headers['x-forwarded-for'] || 'unknown';
     this.logger.log(`🌐 Client IP: ${clientIP}`);
+    this.logger.log(`🔍 IP Type: ${clientIP.includes(':') ? 'IPv6' : 'IPv4'}`);
     
     // Check IP whitelist (YooKassa official IPs)
     const yookassaIPs = [
