@@ -52,10 +52,9 @@ export class PaymentsController {
   @Post('webhook/yookassa')
   @HttpCode(200)
   @ApiOperation({ summary: 'YooKassa webhook endpoint' })
-  @ApiBody({ type: YooKassaWebhookDto })
   async yookassaWebhook(
     @Headers() headers: Record<string, string>,
-    @Body() payload: YooKassaWebhookDto,
+    @Body() payload: any, // Accept ANY body structure
   ): Promise<{ ok: boolean }> {
     const idempotenceKeyHeader = headers['idempotence-key'] || headers['Idempotence-Key'];
     
@@ -64,6 +63,8 @@ export class PaymentsController {
     this.logger.log(`Headers: ${JSON.stringify(headers, null, 2)}`);
     this.logger.log(`Idempotence Key: ${idempotenceKeyHeader || 'not provided'}`);
     this.logger.log(`Body: ${JSON.stringify(payload, null, 2)}`);
+    this.logger.log(`Body Type: ${typeof payload}`);
+    this.logger.log(`Body Keys: ${Object.keys(payload || {}).join(', ')}`);
     
     return this.paymentsService.processYooKassaWebhook(payload, idempotenceKeyHeader);
   }

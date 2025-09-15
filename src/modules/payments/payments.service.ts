@@ -201,52 +201,73 @@ export class PaymentsService {
    * See: https://yookassa.ru/developers/payment-acceptance/getting-started/quick-start
    */
   async processYooKassaWebhook(
-    payload: { event: string; object: any },
+    payload: any, // Accept ANY payload structure
     idempotenceKeyHeader?: string,
   ): Promise<{ ok: boolean }> {
     // Log full webhook payload from YooKassa
     this.logger.log(`🔔 YooKassa Webhook Received:`);
     this.logger.log(`Full Payload: ${JSON.stringify(payload, null, 2)}`);
     this.logger.log(`Idempotence Key Header: ${idempotenceKeyHeader || 'not provided'}`);
-    this.logger.log(`Event Type: ${payload?.event}`);
-    this.logger.log(`Payment Object: ${JSON.stringify(payload?.object, null, 2)}`);
+    this.logger.log(`Payload Type: ${typeof payload}`);
+    this.logger.log(`Payload Keys: ${Object.keys(payload || {}).join(', ')}`);
 
-    const eventType = payload?.event;
-    const paymentObj = payload?.object || {};
+    // Determine payload format and extract data accordingly
+    let provider: string;
+    let providerId: string;
+    let amountValue: number;
+    let currency: string;
+    let userId: string;
+    let product: 'monthly' | 'quarterly' | 'yearly';
+    let status: 'succeeded' | 'pending' | 'failed';
 
-    const provider = 'yookassa';
-    const providerId: string = paymentObj?.id || 'unknown';
-    const amountValue: number = Math.round(parseFloat(paymentObj?.amount?.value || '0') * 100);
-    const currency: string = paymentObj?.amount?.currency || 'RUB';
-    const metadata: any = paymentObj?.metadata || {};
+    // Check if it's YooKassa format (has event and object)
+    if (payload?.event && payload?.object) {
+      this.logger.log(`📋 Detected YooKassa format`);
+      const eventType = payload.event;
+      const paymentObj = payload.object;
+
+      provider = 'yookassa';
+      providerId = paymentObj?.id || 'unknown';
+      amountValue = Math.round(parseFloat(paymentObj?.amount?.value || '0') * 100);
+      currency = paymentObj?.amount?.currency || 'RUB';
+      const metadata = paymentObj?.metadata || {};
+
+      const userIdRaw = metadata.userId;
+      const productRaw = metadata.product;
+      userId = typeof userIdRaw === 'string' ? userIdRaw : String(userIdRaw || '');
+
+      const statusMap: Record<string, 'succeeded' | 'pending' | 'failed'> = {
+        'payment.succeeded': 'succeeded',
+        'payment.waiting_for_capture': 'pending',
+        'payment.canceled': 'failed',
+        'refund.succeeded': 'succeeded',
+      };
+      status = statusMap[eventType] || 'pending';
+      product = (productRaw as any) || 'monthly';
+
+    } else {
+      // Check if it's test format (direct fields)
+      this.logger.log(`📋 Detected test/direct format`);
+      
+      provider = payload?.provider || 'yookassa';
+      providerId = payload?.providerId || 'unknown';
+      amountValue = payload?.amount || 0;
+      currency = payload?.currency || 'RUB';
+      userId = String(payload?.userId || '');
+      product = (payload?.product as any) || 'monthly';
+      status = (payload?.status as any) || 'pending';
+    }
 
     this.logger.log(`📊 Parsed Webhook Data:`);
     this.logger.log(`Provider: ${provider}`);
     this.logger.log(`Provider ID: ${providerId}`);
     this.logger.log(`Amount: ${amountValue} kopecks (${(amountValue/100).toFixed(2)} ₽)`);
     this.logger.log(`Currency: ${currency}`);
-    this.logger.log(`Metadata: ${JSON.stringify(metadata, null, 2)}`);
-
-    // Expect client to send userId & product in metadata
-    const userIdRaw = metadata.userId;
-    const productRaw = metadata.product as 'monthly' | 'quarterly' | 'yearly' | undefined;
-    const userId = typeof userIdRaw === 'string' ? userIdRaw : String(userIdRaw || '');
-
-    const statusMap: Record<string, 'succeeded' | 'pending' | 'failed'> = {
-      'payment.succeeded': 'succeeded',
-      'payment.waiting_for_capture': 'pending',
-      'payment.canceled': 'failed',
-      'refund.succeeded': 'succeeded',
-    } as const;
-    const mappedStatus = statusMap[eventType] || 'pending';
-
-    // Determine product and entitlement duration
-    const product: 'monthly' | 'quarterly' | 'yearly' = (productRaw as any) || 'monthly';
-
-    this.logger.log(`🔄 Processing Webhook:`);
     this.logger.log(`User ID: ${userId}`);
     this.logger.log(`Product: ${product}`);
-    this.logger.log(`Mapped Status: ${mappedStatus}`);
+    this.logger.log(`Status: ${status}`);
+
+    this.logger.log(`🔄 Processing Webhook:`);
 
     // Reuse existing logic with normalized payload
     const result = await this.processWebhook({
@@ -257,7 +278,7 @@ export class PaymentsService {
       product: product === 'yearly' ? 'yearly' : product,
       amount: amountValue,
       currency,
-      status: mappedStatus,
+      status,
     });
 
     this.logger.log(`✅ Webhook Processing Result: ${JSON.stringify(result, null, 2)}`);
