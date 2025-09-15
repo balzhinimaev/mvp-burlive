@@ -119,22 +119,31 @@ export class PaymentsService {
   }
 
   async processWebhook(payload: WebhookPayload): Promise<{ ok: boolean }> {
-    // Idempotency check based on unique index will protect us; try to insert in tx
+    // Update existing payment record instead of creating new one
     const session = await this.connection.startSession();
     try {
       await session.withTransaction(async () => {
-        const payment = await this.paymentModel.create([
-          {
-            userId: payload.userId,
-            provider: payload.provider,
-            providerId: payload.providerId,
-            idempotencyKey: payload.idempotencyKey,
-            product: payload.product,
-            amount: payload.amount,
-            currency: payload.currency,
-            status: payload.status,
+        // Find existing payment by providerId and update its status
+        const existingPayment = await this.paymentModel.findOne({ 
+          providerId: payload.providerId 
+        }).session(session);
+
+        if (!existingPayment) {
+          this.logger.warn(`Payment not found for providerId: ${payload.providerId}`);
+          return;
+        }
+
+        // Update payment status
+        await this.paymentModel.updateOne(
+          { providerId: payload.providerId },
+          { 
+            $set: { 
+              status: payload.status,
+              updatedAt: new Date()
+            }
           },
-        ], { session });
+          { session }
+        );
 
         if (payload.status === 'succeeded') {
           const durationDays = payload.product === 'yearly' ? 365 : payload.product === 'monthly' ? 30 : 90;
@@ -180,11 +189,7 @@ export class PaymentsService {
 
       return { ok: true };
     } catch (err: any) {
-      // Duplicate key => idempotent success
-      if (err && (err.code === 11000 || err.codeName === 'DuplicateKey')) {
-        this.logger.warn(`Idempotent duplicate for providerId=${payload.providerId} key=${payload.idempotencyKey}`);
-        return { ok: true };
-      }
+      this.logger.error(`Error processing webhook: ${err.message}`);
       throw err;
     } finally {
       await session.endSession();
@@ -199,6 +204,13 @@ export class PaymentsService {
     payload: { event: string; object: any },
     idempotenceKeyHeader?: string,
   ): Promise<{ ok: boolean }> {
+    // Log full webhook payload from YooKassa
+    this.logger.log(`🔔 YooKassa Webhook Received:`);
+    this.logger.log(`Full Payload: ${JSON.stringify(payload, null, 2)}`);
+    this.logger.log(`Idempotence Key Header: ${idempotenceKeyHeader || 'not provided'}`);
+    this.logger.log(`Event Type: ${payload?.event}`);
+    this.logger.log(`Payment Object: ${JSON.stringify(payload?.object, null, 2)}`);
+
     const eventType = payload?.event;
     const paymentObj = payload?.object || {};
 
@@ -207,6 +219,13 @@ export class PaymentsService {
     const amountValue: number = Math.round(parseFloat(paymentObj?.amount?.value || '0') * 100);
     const currency: string = paymentObj?.amount?.currency || 'RUB';
     const metadata: any = paymentObj?.metadata || {};
+
+    this.logger.log(`📊 Parsed Webhook Data:`);
+    this.logger.log(`Provider: ${provider}`);
+    this.logger.log(`Provider ID: ${providerId}`);
+    this.logger.log(`Amount: ${amountValue} kopecks (${(amountValue/100).toFixed(2)} ₽)`);
+    this.logger.log(`Currency: ${currency}`);
+    this.logger.log(`Metadata: ${JSON.stringify(metadata, null, 2)}`);
 
     // Expect client to send userId & product in metadata
     const userIdRaw = metadata.userId;
@@ -224,8 +243,13 @@ export class PaymentsService {
     // Determine product and entitlement duration
     const product: 'monthly' | 'quarterly' | 'yearly' = (productRaw as any) || 'monthly';
 
+    this.logger.log(`🔄 Processing Webhook:`);
+    this.logger.log(`User ID: ${userId}`);
+    this.logger.log(`Product: ${product}`);
+    this.logger.log(`Mapped Status: ${mappedStatus}`);
+
     // Reuse existing logic with normalized payload
-    return this.processWebhook({
+    const result = await this.processWebhook({
       provider,
       providerId,
       idempotencyKey: idempotenceKeyHeader || providerId,
@@ -235,6 +259,9 @@ export class PaymentsService {
       currency,
       status: mappedStatus,
     });
+
+    this.logger.log(`✅ Webhook Processing Result: ${JSON.stringify(result, null, 2)}`);
+    return result;
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, HttpCode, Post, Get, Query, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Headers, HttpCode, Post, Get, Query, UseGuards, Request, Logger } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { IsString, IsOptional, IsIn } from 'class-validator';
 import { PaymentsService } from './payments.service';
@@ -25,6 +25,8 @@ class CreatePaymentDto {
 @ApiTags('Payments')
 @Controller('payments')
 export class PaymentsController {
+  private readonly logger = new Logger(PaymentsController.name);
+
   constructor(private readonly paymentsService: PaymentsService) {}
 
   // Create payment endpoint
@@ -52,9 +54,17 @@ export class PaymentsController {
   @ApiOperation({ summary: 'YooKassa webhook endpoint' })
   @ApiBody({ type: YooKassaWebhookDto })
   async yookassaWebhook(
-    @Headers('Idempotence-Key') idempotenceKeyHeader: string,
+    @Headers() headers: Record<string, string>,
     @Body() payload: YooKassaWebhookDto,
   ): Promise<{ ok: boolean }> {
+    const idempotenceKeyHeader = headers['idempotence-key'] || headers['Idempotence-Key'];
+    
+    // Log incoming webhook request details
+    this.logger.log(`🌐 YooKassa Webhook HTTP Request:`);
+    this.logger.log(`Headers: ${JSON.stringify(headers, null, 2)}`);
+    this.logger.log(`Idempotence Key: ${idempotenceKeyHeader || 'not provided'}`);
+    this.logger.log(`Body: ${JSON.stringify(payload, null, 2)}`);
+    
     return this.paymentsService.processYooKassaWebhook(payload, idempotenceKeyHeader);
   }
 }
