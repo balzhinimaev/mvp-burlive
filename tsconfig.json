@@ -3,6 +3,8 @@
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
