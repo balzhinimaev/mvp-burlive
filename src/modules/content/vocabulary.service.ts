@@ -48,13 +48,14 @@ export class VocabularyService {
                 tags: this.extractTagsFromLesson(lesson),
                 lessonRefs: [],
                 moduleRefs: [moduleRef],
-                occurrenceCount: 0,
-                isLearned: false
+                occurrenceCount: 0
               });
             }
 
             const word = wordMap.get(wordId)!;
-            word.lessonRefs!.push(lesson.lessonRef);
+            if (!word.lessonRefs!.includes(lesson.lessonRef)) {
+              word.lessonRefs!.push(lesson.lessonRef);
+            }
             word.occurrenceCount!++;
           }
         }
@@ -76,13 +77,14 @@ export class VocabularyService {
                   tags: this.extractTagsFromLesson(lesson),
                   lessonRefs: [],
                   moduleRefs: [moduleRef],
-                  occurrenceCount: 0,
-                  isLearned: false
+                  occurrenceCount: 0
                 });
               }
 
               const word = wordMap.get(wordId)!;
-              word.lessonRefs!.push(lesson.lessonRef);
+              if (!word.lessonRefs!.includes(lesson.lessonRef)) {
+                word.lessonRefs!.push(lesson.lessonRef);
+              }
               word.occurrenceCount!++;
             }
           }
@@ -242,8 +244,10 @@ export class VocabularyService {
         await this.vocabularyModel.updateOne(
           { id: word.id },
           {
-            $addToSet: { moduleRefs: moduleRef },
-            $addToSet: { lessonRefs: { $each: word.lessonRefs || [] } },
+            $addToSet: {
+              moduleRefs: { $each: word.moduleRefs || [] },
+              lessonRefs: { $each: word.lessonRefs || [] }
+            },
             $inc: { occurrenceCount: word.occurrenceCount || 0 }
           }
         );
@@ -304,7 +308,7 @@ export class VocabularyService {
   }
 
   private extractTagsFromLesson(lesson: any): string[] {
-    const tags = lesson.tags || [];
+    const tags = (lesson.tags || []) as string[];
     if (lesson.type) tags.push(lesson.type);
     return [...new Set(tags)]; // Remove duplicates
   }
