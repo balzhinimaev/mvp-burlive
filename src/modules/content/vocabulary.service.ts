@@ -35,7 +35,7 @@ export class VocabularyService {
           const { front, back, example, audioKey } = task.data;
           
           if (front && back) {
-            const wordId = this.generateWordId(front);
+            const wordId = this.generateWordId(front, moduleRef);
             
             if (!wordMap.has(wordId)) {
               wordMap.set(wordId, {
@@ -63,7 +63,7 @@ export class VocabularyService {
         if (task.type === 'matching' && task.data?.pairs) {
           for (const pair of task.data.pairs) {
             if (pair.left && pair.right) {
-              const wordId = this.generateWordId(pair.left);
+              const wordId = this.generateWordId(pair.left, moduleRef);
               
               if (!wordMap.has(wordId)) {
                 wordMap.set(wordId, {
@@ -267,8 +267,27 @@ export class VocabularyService {
   }
 
   // Helper methods
-  private generateWordId(word: string): string {
-    return word.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  private generateWordId(word: string, moduleRef?: string): string {
+    const sanitize = (value: string): string =>
+      value
+        .normalize('NFKD')
+        .replace(/[^\w\s-]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+
+    const buildPart = (value: string): string => {
+      const sanitized = sanitize(value);
+      return sanitized || Buffer.from(value).toString('hex').toLowerCase();
+    };
+
+    const parts: string[] = [];
+    if (moduleRef) {
+      parts.push(buildPart(moduleRef));
+    }
+    parts.push(buildPart(word));
+
+    return parts.join('__');
   }
 
   private generateAudioKey(lessonRef: string, taskRef: string, word: string): string {
