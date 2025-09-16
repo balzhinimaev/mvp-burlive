@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node dist/main.js",
     "start:dev": "cross-env NODE_ENV=production ts-node-dev --respawn --transpile-only src/main.ts",
-    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "build": "rimraf dist tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "migrate:content": "ts-node ./scripts/migrate-content.ts",
