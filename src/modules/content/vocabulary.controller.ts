@@ -26,8 +26,8 @@ export class VocabularyController {
   @Get('modules/:moduleRef')
   async getModuleVocabulary(
     @Param('moduleRef') moduleRef: string,
-    @Query('lang') lang?: string,
-    @Request() req: any
+    @Request() req: any,
+    @Query('lang') lang?: string
   ): Promise<VocabularyResponseDto> {
     // Basic validation
     if (!/^[a-z0-9]+\.[a-z0-9_]+$/.test(moduleRef)) {

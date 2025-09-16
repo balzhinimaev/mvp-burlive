@@ -67,17 +67,17 @@ export interface VocabularyResponseDto {
   words: Array<{
     id: string;
     word: string;
-    translation: string;
+    translation?: string;
     transcription?: string;
     pronunciation?: string;
     partOfSpeech?: string;
-    difficulty: 'easy' | 'medium' | 'hard';
-    examples: Array<{ original: string; translation: string }>;
-    tags: string[];
-    lessonRefs: string[];
-    moduleRefs: string[];
+    difficulty?: 'easy' | 'medium' | 'hard';
+    examples?: Array<{ original: string; translation: string }>;
+    tags?: string[];
+    lessonRefs?: string[];
+    moduleRefs?: string[];
     audioKey?: string;
-    occurrenceCount: number;
+    occurrenceCount?: number;
     isLearned?: boolean;
   }>;
   progress?: {
@@ -102,14 +102,14 @@ export interface UserWordProgressResponseDto {
   moduleRef: string;
   wordId: string;
   status: 'not_started' | 'learning' | 'learned';
-  score: number;
-  attempts: number;
-  timeSpent: number;
+  score?: number;
+  attempts?: number;
+  timeSpent?: number;
   lastStudiedAt?: Date;
   learnedAt?: Date;
-  correctAttempts: number;
-  totalAttempts: number;
-  lessonRefs: string[];
+  correctAttempts?: number;
+  totalAttempts?: number;
+  lessonRefs?: string[];
 }
 
 export interface SyncVocabularyResponseDto {
