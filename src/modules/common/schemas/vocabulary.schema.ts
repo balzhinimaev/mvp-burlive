@@ -9,12 +9,14 @@ export class VocabularyItem {
   id!: string; // 'hello'
 
   @Prop({ required: true }) word!: string;
-  @Prop({ required: true }) translation!: string;
+  @Prop({ default: '' }) translation?: string;
 
   @Prop() transcription?: string;
   @Prop() pronunciation?: string;
   @Prop() partOfSpeech?: string;
-  @Prop() difficulty?: string;
+  
+  @Prop({ enum: ['easy', 'medium', 'hard'], default: 'easy' })
+  difficulty?: 'easy' | 'medium' | 'hard';
 
   @Prop({ type: [{ original: String, translation: String }], default: [] })
   examples?: Array<{ original: string; translation: string }>;
@@ -25,7 +27,13 @@ export class VocabularyItem {
   @Prop({ type: [String], default: [] })
   lessonRefs?: string[];
 
-  @Prop({ default: false })
-  isLearned?: boolean;
+  @Prop({ type: [String], default: [] })
+  moduleRefs?: string[]; // Modules where this word appears
+
+  @Prop() audioKey?: string; // TTS audio key for pronunciation
+
+  @Prop({ default: 0 })
+  occurrenceCount?: number; // How many times word appears in lessons
+
 }
 export const VocabularySchema = SchemaFactory.createForClass(VocabularyItem);

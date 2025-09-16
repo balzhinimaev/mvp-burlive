@@ -2,8 +2,9 @@ import { CourseModule } from '../schemas/course-module.schema';
 import { Lesson } from '../schemas/lesson.schema';
 import { UserLessonProgress } from '../schemas/user-lesson-progress.schema';
 import { VocabularyItem } from '../schemas/vocabulary.schema';
+import { UserVocabularyProgress } from '../schemas/user-vocabulary-progress.schema';
 import { User } from '../schemas/user.schema';
-import { ModuleItem, LessonItem, LessonProgress, VocabularyItem as VocabType, TaskType } from '../types/content';
+import { ModuleItem, LessonItem, LessonProgress, VocabularyItem as VocabType, TaskType, UserVocabularyProgress as UserVocabularyProgressType, VocabularyProgressStats } from '../types/content';
 import { getLocalizedText, SupportedLanguage } from './i18n.util';
 
 const STRIP = new Set(['correct','isCorrect','correctIndex','correctIndexes','answer','answers','expected','expectedAnswers','target','targets','solution','solutions']);
@@ -91,7 +92,7 @@ export class VocabularyMapper {
     return {
       id: vocab.id,
       word: vocab.word,
-      translation: vocab.translation,
+      translation: vocab.translation || '',
       transcription: vocab.transcription,
       pronunciation: vocab.pronunciation,
       partOfSpeech: vocab.partOfSpeech,
@@ -99,7 +100,31 @@ export class VocabularyMapper {
       examples: vocab.examples || [],
       tags: vocab.tags || [],
       lessonRefs: vocab.lessonRefs || [],
-      isLearned: vocab.isLearned || false
+      moduleRefs: vocab.moduleRefs || [],
+      audioKey: vocab.audioKey,
+      occurrenceCount: vocab.occurrenceCount || 0
+    };
+  }
+}
+
+/**
+ * Маппер для преобразования UserVocabularyProgress схемы в DTO
+ */
+export class UserVocabularyProgressMapper {
+  static toDto(progress: UserVocabularyProgress): UserVocabularyProgressType {
+    return {
+      userId: progress.userId,
+      moduleRef: progress.moduleRef,
+      wordId: progress.wordId,
+      status: progress.status,
+      score: progress.score || 0,
+      attempts: progress.attempts || 0,
+      timeSpent: progress.timeSpent || 0,
+      lastStudiedAt: progress.lastStudiedAt,
+      learnedAt: progress.learnedAt,
+      correctAttempts: progress.correctAttempts || 0,
+      totalAttempts: progress.totalAttempts || 0,
+      lessonRefs: progress.lessonRefs || []
     };
   }
 }

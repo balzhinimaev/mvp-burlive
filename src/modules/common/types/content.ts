@@ -62,15 +62,42 @@ export interface LessonItem {
 export interface VocabularyItem {
   id: string;
   word: string;
-  translation: string;
+  translation?: string;
   transcription?: string;
   pronunciation?: string;
   partOfSpeech?: string;
-  difficulty?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
   examples?: Array<{ original: string; translation: string }>;
   tags?: string[];
   lessonRefs?: string[];
-  isLearned?: boolean;
+  moduleRefs?: string[];
+  audioKey?: string;
+  occurrenceCount?: number;
+}
+
+export type VocabularyStatus = 'not_started' | 'learning' | 'learned';
+
+export interface UserVocabularyProgress {
+  userId: string;
+  moduleRef: string;
+  wordId: string;
+  status: VocabularyStatus;
+  score?: number;
+  attempts?: number;
+  timeSpent?: number;
+  lastStudiedAt?: Date;
+  learnedAt?: Date;
+  correctAttempts?: number;
+  totalAttempts?: number;
+  lessonRefs?: string[];
+}
+
+export interface VocabularyProgressStats {
+  totalWords: number;
+  learnedWords: number;
+  learningWords: number;
+  notStartedWords: number;
+  progressPercentage: number;
 }
 
 export type UserCohort =

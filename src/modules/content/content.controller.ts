@@ -13,6 +13,7 @@ import { getLocalizedText, parseLanguage } from '../common/utils/i18n.util';
 import { ModuleMapper, LessonMapper, LessonProgressMapper } from '../common/utils/mappers';
 import { GetModulesDto, GetLessonsDto, GetLessonDto } from './dto/get-content.dto';
 import { ContentService } from './content.service';
+import { VocabularyService } from './vocabulary.service';
 
 @Controller('content')
 @UseGuards(OptionalUserGuard)
@@ -23,6 +24,7 @@ export class ContentController {
     @InjectModel(Lesson.name) private readonly lessonModel: Model<LessonDocument>,
     @InjectModel(UserLessonProgress.name) private readonly ulpModel: Model<UserLessonProgressDocument>,
     private readonly contentService: ContentService,
+    private readonly vocabularyService: VocabularyService,
   ) {}
 
   @Get('modules')
@@ -293,6 +295,59 @@ export class ContentController {
         durationDays: product.id === 'monthly' ? 30 : 90,
         features: (product.features as any)[language] || (product.features as any).en || []
       }))
+    };
+  }
+
+  /**
+   * Get vocabulary for a specific module
+   * GET /api/v2/content/modules/{moduleRef}/vocabulary
+   */
+  @Get('modules/:moduleRef/vocabulary')
+  @UseGuards(JwtAuthGuard)
+  async getModuleVocabulary(
+    @Param('moduleRef') moduleRef: string,
+    @Request() req?: any,
+    @Query('lang') lang?: string
+  ) {
+    // Basic validation
+    if (!/^[a-z0-9]+\.[a-z0-9_]+$/.test(moduleRef)) {
+      return { error: 'Invalid moduleRef format' };
+    }
+
+    const userId = req.user?.userId;
+    const result = await this.vocabularyService.getModuleVocabulary(moduleRef, userId);
+    
+    return {
+      moduleRef,
+      vocabulary: result.words,
+      progress: result.progress
+    };
+  }
+
+  /**
+   * Get vocabulary progress statistics for a module
+   * GET /api/v2/content/modules/{moduleRef}/vocabulary/progress
+   */
+  @Get('modules/:moduleRef/vocabulary/progress')
+  @UseGuards(JwtAuthGuard)
+  async getVocabularyProgress(
+    @Param('moduleRef') moduleRef: string,
+    @Request() req: any
+  ) {
+    if (!/^[a-z0-9]+\.[a-z0-9_]+$/.test(moduleRef)) {
+      return { error: 'Invalid moduleRef format' };
+    }
+
+    const userId = req.user?.userId;
+    if (!userId) {
+      return { error: 'userId is required' };
+    }
+
+    const progress = await this.vocabularyService.getVocabularyProgressStats(moduleRef, userId);
+    
+    return {
+      moduleRef,
+      progress
     };
   }
 }
