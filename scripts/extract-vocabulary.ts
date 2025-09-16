@@ -98,7 +98,7 @@ class VocabularyExtractor {
           const { front, back, example, audioKey } = task.data;
           
           if (front && back) {
-            const wordId = this.generateWordId(front);
+            const wordId = this.generateWordId(front, moduleRef);
             
             if (!wordMap.has(wordId)) {
               wordMap.set(wordId, {
@@ -127,7 +127,7 @@ class VocabularyExtractor {
         if (task.type === 'matching' && task.data?.pairs) {
           for (const pair of task.data.pairs) {
             if (pair.left && pair.right) {
-              const wordId = this.generateWordId(pair.left);
+              const wordId = this.generateWordId(pair.left, moduleRef);
               
               if (!wordMap.has(wordId)) {
                 wordMap.set(wordId, {
@@ -157,7 +157,7 @@ class VocabularyExtractor {
         if (task.type === 'multiple_choice' && task.data?.options) {
           for (const option of task.data.options) {
             if (option && this.isEnglishWord(option)) {
-              const wordId = this.generateWordId(option);
+              const wordId = this.generateWordId(option, moduleRef);
               
               if (!wordMap.has(wordId)) {
                 wordMap.set(wordId, {
@@ -187,7 +187,7 @@ class VocabularyExtractor {
         if (task.type === 'choice' && task.data?.options) {
           for (const option of task.data.options) {
             if (option && this.isEnglishWord(option)) {
-              const wordId = this.generateWordId(option);
+              const wordId = this.generateWordId(option, moduleRef);
               
               if (!wordMap.has(wordId)) {
                 wordMap.set(wordId, {
@@ -217,7 +217,7 @@ class VocabularyExtractor {
         if (task.type === 'gap' && task.data?.text) {
           const englishWords = this.extractEnglishWordsFromText(task.data.text);
           for (const word of englishWords) {
-            const wordId = this.generateWordId(word);
+            const wordId = this.generateWordId(word, moduleRef);
             
             if (!wordMap.has(wordId)) {
               wordMap.set(wordId, {
@@ -316,8 +316,27 @@ class VocabularyExtractor {
   }
 
   // Helper methods
-  private generateWordId(word: string): string {
-    return word.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  private generateWordId(word: string, moduleRef?: string): string {
+    const sanitize = (value: string): string =>
+      value
+        .normalize('NFKD')
+        .replace(/[^\w\s-]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+
+    const buildPart = (value: string): string => {
+      const sanitized = sanitize(value);
+      return sanitized || Buffer.from(value).toString('hex').toLowerCase();
+    };
+
+    const parts: string[] = [];
+    if (moduleRef) {
+      parts.push(buildPart(moduleRef));
+    }
+    parts.push(buildPart(word));
+
+    return parts.join('__');
   }
 
   private generateAudioKey(lessonRef: string, taskRef: string, word: string): string {
