@@ -5,10 +5,7 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "useDefineForClassFields": false,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
     "target": "es2020",
     "sourceMap": true,
     "outDir": "./dist",
@@ -22,5 +19,3 @@
   },
   "exclude": ["node_modules", "dist"]
 }
-
-
