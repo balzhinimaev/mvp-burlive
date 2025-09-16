@@ -35,7 +35,7 @@ export class VocabularyService {
           const { front, back, example, audioKey } = task.data;
           
           if (front && back) {
-            const wordId = this.generateWordId(front);
+            const wordId = this.generateWordId(front, moduleRef);
             
             if (!wordMap.has(wordId)) {
               wordMap.set(wordId, {
@@ -48,13 +48,14 @@ export class VocabularyService {
                 tags: this.extractTagsFromLesson(lesson),
                 lessonRefs: [],
                 moduleRefs: [moduleRef],
-                occurrenceCount: 0,
-                isLearned: false
+                occurrenceCount: 0
               });
             }
 
             const word = wordMap.get(wordId)!;
-            word.lessonRefs!.push(lesson.lessonRef);
+            if (!word.lessonRefs!.includes(lesson.lessonRef)) {
+              word.lessonRefs!.push(lesson.lessonRef);
+            }
             word.occurrenceCount!++;
           }
         }
@@ -63,7 +64,7 @@ export class VocabularyService {
         if (task.type === 'matching' && task.data?.pairs) {
           for (const pair of task.data.pairs) {
             if (pair.left && pair.right) {
-              const wordId = this.generateWordId(pair.left);
+              const wordId = this.generateWordId(pair.left, moduleRef);
               
               if (!wordMap.has(wordId)) {
                 wordMap.set(wordId, {
@@ -76,13 +77,14 @@ export class VocabularyService {
                   tags: this.extractTagsFromLesson(lesson),
                   lessonRefs: [],
                   moduleRefs: [moduleRef],
-                  occurrenceCount: 0,
-                  isLearned: false
+                  occurrenceCount: 0
                 });
               }
 
               const word = wordMap.get(wordId)!;
-              word.lessonRefs!.push(lesson.lessonRef);
+              if (!word.lessonRefs!.includes(lesson.lessonRef)) {
+                word.lessonRefs!.push(lesson.lessonRef);
+              }
               word.occurrenceCount!++;
             }
           }
@@ -242,8 +244,10 @@ export class VocabularyService {
         await this.vocabularyModel.updateOne(
           { id: word.id },
           {
-            $addToSet: { moduleRefs: moduleRef },
-            $addToSet: { lessonRefs: { $each: word.lessonRefs || [] } },
+            $addToSet: {
+              moduleRefs: { $each: word.moduleRefs || [] },
+              lessonRefs: { $each: word.lessonRefs || [] }
+            },
             $inc: { occurrenceCount: word.occurrenceCount || 0 }
           }
         );
@@ -267,8 +271,27 @@ export class VocabularyService {
   }
 
   // Helper methods
-  private generateWordId(word: string): string {
-    return word.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  private generateWordId(word: string, moduleRef?: string): string {
+    const sanitize = (value: string): string =>
+      value
+        .normalize('NFKD')
+        .replace(/[^\w\s-]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+
+    const buildPart = (value: string): string => {
+      const sanitized = sanitize(value);
+      return sanitized || Buffer.from(value).toString('hex').toLowerCase();
+    };
+
+    const parts: string[] = [];
+    if (moduleRef) {
+      parts.push(buildPart(moduleRef));
+    }
+    parts.push(buildPart(word));
+
+    return parts.join('__');
   }
 
   private generateAudioKey(lessonRef: string, taskRef: string, word: string): string {
@@ -285,7 +308,7 @@ export class VocabularyService {
   }
 
   private extractTagsFromLesson(lesson: any): string[] {
-    const tags = lesson.tags || [];
+    const tags = (lesson.tags || []) as string[];
     if (lesson.type) tags.push(lesson.type);
     return [...new Set(tags)]; // Remove duplicates
   }
