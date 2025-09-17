@@ -8,6 +8,7 @@ yarn-error.log*
 # Build
 dist/
 coverage/
+tsconfig.build.tsbuildinfo
 
 # Env
 .env
