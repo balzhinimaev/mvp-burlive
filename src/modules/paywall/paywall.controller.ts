@@ -56,7 +56,7 @@ export class PaywallController {
     });
 
     // Получаем ценообразование
-    const pricing = this.pricingService.getPricing(cohort);
+    const pricing = await this.pricingService.getPricing(cohort);
     const products = this.pricingService.getProducts(pricing);
 
     return {

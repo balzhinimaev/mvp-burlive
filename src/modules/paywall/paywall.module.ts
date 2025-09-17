@@ -5,6 +5,7 @@ import { PricingService } from './pricing.service';
 import { User, UserSchema } from '../common/schemas/user.schema';
 import { UserLessonProgress, UserLessonProgressSchema } from '../common/schemas/user-lesson-progress.schema';
 import { Entitlement, EntitlementSchema } from '../common/schemas/entitlement.schema';
+import { CohortPricingDocument, CohortPricingSchema } from '../common/schemas/cohort-pricing.schema';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { Entitlement, EntitlementSchema } from '../common/schemas/entitlement.sc
       { name: User.name, schema: UserSchema },
       { name: UserLessonProgress.name, schema: UserLessonProgressSchema },
       { name: Entitlement.name, schema: EntitlementSchema },
+      { name: CohortPricingDocument.name, schema: CohortPricingSchema },
     ]),
   ],
   controllers: [PaywallController],

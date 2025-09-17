@@ -353,7 +353,7 @@ export class PaymentsService {
       userId: request.userId // Pass userId for test detection
     });
 
-    const pricing = this.pricingService.getPricing(cohort);
+    const pricing = await this.pricingService.getPricing(cohort);
     
     // Get price for selected product
     let amount: number;

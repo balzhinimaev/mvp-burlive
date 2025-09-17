@@ -109,9 +109,13 @@ export interface CohortPricing {
   monthlyPrice: number;
   monthlyOriginalPrice: number;
   quarterlyPrice: number;
+  quarterlyOriginalPrice: number;
   yearlyPrice: number;
+  yearlyOriginalPrice: number;
   promoCode?: string;
   discountPercentage?: number;
+  quarterlyDiscountPercentage?: number;
+  yearlyDiscountPercentage?: number;
 }
 
 export interface PaywallProduct {
@@ -119,8 +123,11 @@ export interface PaywallProduct {
   name: string;
   description: string;
   price: number;
+  originalPrice?: number; // Original price for strikethrough display
   currency: 'RUB';
   duration: 'month'|'quarter'|'year';
   discount?: number;
   isPopular?: boolean;
+  monthlyEquivalent?: number; // Monthly equivalent price in kopecks for yearly subscription
+  savingsPercentage?: number; // Percentage savings compared to monthly subscription
 }
