@@ -268,18 +268,18 @@ function printDiff(title: string, id: string, diff: Diff) {
 
 // ------------------------ Seeder core ------------------------
 
-async function upsertModules(modules: ModuleSeed[], session: ClientSession) {
+async function upsertModules(modules: ModuleSeed[], session: ClientSession | null) {
   const modsToSeed = OPT.modulesFilter.length ? modules.filter(m => OPT.modulesFilter.includes(m.moduleRef)) : modules;
   const insertedOrUpdated: string[] = [];
   for (const m of modsToSeed) {
     const errs = assertModule(m);
     if (errs.length) throw new Error(`Module ${m.moduleRef} failed validation:\n - ${errs.join('\n - ')}`);
 
-    const existing = await ModuleModel.findOne({ moduleRef: m.moduleRef }).session(session);
+    const existing = session ? await ModuleModel.findOne({ moduleRef: m.moduleRef }).session(session) : await ModuleModel.findOne({ moduleRef: m.moduleRef });
     if (!existing) {
       // eslint-disable-next-line no-console
       console.log(`+ create module ${m.moduleRef}`);
-      if (!OPT.dry) await ModuleModel.create([{ ...m }], { session });
+      if (!OPT.dry) await (session ? ModuleModel.create([{ ...m }], { session }) : ModuleModel.create([{ ...m }]));
       insertedOrUpdated.push(m.moduleRef);
       continue;
     }
@@ -297,29 +297,34 @@ async function upsertModules(modules: ModuleSeed[], session: ClientSession) {
     // eslint-disable-next-line no-console
     console.log(`* update module ${m.moduleRef}`);
     printDiff('module', m.moduleRef, diff);
-    if (!OPT.dry) await ModuleModel.updateOne({ _id: existing._id }, { $set: m }).session(session);
+    if (!OPT.dry) {
+      const updateOp = ModuleModel.updateOne({ _id: existing._id }, { $set: m });
+      await (session ? updateOp.session(session) : updateOp);
+    }
     insertedOrUpdated.push(m.moduleRef);
   }
   return insertedOrUpdated;
 }
 
-async function upsertLessons(lessons: LessonSeed[], session: ClientSession) {
+async function upsertLessons(lessons: LessonSeed[], session: ClientSession | null) {
   const lessonsToSeed = OPT.lessonsFilter.length ? lessons.filter(l => OPT.lessonsFilter.includes(l.lessonRef)) : lessons;
   const insertedOrUpdated: string[] = [];
 
   // build set of existing modules for referential integrity
-  const mrefs = new Set((await ModuleModel.find({}, 'moduleRef').lean().session(session)).map(m => (m as any).moduleRef));
+  const moduleQuery = ModuleModel.find({}, 'moduleRef').lean();
+  const mrefs = new Set((await (session ? moduleQuery.session(session) : moduleQuery)).map(m => (m as any).moduleRef));
 
   for (const l of lessonsToSeed) {
     const errs = assertLesson(l);
     if (errs.length) throw new Error(`Lesson ${l.lessonRef} failed validation:\n - ${errs.join('\n - ')}`);
     if (!mrefs.has(l.moduleRef)) throw new Error(`Lesson ${l.lessonRef} references missing module ${l.moduleRef}`);
 
-    const existing = await LessonModel.findOne({ lessonRef: l.lessonRef }).session(session);
+    const lessonQuery = LessonModel.findOne({ lessonRef: l.lessonRef });
+    const existing = await (session ? lessonQuery.session(session) : lessonQuery);
     if (!existing) {
       // eslint-disable-next-line no-console
       console.log(`+ create lesson ${l.lessonRef}`);
-      if (!OPT.dry) await LessonModel.create([{ ...l }], { session });
+      if (!OPT.dry) await (session ? LessonModel.create([{ ...l }], { session }) : LessonModel.create([{ ...l }]));
       insertedOrUpdated.push(l.lessonRef);
       continue;
     }
@@ -361,7 +366,10 @@ async function upsertLessons(lessons: LessonSeed[], session: ClientSession) {
     printDiff('lesson', l.lessonRef, diff);
     if (!tasksEqual) // eslint-disable-next-line no-console
       console.log('    • tasks: will be ' + (OPT.pruneTasks ? 'replaced by seed array' : 'kept as is'));
-    if (!OPT.dry) await LessonModel.updateOne({ _id: existing._id }, patch).session(session);
+    if (!OPT.dry) {
+      const updateOp = LessonModel.updateOne({ _id: existing._id }, patch);
+      await (session ? updateOp.session(session) : updateOp);
+    }
     insertedOrUpdated.push(l.lessonRef);
   }
   return insertedOrUpdated;
@@ -388,21 +396,52 @@ async function main() {
   const dupCheck = new Set<string>();
   for (const l of lessons) { if (dupCheck.has(l.lessonRef)) throw new Error(`Duplicate lessonRef in seed: ${l.lessonRef}`); dupCheck.add(l.lessonRef); }
 
-  const session = await mongoose.startSession();
+  // Try to use transaction, fallback to non-transactional if replica set is not available
+  let useTransaction = false;
   try {
-    await session.withTransaction(async () => {
-      const modUpdated = await upsertModules(modules, session);
-      const lesUpdated = await upsertLessons(lessons, session);
+    const adminDb = mongoose.connection.db?.admin();
+    if (adminDb) {
+      const serverStatus = await adminDb.serverStatus();
+      useTransaction = serverStatus.repl !== undefined;
+    }
+  } catch (e) {
+    // If we can't check, assume no replica set
+    useTransaction = false;
+  }
+
+  if (useTransaction) {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const modUpdated = await upsertModules(modules, session);
+        const lesUpdated = await upsertLessons(lessons, session);
+        // eslint-disable-next-line no-console
+        console.log(`\nSummary:`);
+        // eslint-disable-next-line no-console
+        console.log(`  Modules touched: ${modUpdated.length}`);
+        // eslint-disable-next-line no-console
+        console.log(`  Lessons touched: ${lesUpdated.length}`);
+      });
+    } finally {
+      await session.endSession();
+      await mongoose.disconnect();
+    }
+  } else {
+    // Fallback: execute without transaction for standalone MongoDB
+    // eslint-disable-next-line no-console
+    console.log('⚠️  Standalone MongoDB detected, executing without transactions');
+    try {
+      const modUpdated = await upsertModules(modules, null as any);
+      const lesUpdated = await upsertLessons(lessons, null as any);
       // eslint-disable-next-line no-console
       console.log(`\nSummary:`);
       // eslint-disable-next-line no-console
       console.log(`  Modules touched: ${modUpdated.length}`);
       // eslint-disable-next-line no-console
       console.log(`  Lessons touched: ${lesUpdated.length}`);
-    });
-  } finally {
-    await session.endSession();
-    await mongoose.disconnect();
+    } finally {
+      await mongoose.disconnect();
+    }
   }
   // eslint-disable-next-line no-console
   console.log('\nSeed completed');

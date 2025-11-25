@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HealthController } from './health.controller';
 import { AuthModule } from './modules/auth/auth.module';
@@ -13,12 +13,26 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { LeadsModule } from './modules/leads/leads.module';
 import { ProgressModule } from './modules/progress/progress.module';
 import { PaywallModule } from './modules/paywall/paywall.module';
+import { validationSchema } from './config/validation.schema';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRoot(process.env.MONGODB_URI || '', {
-      dbName: process.env.MONGODB_DB_NAME || 'burlang-db',
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+      validationSchema,
+      validationOptions: {
+        allowUnknown: true,
+        abortEarly: false,
+      },
+    }),
+    MongooseModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('app.database.uri'),
+        dbName: configService.get<string>('app.database.dbName'),
+      }),
+      inject: [ConfigService],
     }),
     AuthModule,
     PaymentsModule,

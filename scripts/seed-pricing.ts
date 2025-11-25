@@ -1,18 +1,25 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
-import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CohortPricingDocument } from '../src/modules/common/schemas/cohort-pricing.schema';
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import { CohortPricingDocument, CohortPricingSchema } from '../src/modules/common/schemas/cohort-pricing.schema';
 
 async function seedPricing() {
-  const app = await NestFactory.createApplicationContext(AppModule);
+  const uri = process.env.MONGODB_URI || '';
+  const dbName = process.env.MONGODB_DB_NAME || 'burlang-db';
   
-  const cohortPricingModel = app.get<Model<CohortPricingDocument>>(
-    getModelToken(CohortPricingDocument.name)
+  if (!uri) {
+    throw new Error('MONGODB_URI is required');
+  }
+
+  await mongoose.connect(uri, { dbName });
+  
+  const CohortPricingModel = mongoose.model<CohortPricingDocument>(
+    'CohortPricing',
+    CohortPricingSchema,
+    'cohortpricings'
   );
 
   console.log('🧹 Очищаем существующие данные...');
-  await cohortPricingModel.deleteMany({});
+  await CohortPricingModel.deleteMany({});
 
   // Создаем настройки для всех когорт с улучшенными скидками
   const pricingConfigs = [
@@ -99,26 +106,26 @@ async function seedPricing() {
   ];
 
   console.log('📊 Добавляем настройки ценообразования...');
-  const result = await cohortPricingModel.insertMany(pricingConfigs);
+  const result = await CohortPricingModel.insertMany(pricingConfigs);
 
   console.log('✅ Данные для ценообразования успешно добавлены!');
   console.log(`📊 Добавлено ${result.length} записей`);
 
   // Показываем добавленные данные
   console.log('\n📋 Добавленные когорты:');
-  const insertedData = await cohortPricingModel.find({}, { 
+  const insertedData = await CohortPricingModel.find({}, { 
     cohortName: 1, 
     monthlyDiscount: 1, 
     quarterlyDiscount: 1, 
     yearlyDiscount: 1, 
     promoCode: 1 
-  });
+  }).lean();
   
   insertedData.forEach(item => {
     console.log(`- ${item.cohortName}: ${item.monthlyDiscount}%/${item.quarterlyDiscount}%/${item.yearlyDiscount}% (${item.promoCode})`);
   });
 
-  await app.close();
+  await mongoose.disconnect();
 }
 
 seedPricing().catch(console.error);

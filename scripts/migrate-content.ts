@@ -33,8 +33,52 @@ async function main() {
     await l.save();
   }
 
-  await ModuleModel.collection.createIndex({ moduleRef: 1 }, { unique: true, sparse: true });
-  await LessonModel.collection.createIndex({ lessonRef: 1 }, { unique: true, sparse: true });
+  // Create indexes (drop existing if they have different options)
+  // Handle moduleRef index
+  try {
+    // Try to drop existing index if it exists (ignore if not found)
+    try {
+      await ModuleModel.collection.dropIndex('moduleRef_1');
+      console.log('Dropped existing moduleRef_1 index');
+    } catch (dropError: any) {
+      if (dropError.code !== 27) { // 27 = IndexNotFound
+        throw dropError;
+      }
+    }
+    // Create index with correct options
+    await ModuleModel.collection.createIndex({ moduleRef: 1 }, { unique: true, sparse: true });
+    console.log('Created moduleRef index');
+  } catch (e: any) {
+    if (e.code === 85 || e.code === 86) {
+      // IndexOptionsConflict or IndexKeySpecsConflict - index already exists with correct options
+      console.log('moduleRef index already exists with correct options');
+    } else {
+      throw e;
+    }
+  }
+
+  // Handle lessonRef index
+  try {
+    // Try to drop existing index if it exists (ignore if not found)
+    try {
+      await LessonModel.collection.dropIndex('lessonRef_1');
+      console.log('Dropped existing lessonRef_1 index');
+    } catch (dropError: any) {
+      if (dropError.code !== 27) { // 27 = IndexNotFound
+        throw dropError;
+      }
+    }
+    // Create index with correct options
+    await LessonModel.collection.createIndex({ lessonRef: 1 }, { unique: true, sparse: true });
+    console.log('Created lessonRef index');
+  } catch (e: any) {
+    if (e.code === 85 || e.code === 86) {
+      // IndexOptionsConflict or IndexKeySpecsConflict - index already exists with correct options
+      console.log('lessonRef index already exists with correct options');
+    } else {
+      throw e;
+    }
+  }
 
   await mongoose.disconnect();
   // eslint-disable-next-line no-console

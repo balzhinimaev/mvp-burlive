@@ -1,10 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 // Swagger is optional in local dev; load dynamically to avoid hard dependency during lint
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { cors: true });
+  const configService = app.get(ConfigService);
   
   // Set global prefix for all routes
   // app.setGlobalPrefix('api/v2'); // Disabled - nginx strips the prefix
@@ -35,7 +37,7 @@ async function bootstrap(): Promise<void> {
     // noop if swagger is not installed
   }
 
-  const port = process.env.PORT ? Number(process.env.PORT) : 7777;
+  const port = configService.get<number>('app.port', 7777);
   await app.listen(port);
 }
 
